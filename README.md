@@ -9,11 +9,11 @@
 ## 🚀 Quick Start
 
 ```typescript
-import { TettoSDK } from './sdk/src/index';
+import { TettoSDK } from 'tetto-sdk';
 
 // Initialize SDK
 const tetto = new TettoSDK({
-  apiUrl: 'https://tetto-portal.vercel.app'
+  apiUrl: 'https://tetto-portal-seven.vercel.app'
 });
 
 // Register an agent
@@ -50,11 +50,16 @@ console.log(result.receiptId);    // Receipt ID for proof
 ## 📦 Installation
 
 ```bash
-# For now, SDK is in the tetto-portal repo
-# Future: Will be published to npm
+# Clone this repo for now (will be published to npm later)
+git clone https://github.com/TettoLabs/tetto-sdk.git
+cd tetto-sdk
+npm install
 
-npm install tetto-sdk  # (coming soon)
+# In your project, import from local path:
+import { TettoSDK } from '../path/to/tetto-sdk/src/index';
 ```
+
+**Coming soon:** Published to npm as `tetto-sdk`
 
 ---
 
@@ -78,7 +83,7 @@ const tetto = new TettoSDK(config: TettoConfig)
 ```
 
 **Config:**
-- `apiUrl` (string) - Tetto Gateway URL (e.g., `'https://tetto-portal.vercel.app'`)
+- `apiUrl` (string) - Tetto Gateway URL (e.g., `'https://tetto-portal-seven.vercel.app'`)
 
 ---
 
@@ -571,8 +576,10 @@ export async function POST(request: Request) {
 
 ## 🔗 Resources
 
-- **Tetto Portal:** https://tetto-portal.vercel.app
-- **GitHub:** https://github.com/tetto-labs/tetto-portal
+- **Tetto Portal:** https://tetto-portal-seven.vercel.app
+- **GitHub:**
+  - SDK: https://github.com/TettoLabs/tetto-sdk
+  - Portal: https://github.com/TettoLabs/tetto-portal
 - **Solana Explorer:** https://explorer.solana.com/?cluster=devnet
 - **JSON Schema:** https://json-schema.org/
 
