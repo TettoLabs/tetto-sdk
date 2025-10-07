@@ -1,0 +1,30 @@
+{
+  "name": "tetto-sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Tetto Agent Marketplace - Easy integration for AI agent payments",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "ts-node test.ts"
+  },
+  "keywords": [
+    "tetto",
+    "ai-agents",
+    "payments",
+    "solana",
+    "usdc",
+    "marketplace",
+    "sdk"
+  ],
+  "author": "Tetto Labs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TettoLabs/tetto-sdk"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
