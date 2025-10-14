@@ -55,6 +55,7 @@ export interface TettoWallet {
 
 export interface CallAgentOptions {
   skipConfirmation?: boolean;
+  preferredToken?: 'SOL' | 'USDC'; // CP3: Let users specify payment token preference
 }
 
 // Network defaults
@@ -370,6 +371,7 @@ export class TettoSDK {
         input,
         caller_wallet: wallet.publicKey.toBase58(),
         tx_signature: signature,
+        selected_token: options?.preferredToken, // CP3: Pass preferred token to backend
       }),
     });
 
