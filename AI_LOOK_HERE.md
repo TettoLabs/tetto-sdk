@@ -19,22 +19,29 @@
 
 ## 🚀 Current Status
 
-**Status:** ✅ COMPLETE (Checkpoint 3)
+**Status:** ✅ v0.2.0 COMPLETE (MVP3 Checkpoint 0)
 
-**Completed:** 2025-10-06
+**Version:** 0.2.0 (BREAKING CHANGE from v0.1.0)
+
+**Completed:** 2025-10-13
 
 **What's Working:**
-- ✅ Complete TettoSDK class
+- ✅ Client-side transaction signing (NEW in v0.2.0)
+- ✅ Browser wallet support (Phantom, Solflare)
+- ✅ Node.js keypair support (AI agents)
+- ✅ Network configuration helpers (mainnet/devnet)
+- ✅ Transaction builder with ATA handling
 - ✅ 5 core methods implemented and tested
 - ✅ Full TypeScript type safety
 - ✅ Comprehensive documentation
-- ✅ End-to-end tested with USDC payments on Solana devnet
+- ✅ End-to-end tested on Solana MAINNET
 
-**Test Results:**
-- Transaction: `5b53DfjBe5nKvMwA7ER3iAvAar2eGFEoSv4XsfNVs1VviUXK2U1P1qy2mvZKLZGmHXkTdY9EEfgHUMopaE722e1X`
-- Output: "TETTO SDK WORKS PERFECTLY"
-- Receipt: `58214ddd-8a2b-4919-80ed-5040412f985d`
-- All 5 methods tested successfully
+**Mainnet Test Results:**
+- Transaction: `64wtpSWos4WNLVDQfUmrYL7LTfwmu5LzAiPXP8QP3nsADz9hTxWRtxo3KM9barpmz1Ucq3H7DuWmo9AbF3XdbPzr`
+- Output: { title: "...", keywords: [...] }
+- Receipt: `1d50f128-2c92-4f53-b466-9a554044a6d1`
+- All methods tested successfully on mainnet
+- 19+ successful mainnet transactions with SDK
 
 ---
 
@@ -93,31 +100,66 @@ Developer's App
 ```
 tetto-sdk/
 ├── src/
-│   └── index.ts        # Main SDK file
-├── test.ts             # SDK test script
-├── package.json        # NPM package config
-└── README.md           # User-facing documentation
+│   ├── index.ts              # Main SDK class
+│   ├── transaction-builder.ts # Payment transaction builder (NEW v0.2.0)
+│   ├── ensure-ata.ts         # ATA utilities (NEW v0.2.0)
+│   ├── network-helpers.ts    # Network config (NEW v0.2.0)
+│   └── wallet-helpers.ts     # Wallet creation (NEW v0.2.0)
+├── test/
+│   └── node-test.ts          # Mainnet integration test (NEW v0.2.0)
+├── dist/                     # Compiled JS + .d.ts files (NEW v0.2.0)
+├── package.json              # NPM package config
+├── tsconfig.json             # TypeScript config (NEW v0.2.0)
+└── README.md                 # User-facing documentation
 ```
 
 **File Overview:**
 
 ### `src/index.ts` (Main SDK)
-- Type definitions (TettoConfig, Agent, CallResult, Receipt, etc.)
-- TettoSDK class
-- All 5 methods
-- ~300 lines of clean TypeScript
+- Import statements for Solana dependencies
+- Type definitions (TettoConfig, TettoWallet, Agent, CallResult, etc.)
+- NETWORK_DEFAULTS constant
+- TettoSDK class with 5 methods
+- Exports for all helpers and types
+- ~430 lines of TypeScript
 
-### `test.ts` (Test Suite)
-- Tests all 5 SDK methods
-- End-to-end flow validation
-- Can be run with: `npx ts-node test.ts`
+### `src/transaction-builder.ts` (NEW v0.2.0)
+- buildAgentPaymentTransaction() function
+- Handles SOL and USDC payments
+- Automatic ATA creation
+- Fee split calculation (90/10)
+- ~120 lines
+
+### `src/ensure-ata.ts` (NEW v0.2.0)
+- ensureATAExists() - Single ATA check/create
+- ensureMultipleATAsExist() - Batch ATA operations
+- Prevents USDC transaction failures
+- ~90 lines
+
+### `src/network-helpers.ts` (NEW v0.2.0)
+- getDefaultConfig() - Network defaults
+- createConnection() - RPC connection helper
+- getUSDCMint() - Mint address helper
+- ~45 lines
+
+### `src/wallet-helpers.ts` (NEW v0.2.0)
+- createWalletFromKeypair() - Node.js support
+- createWalletFromAdapter() - Browser support
+- ~75 lines
+
+### `test/node-test.ts` (NEW v0.2.0)
+- End-to-end mainnet test
+- Tests complete payment flow
+- Run with: `npm test`
+- ~100 lines
 
 ### `README.md` (Documentation)
-- Quick start guide
+- Quick start guide (browser + Node.js)
+- Migration guide (v0.1.x → v0.2.0)
 - API reference for all methods
-- Usage examples
-- Error handling guide
-- Agent contract specification
+- Complete examples (React, Node.js, multi-agent)
+- Troubleshooting section
+- Network configuration guide
 
 ---
 
@@ -125,25 +167,46 @@ tetto-sdk/
 
 **Run tests:**
 ```bash
-# Start tetto-portal locally first
-cd ../tetto-portal
-npm run dev
-
-# Then test SDK
-cd ../tetto-sdk
-npx ts-node test.ts
+cd tetto-sdk
+npm test
 ```
+
+**This runs the mainnet integration test** (test/node-test.ts)
 
 **Expected output:**
 ```
-🎉 ALL SDK TESTS PASSED!
-✅ SDK Methods Working:
-   - registerAgent() ✅
-   - listAgents() ✅
-   - getAgent() ✅
-   - callAgent() ✅ (with USDC payment!)
-   - getReceipt() ✅
+🧪 Testing Tetto SDK v0.2.0 (Node.js + Keypair)
+
+1. Loading AI agent wallet...
+   ✅ Loaded keypair: AYPz...
+
+2. Creating Solana connection...
+   ✅ Connected to mainnet
+
+3. Creating wallet object...
+   ✅ Wallet ready
+
+4. Initializing Tetto SDK...
+   ✅ SDK initialized
+
+5. Fetching TitleGenerator agent...
+   ✅ Found agent: TitleGenerator
+
+6. Calling agent (this will submit a mainnet transaction)...
+   ✅ Transaction submitted: 64wtp...
+   ✅ Agent call successful
+
+============================================================
+✅ TEST PASSED!
+
+Output: { title: "...", keywords: [...] }
+TX Signature: 64wtpSWos4WNLVDQfUmrYL7LTfwmu5LzAiPXP8QP3nsADz9hTxWRtxo3KM9barpmz1Ucq3H7DuWmo9AbF3XdbPzr
+Receipt: 1d50f128-2c92-4f53-b466-9a554044a6d1
+
+🎉 SDK v0.2.0 is working! External developers can now use Tetto!
 ```
+
+**Note:** Test wallet needs USDC + SOL to run the test.
 
 ---
 
@@ -197,12 +260,23 @@ npx ts-node test.ts
 
 **When helping with this codebase:**
 
-1. **This is a CLIENT library** - It doesn't execute payments, just calls the Gateway that does
-2. **Keep it simple** - SDK should be thin wrapper around Gateway API
-3. **Type safety is critical** - All methods must be properly typed
-4. **Error handling** - Always throw clear errors with helpful messages
-5. **Documentation** - Every method needs JSDoc comments with examples
-6. **No business logic** - Complex logic belongs in Gateway, not SDK
+1. **v0.2.0 uses client-side signing** - SDK builds and signs transactions locally
+2. **Two wallet types supported:**
+   - Browser: Wallet adapter (Phantom, Solflare) via `createWalletFromAdapter()`
+   - Node.js: Keypair via `createWalletFromKeypair()`
+3. **Network config is explicit** - No env var fallbacks, must provide protocolWallet
+4. **Debug logging is gated** - Only logs when `config.debug = true`
+5. **Type safety is critical** - All methods properly typed, strict TypeScript
+6. **Error handling** - Clear errors with helpful messages
+7. **Documentation** - Every method has JSDoc with examples
+8. **Transaction builder copied from portal** - Don't modify unless portal changes
+9. **ATA handling is critical** - ensure-ata.ts prevents USDC failures
+
+**Key Changes from v0.1.x:**
+- callAgent() signature changed (string → TettoWallet object)
+- Added transaction building (was backend-only)
+- Added network configuration system
+- Removed dangerous env var fallbacks
 
 ---
 
@@ -223,7 +297,9 @@ Ryan Smith
 
 ---
 
-**Last Updated:** 2025-10-06
-**Status:** ✅ Complete - SDK fully functional and tested
+**Last Updated:** 2025-10-13
+**Version:** 0.2.0 (BREAKING CHANGE)
+**Status:** ✅ Complete - SDK ready for external developers
+**Tested:** Mainnet with 19+ successful transactions
 **Repo:** https://github.com/TettoLabs/tetto-sdk
-**Gateway:** https://tetto-portal-seven.vercel.app
+**Gateway:** https://tetto.io (mainnet) / https://tetto-portal-seven.vercel.app (devnet)
