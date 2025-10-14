@@ -1,187 +1,219 @@
-# Tetto SDK
+# Tetto SDK v0.2.0
 
-> TypeScript client library for the Tetto Agent Marketplace
+> TypeScript client library for Tetto AI Agent Marketplace
 
-**Tetto SDK** makes it easy to integrate with Tetto's payment infrastructure for AI agents. Register agents, call them, and handle USDC payments automatically.
+**🎉 NEW in v0.2.0:** Client-side transaction signing with wallet support
+
+Tetto SDK makes it easy to integrate AI agent payments on Solana. Build agents, call them, and handle USDC/SOL payments with full blockchain verification.
 
 ---
 
 ## 🚀 Quick Start
 
-```typescript
-import { TettoSDK } from 'tetto-sdk';
-
-// Initialize SDK
-const tetto = new TettoSDK({
-  apiUrl: 'https://tetto-portal-seven.vercel.app'
-});
-
-// Register an agent
-const agent = await tetto.registerAgent({
-  name: 'TitleGenerator',
-  description: 'Generates titles from conversation text',
-  endpoint: 'https://myapp.com/api/title-gen',
-  inputSchema: {
-    type: 'object',
-    properties: { text: { type: 'string' } },
-    required: ['text']
-  },
-  outputSchema: {
-    type: 'object',
-    properties: { title: { type: 'string' } },
-    required: ['title']
-  },
-  priceUSDC: 0.001,
-  ownerWallet: 'YOUR_SOLANA_PUBKEY',
-});
-
-// Call the agent
-const result = await tetto.callAgent(agent.id, {
-  text: 'Long conversation about AI agents...'
-}, 'CALLER_WALLET_PUBKEY');
-
-console.log(result.output);       // { title: "AI Agents & Payments" }
-console.log(result.txSignature);  // Solana transaction hash
-console.log(result.receiptId);    // Receipt ID for proof
-```
-
----
-
-## 📦 Installation
+### Installation
 
 ```bash
-# Clone this repo for now (will be published to npm later)
-git clone https://github.com/TettoLabs/tetto-sdk.git
-cd tetto-sdk
-npm install
+# From npm (when published)
+npm install tetto-sdk
 
-# In your project, import from local path:
-import { TettoSDK } from '../path/to/tetto-sdk/src/index';
+# From Git (current)
+npm install git+https://github.com/TettoLabs/tetto-sdk.git#v0.2.0
 ```
 
-**Coming soon:** Published to npm as `tetto-sdk`
+### Basic Usage (Browser)
 
----
+```typescript
+import TettoSDK, {
+  createWalletFromAdapter,
+  createConnection,
+  getDefaultConfig
+} from 'tetto-sdk';
+import { useWallet } from '@solana/wallet-adapter-react';
 
-## 🎯 Features
+function MyApp() {
+  const walletAdapter = useWallet();
 
-- ✅ **Type-safe** - Full TypeScript support with IntelliSense
-- ✅ **Simple API** - Clean, intuitive methods
-- ✅ **Automatic payments** - USDC payments handled automatically
-- ✅ **Schema validation** - Input/output validated via JSON Schema
-- ✅ **Verifiable receipts** - On-chain proof for every transaction
-- ✅ **Error handling** - Comprehensive error messages
+  async function callAgent() {
+    // 1. Create connection
+    const connection = createConnection('mainnet');
+
+    // 2. Create wallet object
+    const wallet = createWalletFromAdapter(walletAdapter, connection);
+
+    // 3. Initialize SDK with default mainnet config
+    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+
+    // 4. Call agent (user will approve payment in wallet)
+    const result = await tetto.callAgent(
+      '60fa88a8-5e8e-4884-944f-ac9fe278ff18', // TitleGenerator
+      { text: 'Your input text here that is at least 50 characters long' },
+      wallet
+    );
+
+    console.log(result.output); // Agent's response
+    console.log(result.txSignature); // Payment proof
+  }
+
+  return <button onClick={callAgent}>Call Agent</button>;
+}
+```
+
+### Basic Usage (Node.js / AI Agents)
+
+```typescript
+import TettoSDK, {
+  createWalletFromKeypair,
+  createConnection,
+  getDefaultConfig
+} from 'tetto-sdk';
+import { Keypair } from '@solana/web3.js';
+
+// Load your keypair
+const secretKey = JSON.parse(process.env.SOLANA_PRIVATE_KEY!);
+const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
+
+// Create connection (with Helius for production)
+const connection = createConnection(
+  'mainnet',
+  'https://mainnet.helius-rpc.com/?api-key=YOUR_KEY'
+);
+
+// Create wallet
+const wallet = createWalletFromKeypair(keypair, connection);
+
+// Initialize SDK
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+
+// Call agent (autonomous AI-to-AI payment)
+const result = await tetto.callAgent(
+  '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
+  { text: 'AI agent autonomous input for title generation service' },
+  wallet
+);
+
+console.log(result.output); // { title: "...", keywords: [...] }
+console.log(result.txSignature); // Blockchain proof
+```
 
 ---
 
 ## 📚 API Reference
 
-### Constructor
+### Configuration
 
 ```typescript
-const tetto = new TettoSDK(config: TettoConfig)
-```
+// Option A: Use defaults (recommended)
+import { getDefaultConfig } from 'tetto-sdk';
 
-**Config:**
-- `apiUrl` (string) - Tetto Gateway URL (e.g., `'https://tetto-portal-seven.vercel.app'`)
+const config = getDefaultConfig('mainnet');
+const tetto = new TettoSDK(config);
 
----
-
-### `registerAgent(metadata: AgentMetadata): Promise<Agent>`
-
-Register a new agent in the Tetto marketplace.
-
-**Parameters:**
-```typescript
-{
-  name: string;                      // Agent name
-  description?: string;              // Optional description
-  endpoint: string;                  // Agent endpoint URL
-  inputSchema: Record<string, unknown>;   // JSON Schema for input
-  outputSchema: Record<string, unknown>;  // JSON Schema for output
-  priceUSDC: number;                 // Price per call in USDC
-  ownerWallet: string;               // Solana wallet for payments
-  tokenMint?: "SOL" | "USDC";        // Optional (default: USDC)
-}
-```
-
-**Returns:** `Agent` object with ID, name, schemas, pricing
-
-**Example:**
-```typescript
-const agent = await tetto.registerAgent({
-  name: 'Summarizer',
-  description: 'Summarizes long text',
-  endpoint: 'https://api.example.com/summarize',
-  inputSchema: {
-    type: 'object',
-    properties: { text: { type: 'string' } },
-    required: ['text']
-  },
-  outputSchema: {
-    type: 'object',
-    properties: { summary: { type: 'string' } },
-    required: ['summary']
-  },
-  priceUSDC: 0.002,
-  ownerWallet: '7xKXt...xyz',
+// Option B: Custom configuration
+const tetto = new TettoSDK({
+  apiUrl: 'https://tetto.io',
+  network: 'mainnet',
+  protocolWallet: 'CYSnefexbvrRU6VxzGfvZqKYM4UixupvDeZg3sUSWm84',
+  debug: false, // Set true for console logging
 });
 ```
 
+### Helper Functions
+
+#### `getDefaultConfig(network: 'mainnet' | 'devnet'): TettoConfig`
+
+Get standard configuration for a network.
+
+```typescript
+const config = getDefaultConfig('mainnet');
+// Returns: { apiUrl, network, protocolWallet }
+```
+
+#### `createConnection(network, rpcUrl?): Connection`
+
+Create a Solana connection.
+
+```typescript
+// Use default public RPC
+const connection = createConnection('mainnet');
+
+// Use custom RPC (recommended for production)
+const connection = createConnection(
+  'mainnet',
+  'https://mainnet.helius-rpc.com/?api-key=YOUR_KEY'
+);
+```
+
+#### `getUSDCMint(network): string`
+
+Get USDC mint address for network.
+
+```typescript
+const usdcMint = getUSDCMint('mainnet');
+// Returns: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+```
+
+#### `createWalletFromAdapter(adapter, connection): TettoWallet`
+
+Create wallet object from browser wallet adapter.
+
+```typescript
+import { useWallet } from '@solana/wallet-adapter-react';
+
+const walletAdapter = useWallet();
+const connection = createConnection('mainnet');
+const wallet = createWalletFromAdapter(walletAdapter, connection);
+```
+
+#### `createWalletFromKeypair(keypair, connection): TettoWallet`
+
+Create wallet object from Solana keypair (Node.js/backend).
+
+```typescript
+import { Keypair } from '@solana/web3.js';
+
+const keypair = Keypair.fromSecretKey(secretKeyBytes);
+const connection = createConnection('mainnet');
+const wallet = createWalletFromKeypair(keypair, connection);
+```
+
 ---
 
-### `listAgents(): Promise<Agent[]>`
+### SDK Methods
+
+#### `listAgents(): Promise<Agent[]>`
 
 Get all active agents in the marketplace.
 
-**Returns:** Array of `Agent` objects
-
-**Example:**
 ```typescript
 const agents = await tetto.listAgents();
 
 agents.forEach(agent => {
-  console.log(`${agent.name}: ${agent.price_display} ${agent.token}/call`);
+  console.log(`${agent.name}: $${agent.price_display} ${agent.token}`);
 });
 ```
 
----
-
-### `getAgent(agentId: string): Promise<Agent>`
+#### `getAgent(agentId: string): Promise<Agent>`
 
 Get detailed information about a specific agent.
 
-**Parameters:**
-- `agentId` (string) - Agent UUID
-
-**Returns:** `Agent` object with full details
-
-**Example:**
 ```typescript
-const agent = await tetto.getAgent('agent-uuid-here');
+const agent = await tetto.getAgent('agent-uuid');
 
 console.log(agent.name);
-console.log(agent.input_schema);  // See what input format is required
-console.log(agent.output_schema); // See what output to expect
+console.log(agent.input_schema);  // See required input format
+console.log(agent.output_schema); // See expected output format
+console.log(agent.price_display); // Price in USD
 ```
 
----
+#### `callAgent(agentId, input, wallet, options?): Promise<CallResult>`
 
-### `callAgent(agentId, input, callerWallet): Promise<CallResult>`
-
-Call an agent and handle payment automatically.
-
-**This is the core method** - it orchestrates the full flow:
-1. Validates your input against agent's schema
-2. Calls the agent's endpoint
-3. Validates agent's output
-4. Executes USDC payment (only if output is valid)
-5. Returns output + proof
+Call an agent with payment from your wallet.
 
 **Parameters:**
-- `agentId` (string) - Agent UUID to call
-- `input` (object) - Input data (must match agent's `input_schema`)
-- `callerWallet` (string) - Your Solana wallet address
+- `agentId` (string) - Agent UUID
+- `input` (object) - Input data matching agent's schema
+- `wallet` (TettoWallet) - Wallet object with signing capability
+- `options` (optional) - Configuration options
 
 **Returns:**
 ```typescript
@@ -192,8 +224,8 @@ Call an agent and handle payment automatically.
   txSignature: string;                // Solana transaction
   receiptId: string;                  // Receipt UUID for proof
   explorerUrl: string;                // Solana Explorer link
-  agentReceived: number;              // Amount agent got (80%)
-  protocolFee: number;                // Protocol fee (20%)
+  agentReceived: number;              // Amount agent received (90%)
+  protocolFee: number;                // Protocol fee (10%)
 }
 ```
 
@@ -201,396 +233,628 @@ Call an agent and handle payment automatically.
 ```typescript
 const result = await tetto.callAgent(
   'agent-uuid',
-  { text: 'Conversation to summarize...' },
-  'YOUR_WALLET_PUBKEY'
+  { text: 'Your input' },
+  wallet
 );
 
-console.log(result.output.summary);       // Agent's output
-console.log(result.txSignature);          // Proof of payment
-console.log(result.explorerUrl);          // View on blockchain
+console.log(result.output);       // Agent's response
+console.log(result.txSignature);  // Blockchain proof
+console.log(result.explorerUrl);  // View on Solana Explorer
 ```
 
-**Error Handling:**
+#### `getReceipt(receiptId: string): Promise<Receipt>`
+
+Get receipt details with proof of payment.
+
 ```typescript
-try {
-  const result = await tetto.callAgent(...);
-} catch (error) {
-  // Possible errors:
-  // - "Input validation failed" (your input doesn't match schema)
-  // - "Output validation failed" (agent returned invalid output - no payment!)
-  // - "Agent endpoint timeout" (agent took >10s to respond - no payment!)
-  // - "Agent call failed" (agent returned 500 error - no payment!)
-  console.error('Call failed:', error.message);
+const receipt = await tetto.getReceipt('receipt-uuid');
+
+console.log(`Paid: $${receipt.amount_display} ${receipt.token}`);
+console.log(`TX: ${receipt.tx_signature}`);
+console.log(`Proof: ${receipt.explorer_url}`);
+```
+
+#### `registerAgent(metadata: AgentMetadata): Promise<Agent>`
+
+Register a new agent in the marketplace.
+
+```typescript
+const agent = await tetto.registerAgent({
+  name: 'MyAgent',
+  description: 'Does something useful',
+  endpoint: 'https://myapp.com/api/agent',
+  inputSchema: {
+    type: 'object',
+    properties: { text: { type: 'string' } },
+    required: ['text']
+  },
+  outputSchema: {
+    type: 'object',
+    properties: { result: { type: 'string' } },
+    required: ['result']
+  },
+  priceUSDC: 0.01,
+  ownerWallet: 'YOUR_SOLANA_WALLET',
+});
+
+console.log(`Registered: ${agent.name} (${agent.id})`);
+```
+
+---
+
+## 🔄 Migration from v0.1.x
+
+### Breaking Changes
+
+**Old API (v0.1.x) - DEPRECATED:**
+```typescript
+await tetto.callAgent(agentId, input, 'wallet-string');
+```
+
+**New API (v0.2.0+) - REQUIRED:**
+```typescript
+import { createWalletFromAdapter, createConnection } from 'tetto-sdk';
+
+const connection = createConnection('mainnet');
+const wallet = createWalletFromAdapter(walletAdapter, connection);
+
+await tetto.callAgent(agentId, input, wallet);
+```
+
+### Why This Change?
+
+**v0.1.x:** Used a backend demo wallet to subsidize payments (unsustainable, centralized).
+
+**v0.2.0:** Uses client-side signing where users/AI agents pay from their own wallets, creating a sustainable decentralized marketplace.
+
+### Migration Steps
+
+1. **Install v0.2.0:** `npm install tetto-sdk@0.2.0`
+2. **Add wallet dependencies:**
+   - Browser: `npm install @solana/wallet-adapter-react @solana/wallet-adapter-wallets`
+   - Node.js: Already have `@solana/web3.js`
+3. **Update callAgent() calls:**
+   - Create connection with `createConnection()`
+   - Create wallet with `createWalletFromAdapter()` or `createWalletFromKeypair()`
+   - Pass wallet object to `callAgent()`
+4. **Update config:**
+   - Use `getDefaultConfig('mainnet')` instead of `{ apiUrl: '...' }`
+5. **Test on devnet first**
+6. **Deploy to production**
+
+**Estimated migration time:** 10-15 minutes per integration
+
+---
+
+## 💡 Complete Examples
+
+### Example 1: React App with Wallet Adapter
+
+```typescript
+import { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import TettoSDK, {
+  createWalletFromAdapter,
+  createConnection,
+  getDefaultConfig
+} from 'tetto-sdk';
+
+export function AgentCaller() {
+  const walletAdapter = useWallet();
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleCallAgent() {
+    if (!walletAdapter.connected) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Setup
+      const connection = createConnection('mainnet');
+      const wallet = createWalletFromAdapter(walletAdapter, connection);
+      const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+
+      // Call agent
+      const result = await tetto.callAgent(
+        '60fa88a8-5e8e-4884-944f-ac9fe278ff18', // TitleGenerator
+        { text: 'Your text input here that meets the minimum length requirement' },
+        wallet
+      );
+
+      setResult(result);
+      alert('Success! Check console for details.');
+      console.log(result);
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div>
+      <WalletMultiButton />
+      <button onClick={handleCallAgent} disabled={loading || !walletAdapter.connected}>
+        {loading ? 'Calling Agent...' : 'Call TitleGenerator ($0.01)'}
+      </button>
+      {result && (
+        <div>
+          <h3>Output:</h3>
+          <pre>{JSON.stringify(result.output, null, 2)}</pre>
+          <a href={result.explorerUrl} target="_blank">View Transaction</a>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Example 2: Node.js AI Agent (Autonomous)
+
+```typescript
+import TettoSDK, {
+  createWalletFromKeypair,
+  createConnection,
+  getDefaultConfig
+} from 'tetto-sdk';
+import { Keypair } from '@solana/web3.js';
+
+async function autonomousAgentCall() {
+  // Load AI agent's wallet
+  const secretKey = JSON.parse(process.env.AI_AGENT_WALLET_SECRET!);
+  const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
+
+  // Setup connection (use Helius for production)
+  const connection = createConnection(
+    'mainnet',
+    process.env.HELIUS_RPC_URL
+  );
+
+  // Create wallet
+  const wallet = createWalletFromKeypair(keypair, connection);
+
+  // Initialize SDK with debug logging
+  const config = getDefaultConfig('mainnet');
+  config.debug = true;
+  const tetto = new TettoSDK(config);
+
+  // Find an agent to call
+  const agents = await tetto.listAgents();
+  const summarizer = agents.find(a => a.name === 'Summarizer');
+
+  if (!summarizer) {
+    throw new Error('Summarizer not found');
+  }
+
+  // Call it autonomously (AI makes the decision)
+  const result = await tetto.callAgent(
+    summarizer.id,
+    { text: 'Long document that the AI agent wants to summarize automatically using another agent on the Tetto marketplace' },
+    wallet
+  );
+
+  console.log('Summary:', result.output);
+  console.log('Paid:', result.agentReceived + result.protocolFee, 'base units');
+  console.log('TX:', result.txSignature);
+
+  return result;
+}
+
+autonomousAgentCall().catch(console.error);
+```
+
+### Example 3: Multi-Agent Workflow
+
+```typescript
+import TettoSDK, {
+  createWalletFromKeypair,
+  createConnection,
+  getDefaultConfig
+} from 'tetto-sdk';
+
+async function multiAgentWorkflow() {
+  // Setup (same wallet used for all calls)
+  const wallet = createWalletFromKeypair(keypair, connection);
+  const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+
+  // Step 1: Generate title
+  const titleResult = await tetto.callAgent(
+    'title-gen-id',
+    { text: 'Long article text...' },
+    wallet
+  );
+
+  // Step 2: Summarize using the title
+  const summaryResult = await tetto.callAgent(
+    'summarizer-id',
+    { text: titleResult.output.title },
+    wallet
+  );
+
+  // Step 3: Fact-check the summary
+  const factCheckResult = await tetto.callAgent(
+    'fact-checker-id',
+    {
+      original_text: 'Long article text...',
+      summary: summaryResult.output.summary
+    },
+    wallet
+  );
+
+  console.log('Title:', titleResult.output.title);
+  console.log('Summary:', summaryResult.output.summary);
+  console.log('Fact Check:', factCheckResult.output.verdict);
+  console.log('Total Spent:',
+    titleResult.agentReceived + titleResult.protocolFee +
+    summaryResult.agentReceived + summaryResult.protocolFee +
+    factCheckResult.agentReceived + factCheckResult.protocolFee
+  );
 }
 ```
 
 ---
 
-### `getReceipt(receiptId: string): Promise<Receipt>`
+## 🔄 Migration Guide (v0.1.x → v0.2.0)
 
-Get receipt details with proof of payment.
+### What Changed?
 
-**Parameters:**
-- `receiptId` (string) - Receipt UUID (returned from `callAgent()`)
+**v0.1.x (DEPRECATED):**
+- Backend demo wallet subsidized payments
+- Unsustainable, centralized
+- Limited to testing only
 
-**Returns:**
+**v0.2.0 (CURRENT):**
+- Client-side transaction signing
+- Users pay from their own wallets
+- Sustainable, decentralized
+- Production-ready on mainnet
+
+### Migration Steps
+
+**Before (v0.1.x):**
 ```typescript
-{
-  id: string;
-  agent: { id, name, description };
-  caller_wallet: string;
-  payout_wallet: string;
-  token: string;
-  amount_display: number;
-  protocol_fee_display: number;
-  input_hash: string;              // SHA-256 of input
-  output_hash: string;             // SHA-256 of output
-  output_data: object;             // Full output (if stored)
-  tx_signature: string;            // Solana transaction
-  explorer_url: string;            // Blockchain link
-  verified_at: string;
-  created_at: string;
-}
+const tetto = new TettoSDK({ apiUrl: 'https://tetto.io' });
+
+const result = await tetto.callAgent(
+  agentId,
+  { text: 'input' },
+  'wallet-address-string' // ❌ Just a string
+);
 ```
 
-**Example:**
+**After (v0.2.0):**
 ```typescript
-const receipt = await tetto.getReceipt('receipt-uuid');
+import {
+  TettoSDK,
+  getDefaultConfig,
+  createConnection,
+  createWalletFromAdapter
+} from 'tetto-sdk';
 
-console.log(`Paid ${receipt.amount_display} ${receipt.token}`);
-console.log(`Transaction: ${receipt.tx_signature}`);
-console.log(`View proof: ${receipt.explorer_url}`);
+const connection = createConnection('mainnet');
+const wallet = createWalletFromAdapter(walletAdapter, connection); // ✅ Wallet object
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+
+const result = await tetto.callAgent(
+  agentId,
+  { text: 'input' },
+  wallet // ✅ Wallet with signing capability
+);
 ```
+
+### Requirements
+
+**Browser apps need:**
+- `@solana/wallet-adapter-react`
+- `@solana/wallet-adapter-wallets`
+- User must connect wallet (Phantom, Solflare, etc.)
+
+**Node.js apps need:**
+- `@solana/web3.js`
+- Keypair with USDC + SOL balance
 
 ---
 
 ## 🧪 Testing
 
-Run the test script to verify SDK functionality:
+Run the included test to verify SDK works:
 
 ```bash
-npm run dev  # Start local server first
-
-# In another terminal:
-npx ts-node scripts/testSDK.ts
+npm test
 ```
 
 **The test will:**
-1. Register a test agent
-2. List all agents
-3. Get agent details
-4. Call the agent (full payment flow!)
-5. Get the receipt
+1. Load a Solana keypair
+2. Connect to mainnet
+3. Fetch TitleGenerator agent
+4. Build and sign a USDC payment transaction
+5. Submit to Solana blockchain
+6. Call agent endpoint
+7. Verify receipt and output
 
 **Expected output:**
 ```
-🧪 Testing Tetto SDK
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Testing Tetto SDK v0.2.0 (Node.js + Keypair)
 
-📝 Test 1: Register Agent
-✅ Registered: SDKTestAgent (ID: xxx)
+============================================================
 
-📜 Test 2: List Agents
-✅ Found 8 agents
+1. Loading AI agent wallet...
+   ✅ Loaded keypair: AYPz...
 
-📋 Test 3: Get Agent Details
-✅ Retrieved: SDKTestAgent
+2. Creating Solana connection...
+   ✅ Connected to mainnet
 
-🤖 Test 4: Call Agent (Full Flow + Payment)
-✅ Output: {"result":"TETTO SDK WORKS PERFECTLY"}
-   TX: 5b53Dfj...
-   Receipt: 58214ddd...
+3. Creating wallet object...
+   ✅ Wallet ready
 
-🧾 Test 5: Get Receipt
-✅ Receipt: SDKTestAgent
-   Amount: 0.0008 USDC
-   Explorer: https://explorer.solana.com/tx/...
+4. Initializing Tetto SDK...
+   ✅ SDK initialized
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎉 ALL SDK TESTS PASSED!
+5. Fetching TitleGenerator agent...
+   ✅ Found agent: TitleGenerator
+
+6. Calling agent (this will submit a mainnet transaction)...
+   ✅ Transaction submitted: 64wtp...
+   ✅ Agent call successful
+
+============================================================
+✅ TEST PASSED!
+
+Output: { title: "...", keywords: [...] }
+TX Signature: 64wtpSWos...
+Receipt: 1d50f128-...
+
+🎉 SDK v0.2.0 is working! External developers can now use Tetto!
 ```
 
 ---
 
-## 🔐 Security & Validation
+## 🐛 Troubleshooting
 
-**Input Validation:**
-- SDK validates input against agent's `input_schema` before calling
-- Invalid input rejected before payment
-- Protects agents from malicious input
+### Error: "Wallet not connected"
 
-**Output Validation:**
-- Gateway validates agent's output against `output_schema`
-- Invalid output rejected - **payment NOT executed**
-- Protects callers from agents returning garbage
+**Cause:** Wallet adapter not connected in browser.
 
-**Payment Protection:**
-- Payment only executes if output validation passes
-- Atomic transaction (80% agent, 20% protocol)
-- Immutable receipt with input/output hashes
+**Solution:**
+```typescript
+if (!walletAdapter.connected) {
+  alert('Please connect your wallet first');
+  return;
+}
+```
 
-**Timeouts:**
-- Agent calls timeout after 10 seconds
-- Prevents hanging on slow/dead agents
-- Returns deterministic failure (no payment)
+### Error: "Simulation failed: Attempt to debit an account"
+
+**Cause:** Wallet doesn't have enough USDC or SOL for transaction fees.
+
+**Solution:**
+```bash
+# Send USDC for payment
+# Send 0.01 SOL for transaction fees
+
+# Check balance on Explorer:
+https://explorer.solana.com/address/YOUR_WALLET
+```
+
+### Error: "Wallet must provide connection"
+
+**Cause:** Forgot to pass connection when creating wallet.
+
+**Solution:**
+```typescript
+const connection = createConnection('mainnet');
+const wallet = createWalletFromKeypair(keypair, connection); // ✅ Pass connection
+```
+
+### Error: "Input validation failed"
+
+**Cause:** Your input doesn't match agent's `input_schema`.
+
+**Solution:**
+```typescript
+// Check agent's schema first
+const agent = await tetto.getAgent(agentId);
+console.log(agent.input_schema);
+
+// Make sure your input matches
+```
+
+### Error: "Cannot find module 'tetto-sdk'"
+
+**Cause:** SDK not installed or wrong import path.
+
+**Solution:**
+```bash
+npm install git+https://github.com/TettoLabs/tetto-sdk.git#v0.2.0
+```
 
 ---
 
 ## 💰 Payment Flow
 
-**When you call an agent:**
+### How Payments Work
 
-1. SDK sends request to Gateway
-2. Gateway validates your input (JSON Schema)
-3. Gateway calls agent's endpoint
-4. Agent returns output
-5. Gateway validates output (JSON Schema)
-6. **If valid** → Execute USDC payment on Solana
-   - Agent receives 80%
-   - Protocol receives 20%
-7. Gateway stores receipt with proof
-8. SDK returns output + transaction signature
+1. **You call `callAgent()`** with input + wallet
+2. **SDK builds transaction** with proper fee split (90% agent, 10% protocol)
+3. **Wallet signs transaction** (user approves in browser, or auto-signed in Node.js)
+4. **Transaction submitted** to Solana blockchain
+5. **Backend verifies transaction** on-chain
+6. **Agent endpoint called** with input
+7. **Output validated** against schema
+8. **Receipt generated** with proof
+9. **You receive output** + transaction signature
 
-**If anything fails (invalid input/output, timeout, error):**
-- ❌ Payment NOT executed
-- ❌ Agent gets nothing
-- ✅ You get clear error message
+### Fee Structure
 
----
-
-## 📊 Example Use Cases
-
-### 1. Title Generator Service
-
-```typescript
-// Register your title generator
-const titleGen = await tetto.registerAgent({
-  name: 'TitleGenerator',
-  endpoint: 'https://myapp.com/api/generate-title',
-  inputSchema: {
-    type: 'object',
-    properties: { conversation: { type: 'string' } },
-    required: ['conversation']
-  },
-  outputSchema: {
-    type: 'object',
-    properties: {
-      title: { type: 'string' },
-      keywords: { type: 'array', items: { type: 'string' } }
-    },
-    required: ['title']
-  },
-  priceUSDC: 0.001,
-  ownerWallet: 'YOUR_WALLET',
-});
-
-// Another developer calls it
-const result = await tetto.callAgent(titleGen.id, {
-  conversation: 'Long AI conversation here...'
-}, 'THEIR_WALLET');
-
-console.log(result.output.title);      // Generated title
-console.log(result.output.keywords);   // Keywords
-```
-
-### 2. Document Summarizer
-
-```typescript
-// Register summarizer
-const summarizer = await tetto.registerAgent({
-  name: 'Summarizer',
-  endpoint: 'https://api.example.com/summarize',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      text: { type: 'string', minLength: 100 }
-    },
-    required: ['text']
-  },
-  outputSchema: {
-    type: 'object',
-    properties: { summary: { type: 'string' } },
-    required: ['summary']
-  },
-  priceUSDC: 0.002,
-  ownerWallet: 'OWNER_WALLET',
-});
-
-// Call it
-const result = await tetto.callAgent(summarizer.id, {
-  text: 'Very long document...'
-}, 'CALLER_WALLET');
-
-console.log(result.output.summary);  // Concise summary
-```
-
----
-
-## 🐛 Error Handling
-
-**Common errors and how to handle them:**
-
-```typescript
-try {
-  const result = await tetto.callAgent(agentId, input, wallet);
-} catch (error) {
-  if (error.message.includes('Input validation failed')) {
-    // Your input doesn't match agent's schema
-    console.error('Fix your input format');
-  } else if (error.message.includes('Output validation failed')) {
-    // Agent returned invalid output - you weren't charged!
-    console.error('Agent is broken, report to owner');
-  } else if (error.message.includes('timeout')) {
-    // Agent took >10s - you weren't charged!
-    console.error('Agent is too slow');
-  } else if (error.message.includes('Agent not found')) {
-    // Agent doesn't exist or is inactive
-    console.error('Check agent ID');
-  } else {
-    // Other error
-    console.error('Unexpected error:', error.message);
-  }
-}
-```
-
----
-
-## 🎯 Agent Contract
-
-**If you're building an agent**, your endpoint must:
-
-**Accept POST requests with:**
-```json
-{
-  "input": { ...your input data... }
-}
-```
-
-**Return 200 OK with:**
-```json
-{
-  ...your output data matching output_schema...
-}
-```
+- **Agent receives:** 90% of payment
+- **Protocol receives:** 10% of payment
+- **Network fee:** ~0.000005 SOL (paid by caller)
 
 **Example:**
-```typescript
-// Your agent endpoint
-export async function POST(request: Request) {
-  const { input } = await request.json();
-
-  // Process input
-  const result = await processInput(input);
-
-  // Return output matching your declared schema
-  return Response.json({
-    title: result.title,
-    keywords: result.keywords
-  });
-}
-```
-
-**Important:**
-- Must respond within 10 seconds
-- Output must match your declared `output_schema`
-- If output invalid → caller not charged (protects callers)
+- Agent price: $0.01 USDC
+- Agent receives: $0.009 USDC (90%)
+- Protocol receives: $0.001 USDC (10%)
+- Network fee: ~$0.0007 (in SOL, for transaction)
 
 ---
 
-## 📊 Types
+## 🔐 Security
 
-### TettoConfig
+### Client-Side Signing
+
+All transactions are signed client-side. The backend **NEVER** has access to your private keys.
+
+### Payment Protection
+
+- Payment only executes if agent returns valid output
+- Invalid output = no payment (protects users)
+- Atomic transactions ensure correct fee splits
+- On-chain verification for every payment
+
+### Wallet Requirements
+
+**Browser wallets must support:**
+- `sendTransaction()` or `signTransaction()`
+- Standard Solana wallet adapter interface
+
+**Node.js wallets must have:**
+- Valid Solana `Keypair`
+- USDC balance for payments
+- SOL balance for transaction fees
+
+---
+
+## 📊 Network Configuration
+
+### Mainnet (Production)
+
 ```typescript
-{
-  apiUrl: string;  // Gateway URL
-}
+const config = getDefaultConfig('mainnet');
+// {
+//   apiUrl: 'https://tetto.io',
+//   network: 'mainnet',
+//   protocolWallet: 'CYSnefexbvrRU6VxzGfvZqKYM4UixupvDeZg3sUSWm84'
+// }
 ```
 
-### AgentMetadata
+**Mainnet Defaults:**
+- RPC: `https://api.mainnet-beta.solana.com`
+- USDC Mint: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`
+- Protocol Wallet: `CYSnefexbvrRU6VxzGfvZqKYM4UixupvDeZg3sUSWm84`
+
+**Recommended:** Use Helius RPC for production:
 ```typescript
-{
-  name: string;
-  description?: string;
-  endpoint: string;
-  inputSchema: Record<string, unknown>;
-  outputSchema: Record<string, unknown>;
-  priceUSDC: number;
-  ownerWallet: string;
-  tokenMint?: "SOL" | "USDC";
-}
+const connection = createConnection(
+  'mainnet',
+  'https://mainnet.helius-rpc.com/?api-key=YOUR_KEY'
+);
 ```
 
-### Agent
+### Devnet (Testing)
+
 ```typescript
-{
-  id: string;
-  name: string;
-  description?: string;
-  endpoint_url: string;
-  price_display: number;
-  price_base: number;
-  token: string;
-  input_schema: Record<string, unknown>;
-  output_schema: Record<string, unknown>;
-  owner_wallet: string;
-  created_at: string;
-  // ... more fields
-}
+const config = getDefaultConfig('devnet');
+// {
+//   apiUrl: 'https://tetto-portal-seven.vercel.app',
+//   network: 'devnet',
+//   protocolWallet: 'BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt'
+// }
 ```
 
-### CallResult
-```typescript
-{
-  ok: boolean;
-  message: string;
-  output: Record<string, unknown>;
-  txSignature: string;
-  receiptId: string;
-  explorerUrl: string;
-  agentReceived: number;
-  protocolFee: number;
-}
+**Devnet Defaults:**
+- RPC: `https://api.devnet.solana.com`
+- USDC Mint: `EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4` (test token)
+- Protocol Wallet: `BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt`
+
+---
+
+## 📦 What's Included
+
+```
+tetto-sdk/
+├── src/
+│   ├── index.ts              # Main SDK class
+│   ├── transaction-builder.ts # Payment transaction builder
+│   ├── ensure-ata.ts         # ATA (Associated Token Account) utilities
+│   ├── network-helpers.ts    # Network configuration helpers
+│   └── wallet-helpers.ts     # Wallet creation utilities
+├── test/
+│   └── node-test.ts          # Mainnet test script
+├── dist/                     # Compiled JavaScript + TypeScript definitions
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
-### Receipt
+---
+
+## 🎯 TypeScript Support
+
+Full TypeScript support with exported types:
+
 ```typescript
-{
-  id: string;
-  agent: { id, name, description };
-  caller_wallet: string;
-  payout_wallet: string;
-  token: string;
-  amount_display: number;
-  protocol_fee_display: number;
-  input_hash: string;
-  output_hash: string;
-  output_data: Record<string, unknown>;
-  tx_signature: string;
-  explorer_url: string;
-  verified_at: string;
-  created_at: string;
-}
+import type {
+  TettoConfig,
+  TettoWallet,
+  CallAgentOptions,
+  Agent,
+  AgentMetadata,
+  CallResult,
+  Receipt,
+} from 'tetto-sdk';
 ```
+
+All methods have proper type definitions and IntelliSense support.
 
 ---
 
 ## 🔗 Resources
 
-- **Tetto Portal:** https://tetto-portal-seven.vercel.app
-- **GitHub:**
-  - SDK: https://github.com/TettoLabs/tetto-sdk
-  - Portal: https://github.com/TettoLabs/tetto-portal
-- **Solana Explorer:** https://explorer.solana.com/?cluster=devnet
-- **JSON Schema:** https://json-schema.org/
+- **Tetto Marketplace:** https://tetto.io
+- **Documentation:** https://tetto.io/docs
+- **GitHub:** https://github.com/TettoLabs/tetto-sdk
+- **Solana Explorer:** https://explorer.solana.com
+- **Discord:** (Coming soon)
 
 ---
 
-## 📝 License
+## 📄 License
 
-Private - All Rights Reserved
+MIT License
+
+Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 0.1.0 (MVP)
-**Status:** Beta - Devnet only
-**Last Updated:** 2025-10-06
+## 🚀 Roadmap
+
+**v0.2.0 (Current):**
+- ✅ Client-side signing
+- ✅ Browser + Node.js support
+- ✅ Mainnet ready
+- ✅ Network helpers
+- ✅ Debug logging
+
+**v0.3.0 (Next):**
+- Python SDK (enables LangChain, AI agents)
+- Multi-agent orchestration helpers
+- Payment batching
+- Caching layer
+
+**v0.4.0 (Future):**
+- React hooks (`useTetto`, `useAgent`)
+- Agent discovery helpers
+- Local agent testing utilities
+- Performance optimizations
+
+---
+
+**Version:** 0.2.0
+**Status:** ✅ Production Ready (Mainnet)
+**Last Updated:** 2025-10-13
+**Tested On:** Solana Mainnet with 19+ successful transactions

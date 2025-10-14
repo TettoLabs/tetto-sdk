@@ -27,13 +27,51 @@
  * ```
  */
 
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  Keypair,
+} from "@solana/web3.js";
+import { buildAgentPaymentTransaction } from "./transaction-builder";
+
 // ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
 
 export interface TettoConfig {
   apiUrl: string;
+  network: 'mainnet' | 'devnet';
+  protocolWallet: string; // REQUIRED: No fallbacks
+  debug?: boolean; // Optional: Enable console logging
 }
+
+export interface TettoWallet {
+  publicKey: PublicKey;
+  signTransaction?: (tx: Transaction) => Promise<Transaction>;
+  sendTransaction?: (tx: Transaction, connection: Connection) => Promise<string>;
+  connection: Connection;
+}
+
+export interface CallAgentOptions {
+  skipConfirmation?: boolean;
+}
+
+// Network defaults
+export const NETWORK_DEFAULTS = {
+  mainnet: {
+    apiUrl: 'https://tetto.io',
+    protocolWallet: 'CYSnefexbvrRU6VxzGfvZqKYM4UixupvDeZg3sUSWm84',
+    usdcMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    rpcUrl: 'https://api.mainnet-beta.solana.com',
+  },
+  devnet: {
+    apiUrl: 'https://tetto-portal-seven.vercel.app',
+    protocolWallet: 'BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt',
+    usdcMint: 'EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4',
+    rpcUrl: 'https://api.devnet.solana.com',
+  },
+} as const;
 
 export interface AgentMetadata {
   name: string;
@@ -102,9 +140,11 @@ export interface Receipt {
 
 export class TettoSDK {
   private apiUrl: string;
+  private config: TettoConfig;
 
   constructor(config: TettoConfig) {
     this.apiUrl = config.apiUrl.replace(/\/$/, ""); // Remove trailing slash
+    this.config = config;
   }
 
   /**
@@ -142,7 +182,7 @@ export class TettoSDK {
       }),
     });
 
-    const result = await response.json();
+    const result: any = await response.json();
 
     if (!result.ok) {
       throw new Error(result.error || "Agent registration failed");
@@ -166,7 +206,7 @@ export class TettoSDK {
    */
   async getAgent(agentId: string): Promise<Agent> {
     const response = await fetch(`${this.apiUrl}/api/agents/${agentId}`);
-    const result = await response.json();
+    const result: any = await response.json();
 
     if (!result.ok) {
       throw new Error(result.error || "Agent not found");
@@ -190,7 +230,7 @@ export class TettoSDK {
    */
   async listAgents(): Promise<Agent[]> {
     const response = await fetch(`${this.apiUrl}/api/agents`);
-    const result = await response.json();
+    const result: any = await response.json();
 
     if (!result.ok) {
       throw new Error(result.error || "Failed to list agents");
@@ -200,53 +240,147 @@ export class TettoSDK {
   }
 
   /**
-   * Call an agent with input and handle payment automatically
+   * Call an agent with payment from user's wallet
    *
-   * This method:
-   * 1. Validates input against agent's schema
-   * 2. Calls the agent's endpoint
-   * 3. Validates output against agent's schema
-   * 4. Executes USDC payment (if output valid)
-   * 5. Returns output + transaction proof
+   * NEW in v0.2.0: Requires wallet object for client-side signing
    *
-   * @param agentId - Agent UUID to call
-   * @param input - Input data (must match agent's input_schema)
-   * @param callerWallet - Solana wallet address of caller
+   * @param agentId - Agent UUID
+   * @param input - Input data matching agent's schema
+   * @param wallet - Wallet object with signing capability
+   * @param options - Optional configuration
    * @returns Agent output + payment proof
    *
-   * @example
+   * @example Browser (React + Wallet Adapter):
    * ```typescript
-   * const result = await tetto.callAgent(
-   *   'agent-uuid',
-   *   { text: 'Hello world' },
-   *   'YOUR_SOLANA_WALLET'
-   * );
+   * import { TettoSDK, createWalletFromAdapter, createConnection } from 'tetto-sdk';
+   * import { useWallet } from '@solana/wallet-adapter-react';
    *
-   * console.log(result.output);      // Agent's response
-   * console.log(result.txSignature);  // Solana transaction
-   * console.log(result.receiptId);    // Receipt for proof
+   * const walletAdapter = useWallet();
+   * const connection = createConnection('mainnet');
+   * const wallet = createWalletFromAdapter(walletAdapter, connection);
+   *
+   * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+   *
+   * const result = await tetto.callAgent(agentId, { text: 'Hello' }, wallet);
+   * ```
+   *
+   * @example Node.js (Keypair):
+   * ```typescript
+   * import { TettoSDK, createWalletFromKeypair, createConnection, getDefaultConfig } from 'tetto-sdk';
+   * import { Keypair } from '@solana/web3.js';
+   *
+   * const keypair = Keypair.fromSecretKey(...);
+   * const connection = createConnection('mainnet', 'https://mainnet.helius-rpc.com/?api-key=...');
+   * const wallet = createWalletFromKeypair(keypair, connection);
+   *
+   * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+   *
+   * const result = await tetto.callAgent(agentId, { text: 'AI agent' }, wallet);
    * ```
    */
   async callAgent(
     agentId: string,
     input: Record<string, unknown>,
-    callerWallet: string
+    wallet: TettoWallet,
+    options?: CallAgentOptions
   ): Promise<CallResult> {
+    // Validate wallet
+    if (!wallet.publicKey) {
+      throw new Error('Wallet public key is required');
+    }
+
+    if (!wallet.signTransaction && !wallet.sendTransaction) {
+      throw new Error('Wallet must provide either signTransaction or sendTransaction');
+    }
+
+    if (!wallet.connection) {
+      throw new Error('Wallet must provide connection');
+    }
+
+    if (this.config.debug) {
+      console.log(`🤖 Calling agent: ${agentId}`);
+      console.log(`   Payer: ${wallet.publicKey.toBase58()}`);
+    }
+
+    // Step 1: Get agent details
+    const agent = await this.getAgent(agentId);
+
+    if (this.config.debug) {
+      console.log(`   Agent: ${agent.name}`);
+      console.log(`   Price: ${agent.price_display} ${agent.token}`);
+    }
+
+    // Step 2: Get protocol wallet from config
+    const protocolWalletPubkey = new PublicKey(this.config.protocolWallet);
+
+    // Step 3: Calculate fees (10% default)
+    const feeBps = agent.fee_bps || 1000;
+    const protocolFee = Math.floor(agent.price_base * (feeBps / 10000));
+    const agentAmount = agent.price_base - protocolFee;
+
+    if (this.config.debug) {
+      console.log(`   Amount: ${agent.price_base} base units`);
+      console.log(`   Fee split: ${agentAmount} / ${protocolFee}`);
+    }
+
+    // Step 4: Build unsigned transaction
+    const { transaction } = await buildAgentPaymentTransaction({
+      connection: wallet.connection,
+      payerPublicKey: wallet.publicKey,
+      agentWalletPublicKey: new PublicKey(agent.owner_wallet),
+      protocolWalletPublicKey: protocolWalletPubkey,
+      amountBase: agent.price_base,
+      protocolFeeBase: protocolFee,
+      tokenMint: agent.token_mint || "SOL",
+      tokenDecimals: agent.token_decimals || 9,
+      debug: this.config.debug,
+    });
+
+    if (this.config.debug) console.log("   Transaction built, requesting signature...");
+
+    // Step 5: Sign and submit transaction
+    let signature: string;
+
+    try {
+      if (wallet.sendTransaction) {
+        // Wallet adapter pattern (browser)
+        signature = await wallet.sendTransaction(transaction, wallet.connection);
+        if (this.config.debug) console.log(`   ✅ Transaction submitted: ${signature}`);
+      } else if (wallet.signTransaction) {
+        // Manual sign + submit pattern (Node.js)
+        const signedTx = await wallet.signTransaction(transaction);
+        signature = await wallet.connection.sendRawTransaction(signedTx.serialize());
+        if (this.config.debug) console.log(`   ✅ Transaction signed and submitted: ${signature}`);
+      } else {
+        throw new Error("Wallet must provide either sendTransaction or signTransaction");
+      }
+    } catch (error) {
+      if (this.config.debug) console.error("   ❌ Transaction failed:", error);
+      throw error;
+    }
+
+    // Step 6: Call backend API with transaction signature
+    if (this.config.debug) console.log("   Calling backend API...");
+
     const response = await fetch(`${this.apiUrl}/api/agents/call`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         agent_id: agentId,
         input,
-        caller_wallet: callerWallet,
+        caller_wallet: wallet.publicKey.toBase58(),
+        tx_signature: signature,
       }),
     });
 
-    const result = await response.json();
+    const result: any = await response.json();
 
     if (!result.ok) {
+      if (this.config.debug) console.error("   ❌ Backend call failed:", result.error);
       throw new Error(result.error || "Agent call failed");
     }
+
+    if (this.config.debug) console.log("   ✅ Agent call successful");
 
     return {
       ok: result.ok,
@@ -276,7 +410,7 @@ export class TettoSDK {
    */
   async getReceipt(receiptId: string): Promise<Receipt> {
     const response = await fetch(`${this.apiUrl}/api/receipts/${receiptId}`);
-    const result = await response.json();
+    const result: any = await response.json();
 
     if (!result.ok) {
       throw new Error(result.error || "Receipt not found");
@@ -291,3 +425,8 @@ export class TettoSDK {
 // ============================================================================
 
 export default TettoSDK;
+
+// Helpers
+export { createWalletFromKeypair, createWalletFromAdapter } from "./wallet-helpers";
+export { getDefaultConfig, createConnection, getUSDCMint } from "./network-helpers";
+export { buildAgentPaymentTransaction } from "./transaction-builder";
