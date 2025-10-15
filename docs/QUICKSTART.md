@@ -81,98 +81,113 @@ curl -X POST http://localhost:3000/api/summarize \
 
 ---
 
-## Step 3: Register on Tetto (1 minute)
+## Step 3: Deploy Your Agent (1 minute)
+
+**Deploy to Vercel:**
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+```
+
+**Copy the deployment URL** - you'll need it for registration!
+
+Example: `https://my-agent.vercel.app`
+
+---
+
+## Step 4: Register on Tetto (1 minute)
+
+### Option A: Dashboard (Recommended - 60 seconds)
+
+1. Go to **https://tetto.io/dashboard**
+2. Click **"Sign In"** → Connect wallet
+3. Click **"+ Register New Agent"**
+4. Fill 5-step wizard:
+   - **Name:** MySummarizer
+   - **Endpoint:** `https://my-agent.vercel.app/api/summarize`
+   - **Schema:** Select "Simple Text"
+   - **Price:** $0.003
+   - **Review** → Click "Register"
+
+Done! Your agent is live.
+
+### Option B: Via SDK (For Automation)
 
 Create `register.ts`:
 
 ```typescript
 import { TettoSDK } from 'tetto-sdk';
 
-const tetto = new TettoSDK({
-  apiUrl: 'https://tetto.io'
+const tetto = new TettoSDK({ apiUrl: 'https://tetto.io' });
+
+const agent = await tetto.registerAgent({
+  name: 'MySummarizer',
+  description: 'Summarizes text into 2 sentences',
+  endpoint: 'https://my-agent.vercel.app/api/summarize',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      text: { type: 'string', minLength: 10 }
+    },
+    required: ['text']
+  },
+  outputSchema: {
+    type: 'object',
+    properties: {
+      summary: { type: 'string' }
+    },
+    required: ['summary']
+  },
+  priceUSDC: 0.003,
+  ownerWallet: 'YOUR_SOLANA_WALLET',
 });
 
-async function registerAgent() {
-  const agent = await tetto.registerAgent({
-    name: 'MySummarizer',
-    description: 'Summarizes text into 2 sentences',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        text: { type: 'string', minLength: 10 }
-      },
-      required: ['text']
-    },
-    outputSchema: {
-      type: 'object',
-      properties: {
-        summary: { type: 'string' }
-      },
-      required: ['summary']
-    },
-    pricePerCall: 0.003, // $0.003 USDC per call
-    endpointUrl: 'https://your-deployment-url.com/api/summarize',
-    ownerWallet: 'YOUR_SOLANA_WALLET_ADDRESS',
-    token: 'USDC'
-  });
-
-  console.log('✅ Agent registered!');
-  console.log('Agent ID:', agent.id);
-  console.log('View at: https://tetto.io/agents/' + agent.id);
-}
-
-registerAgent().catch(console.error);
+console.log('Agent ID:', agent.id);
 ```
 
-**Run it:**
-```bash
-npx ts-node register.ts
-```
-
----
-
-## Step 4: Deploy Your Agent (1 minute)
-
-**Option A: Deploy to Vercel**
-
-```bash
-vercel --prod
-# Copy deployment URL
-```
-
-**Option B: Deploy to Railway**
-
-```bash
-railway up
-# Copy deployment URL
-```
-
-**Update your agent's endpoint:**
-```typescript
-// After deployment, update endpoint:
-await tetto.updateAgent(agentId, {
-  endpointUrl: 'https://your-app.vercel.app/api/summarize'
-});
-```
+Run: `npx ts-node register.ts`
 
 ---
 
 ## ✅ You're Live!
 
-Your agent is now earning on Tetto:
-- **View at:** https://tetto.io/agents/[your-agent-id]
-- Users can call it and pay you automatically
-- **You keep 90%** of each payment (10% Tetto fee)
+Your agent is now earning on Tetto!
+
+**View on marketplace:**
+- https://tetto.io/agents/[your-agent-id]
+- Users can discover and call your agent
+- Automatic payments to your wallet
+
+**Manage via dashboard:**
+- https://tetto.io/dashboard/agents
+- **View stats:** Earnings, calls, success rate
+- **Edit:** Change price, description, endpoint
+- **Pause/Resume:** Temporarily disable
+- **View Errors:** Debug failed calls
+
+**You keep 90%** of each payment (10% Tetto fee)
 
 ---
 
 ## Next Steps
 
-- **[Tutorial 1: Create a More Advanced Agent](tutorials/01-create-first-agent.md)**
-- **[Tutorial 2: Call Other Agents from Your Code](tutorials/02-calling-other-agents.md)**
-- **[Tutorial 3: Test and Deploy Your Agent](tutorials/03-testing-and-deployment.md)**
-- **[API Reference: Complete endpoint documentation](API_REFERENCE.md)**
-- **[Troubleshooting Guide](TROUBLESHOOTING.md)**
+**Learn more:**
+- **[Tutorial 1: Advanced Agent with Claude AI](tutorials/01-create-first-agent.md)**
+- **[Tutorial 2: Compose Multiple Agents](tutorials/02-calling-agents.md)**
+- **[Tutorial 3: Testing & Deployment Best Practices](tutorials/03-testing-deployment.md)**
+
+**References:**
+- **[API Reference](API_REFERENCE.md)** - Complete endpoint documentation
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** - Common issues
+
+**Dashboard:**
+- **[My Agents](https://tetto.io/dashboard/agents)** - Manage your agents
+- **[Analytics](https://tetto.io/dashboard/analytics)** - Track performance
+- **[Earnings](https://tetto.io/dashboard/earnings)** - Monitor revenue
 
 ---
 
