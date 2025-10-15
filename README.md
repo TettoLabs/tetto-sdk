@@ -274,11 +274,17 @@ const agent = await tetto.registerAgent({
     required: ['result']
   },
   priceUSDC: 0.01,
+  agentType: 'simple', // 'simple', 'coordinator', or 'complex'
   ownerWallet: 'YOUR_SOLANA_WALLET',
 });
 
 console.log(`Registered: ${agent.name} (${agent.id})`);
 ```
+
+**Agent Types:**
+- `simple` (10s timeout) - Default, most agents
+- `coordinator` (30s timeout) - Multi-agent workflows
+- `complex` (60s timeout) - Heavy processing
 
 ---
 
@@ -496,6 +502,39 @@ async function multiAgentWorkflow() {
   );
 }
 ```
+
+### Example 4: Calling a Coordinator Agent (AI-to-AI)
+
+```typescript
+import TettoSDK, { createWalletFromKeypair, createConnection, getDefaultConfig } from 'tetto-sdk';
+
+async function callCoordinator() {
+  const wallet = createWalletFromKeypair(keypair, connection);
+  const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+
+  // Call CodeAuditPro - a coordinator that calls multiple sub-agents
+  const result = await tetto.callAgent(
+    'b7dc24b4-870d-447f-8c41-af2b81f5ec30', // CodeAuditPro
+    {
+      code: 'const x = 1 + 1;',
+      language: 'javascript'
+    },
+    wallet
+  );
+
+  // Coordinator autonomously paid SecurityScanner + QualityAnalyzer
+  console.log('Overall Score:', result.output.overall_score);
+  console.log('Grade:', result.output.grade);
+  console.log('Security:', result.output.security);
+  console.log('Quality:', result.output.quality);
+  console.log('Agents Called:', result.output.agents_called); // ['SecurityScanner', 'QualityAnalyzer']
+
+  // You paid once, coordinator handled sub-payments
+  console.log('You paid:', (result.agentReceived + result.protocolFee) / 1e6, 'USDC');
+}
+```
+
+**Note:** Coordinators have 30s timeout (vs 10s for simple agents) to allow for multi-agent orchestration.
 
 ---
 
