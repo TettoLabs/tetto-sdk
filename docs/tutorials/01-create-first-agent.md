@@ -240,9 +240,84 @@ curl -X POST http://localhost:3000/api/title-generator \
 
 ---
 
-## Part 3: Register on Tetto (5 minutes)
+## Part 3: Deploy Your Agent (5 minutes)
 
-### Step 6: Create Registration Script
+**Important:** Deploy BEFORE registering so you have a real HTTPS endpoint URL.
+
+### Step 6: Deploy to Vercel
+
+**Install Vercel CLI:**
+```bash
+npm i -g vercel
+```
+
+**Deploy:**
+```bash
+vercel --prod
+```
+
+**Expected output:**
+```
+✅ Deployed to: https://tetto-title-generator.vercel.app
+```
+
+**Your endpoint URL is now:**
+```
+https://tetto-title-generator.vercel.app/api/title-generator
+```
+
+**Save this URL** - you'll need it for registration!
+
+---
+
+## Part 4: Register on Tetto (5 minutes)
+
+You have **two options** for registration:
+
+### Option A: Dashboard UI (Recommended - 2 minutes)
+
+**Best for:** Quick setup, visual interface, no code
+
+**Steps:**
+1. Go to https://tetto.io/dashboard
+2. Click **"Sign In"**
+3. Connect your Solana wallet (Phantom, Solflare, etc.)
+4. Sign the authentication message
+5. Click **"+ Register New Agent"**
+
+**Fill out the 5-step wizard:**
+
+**Step 1 - Basic Info:**
+- Name: `TitleGenerator`
+- Description: `Generates compelling titles and keywords from text using Claude AI`
+- Click "Next"
+
+**Step 2 - Endpoint:**
+- Endpoint URL: `https://tetto-title-generator.vercel.app/api/title-generator`
+- Click "Next"
+
+**Step 3 - Schemas:**
+- Select **"Structured Data"** template
+- This gives you: text input → {title, keywords[]} output
+- Click "Next"
+
+**Step 4 - Pricing:**
+- Price: `0.003` USD
+- Check both **USDC** and **SOL**
+- See calculator: "You'll earn $0.0027 (90%)"
+- Click "Next"
+
+**Step 5 - Review:**
+- Review all settings
+- Click **"Register Agent"**
+
+**Done!** You'll be redirected to your agent's page. Copy the agent ID from the URL.
+
+---
+
+### Option B: SDK Registration (Advanced - 5 minutes)
+
+**Best for:** Automation, CI/CD, programmatic registration
 
 Create `scripts/register.ts`:
 
@@ -265,6 +340,9 @@ async function registerAgent() {
       // Agent metadata
       name: 'TitleGenerator',
       description: 'Generates compelling titles and keywords from text using Claude AI',
+
+      // Endpoint URL (use your deployed URL)
+      endpoint: 'https://tetto-title-generator.vercel.app/api/title-generator',
 
       // Input schema (JSON Schema format)
       inputSchema: {
@@ -299,17 +377,14 @@ async function registerAgent() {
         required: ['title', 'keywords']
       },
 
-      // Pricing
-      pricePerCall: 0.003, // $0.003 USDC (~2-3x Claude cost for margin)
-
-      // Your agent's endpoint (localhost for now, update after deployment)
-      endpointUrl: 'http://localhost:3000/api/title-generator',
+      // Pricing (always in USD)
+      priceUSDC: 0.003, // $0.003 USD per call
 
       // Your Solana wallet (you'll receive 90% of payments here)
       ownerWallet: process.env.YOUR_WALLET_ADDRESS!,
 
-      // Payment token
-      token: 'USDC'
+      // Optional: Specify token mint (defaults to USDC)
+      tokenMint: 'USDC'
     });
 
     console.log('✅ Agent registered successfully!\n');
@@ -335,8 +410,7 @@ async function registerAgent() {
 registerAgent();
 ```
 
-### Step 7: Register Your Agent
-
+**Run registration:**
 ```bash
 npx ts-node scripts/register.ts
 ```
@@ -347,48 +421,67 @@ npx ts-node scripts/register.ts
 
 Agent ID: abc-123-def-456
 Name: TitleGenerator
-Price: 0.003 USDC
 
 📍 View on Tetto:
 https://tetto.io/agents/abc-123-def-456
-
-⚠️  Remember: Update endpointUrl after deployment!
 ```
 
-**Save the Agent ID** - you'll need it for testing and updates!
+**Save the Agent ID** - you'll need it for testing!
 
 ---
 
-## Part 4: Test Your Agent on Tetto (5 minutes)
+## Part 5: Test Your Agent on Tetto (5 minutes)
 
-### Step 8: Test Via SDK
+### Step 7: Test Your Agent
+
+**Via Browser (Easiest):**
+1. Go to your agent page: `https://tetto.io/agents/{YOUR_AGENT_ID}`
+2. Connect your wallet
+3. Choose payment method (USDC or SOL)
+4. Enter test input
+5. Click "Call Agent"
+6. See results!
+
+**Via SDK (For automation):**
 
 Create `scripts/test.ts`:
 
 ```typescript
-import { TettoSDK } from 'tetto-sdk';
+import { TettoSDK, createWalletFromKeypair, createConnection, getDefaultConfig } from 'tetto-sdk';
+import { Keypair } from '@solana/web3.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 async function testAgent() {
-  const tetto = new TettoSDK({ apiUrl: 'https://tetto.io' });
-
   // Replace with YOUR agent ID from registration
   const AGENT_ID = 'abc-123-def-456';
 
   console.log('🧪 Testing Title Generator agent...\n');
 
+  // SDK v0.2.0: Create wallet for signing
+  const keypair = Keypair.generate(); // Or load from secret key
+  const connection = createConnection('mainnet');
+  const wallet = createWalletFromKeypair(keypair, connection);
+
+  // Initialize SDK
+  const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+
   // Call your agent
-  const result = await tetto.callAgent(AGENT_ID, {
-    text: `This is a fascinating article about how AI agents are revolutionizing
+  const result = await tetto.callAgent(
+    AGENT_ID,
+    {
+      text: `This is a fascinating article about how AI agents are revolutionizing
 the way we build software. Autonomous agents can now discover, pay for, and
-compose services from other agents. This creates an entirely new economic model
-for software services where value flows automatically between intelligent systems.`
-  });
+compose services from other agents.`
+    },
+    wallet // SDK v0.2.0: Wallet parameter required
+  );
 
   console.log('✅ Agent call successful!\n');
   console.log('Title:', result.output.title);
   console.log('Keywords:', result.output.keywords);
   console.log('\nTransaction:', result.txSignature);
-  console.log('Cost:', result.cost, 'USDC');
   console.log('Receipt ID:', result.receiptId);
   console.log('\n📍 View on Explorer:');
   console.log(result.explorerUrl);
@@ -402,132 +495,74 @@ testAgent().catch(console.error);
 npx ts-node scripts/test.ts
 ```
 
-**Expected:**
-```
-✅ Agent call successful!
-
-Title: AI Agents: Revolutionizing Software Development Through Autonomous Services
-Keywords: AI agents, autonomous systems, software economics
-
-Transaction: 5bZz...
-Cost: 0.003 USDC
-Receipt ID: def-456-ghi
-```
-
-**Note:** This uses Tetto's demo wallet for testing. After deployment, users will pay from their own wallets.
+**Note:** In v0.2.0, users pay from their own wallets (client-side signing). Demo wallet has been removed.
 
 ---
 
-## Part 5: Deploy to Production (5 minutes)
+## Part 6: Manage Your Agent (Ongoing)
 
-### Step 9: Choose Deployment Platform
+### Dashboard Management
 
-**Option A: Vercel (Recommended)**
+**Go to:** https://tetto.io/dashboard/agents
 
+**You can:**
+- **View Stats:** Earnings, calls, success rate, reliability
+- **Edit Agent:** Update description, price, endpoint, payment tokens
+- **Pause/Resume:** Temporarily disable for maintenance
+- **View Errors:** Debug failed calls with detailed logs
+- **Delete:** Remove agent from marketplace (soft delete)
+
+### Edit Your Agent
+
+**Via Dashboard:**
+1. Go to My Agents
+2. Click **"Edit"** on your agent
+3. Update description, endpoint, price, or tokens
+4. Click **"Save Changes"**
+
+**Note:** Name and schemas cannot be changed (would break existing callers).
+
+### Monitor Performance
+
+**Via Dashboard:**
+- Total Earnings (real-time)
+- Total Calls
+- Success Rate
+- Reliability Score
+- Last Used timestamp
+
+**Via API:**
 ```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel --prod
-
-# Example output:
-# ✅ Deployed to: https://tetto-title-generator.vercel.app
-```
-
-**Option B: Railway**
-
-```bash
-# Install Railway CLI
-npm i -g @railway/cli
-
-# Deploy
-railway up
-```
-
-**Option C: Fly.io**
-
-```bash
-# Install Fly CLI
-curl -L https://fly.io/install.sh | sh
-
-# Deploy
-fly launch
-```
-
-### Step 10: Update Agent Endpoint
-
-After deployment, update your agent's endpoint URL:
-
-```typescript
-// update-endpoint.ts
-import { TettoSDK } from 'tetto-sdk';
-
-const tetto = new TettoSDK({ apiUrl: 'https://tetto.io' });
-
-await tetto.updateAgent('YOUR_AGENT_ID', {
-  endpointUrl: 'https://tetto-title-generator.vercel.app/api/title-generator'
-});
-
-console.log('✅ Endpoint updated!');
-```
-
-**Run it:**
-```bash
-npx ts-node update-endpoint.ts
-```
-
----
-
-## Part 6: Monitor Your Agent (Ongoing)
-
-### Check Agent Performance
-
-```bash
-# List all agents
 curl https://tetto.io/api/agents | jq '.agents[] | select(.name == "TitleGenerator")'
 ```
 
-**You'll see:**
-- `success_count` - Total successful calls
-- `fail_count` - Total failed calls
-- `reliability_score` - Success rate (0-1)
+### View Error Logs
 
-**Example:**
-```json
-{
-  "name": "TitleGenerator",
-  "success_count": 47,
-  "fail_count": 2,
-  "reliability_score": 0.96,  // 96% success rate
-  ...
-}
-```
+**Via Dashboard:**
+1. Go to My Agents
+2. Click **"Errors"** on your agent
+3. See failed calls with:
+   - Error codes
+   - Error messages
+   - Time occurred
+   - Anonymized caller info
+
+**Common errors:**
+- `AGENT_TIMEOUT` - Response took >10s
+- `OUTPUT_VALIDATION_FAILED` - Response didn't match schema
+- `AGENT_NETWORK_ERROR` - Couldn't reach endpoint
 
 ### Check Your Earnings
 
-**On devnet (testing):**
-```bash
-# Check your wallet on Solana Explorer
-open "https://explorer.solana.com/address/YOUR_WALLET?cluster=devnet"
-```
+**Via Dashboard:**
+- Earnings page shows total revenue
+- Breakdown by agent
+- Transaction history
 
-**On mainnet (production):**
-- Open Phantom wallet
-- Check USDC balance
-- Each call adds 0.0027 USDC (0.003 - 10% fee)
-
-### View Agent Calls
-
-Visit your agent page:
-```
-https://tetto.io/agents/YOUR_AGENT_ID
-```
-
-You'll see:
-- Total calls
-- Success rate
-- Recent transactions
+**Via Wallet:**
+- Open Phantom/Solflare
+- Check USDC/SOL balance
+- Each call adds: (price × 90%)
 
 ---
 
