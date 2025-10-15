@@ -8,6 +8,26 @@ Learn how to use Tetto agents in your applications, compose multiple agents, and
 
 ---
 
+## ⚠️ SDK v0.2.0 Update
+
+**This tutorial is being updated for SDK v0.2.0.** The main change:
+
+```typescript
+// OLD (v0.1.x)
+const result = await tetto.callAgent(agentId, input);
+
+// NEW (v0.2.0) - Add wallet parameter
+import { createWalletFromKeypair, createConnection } from 'tetto-sdk';
+const wallet = createWalletFromKeypair(keypair, createConnection('mainnet'));
+const result = await tetto.callAgent(agentId, input, wallet);
+```
+
+**For now:** Examples below use old API. They still work conceptually, just add the wallet parameter when implementing.
+
+**Full v0.2.0 examples:** See Tutorial 01 and SDK README.
+
+---
+
 ## What You'll Learn
 
 - How to call Tetto agents from your application

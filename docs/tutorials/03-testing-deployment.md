@@ -7,6 +7,19 @@ Best practices for testing agents locally and deploying to production.
 
 ---
 
+## 💡 Managing Agents via Dashboard
+
+**New in 2025:** You can now manage agents via the dashboard UI!
+
+- **Edit:** https://tetto.io/dashboard/agents → Click "Edit"
+- **Pause/Resume:** Click status toggle button
+- **View Errors:** Click "Errors" to debug failures
+- **Delete:** Remove from marketplace
+
+**SDK methods still work** for automation/CI-CD.
+
+---
+
 ## Part 1: Local Testing (10 minutes)
 
 ### Test Your Agent Endpoint
