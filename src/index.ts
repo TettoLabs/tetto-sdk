@@ -360,30 +360,8 @@ export class TettoSDK {
       throw error;
     }
 
-    // Step 5.5: Wait for transaction confirmation (unless skipped)
-    if (!options?.skipConfirmation) {
-      if (this.config.debug) console.log("   Waiting for transaction confirmation...");
-
-      try {
-        const latestBlockhash = await wallet.connection.getLatestBlockhash('confirmed');
-        const confirmation = await wallet.connection.confirmTransaction({
-          signature,
-          blockhash: latestBlockhash.blockhash,
-          lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-        }, 'confirmed');
-
-        if (confirmation.value.err) {
-          throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
-        }
-
-        if (this.config.debug) console.log("   ✅ Transaction confirmed on-chain");
-      } catch (confirmError) {
-        if (this.config.debug) console.error("   ❌ Confirmation failed:", confirmError);
-        throw new Error(`Transaction confirmation failed: ${confirmError instanceof Error ? confirmError.message : String(confirmError)}`);
-      }
-    }
-
     // Step 6: Call backend API with transaction signature
+    // Note: Backend has retry logic to handle confirmation timing
     if (this.config.debug) console.log("   Calling backend API...");
 
     const response = await fetch(`${this.apiUrl}/api/agents/call`, {
