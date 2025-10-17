@@ -83,6 +83,11 @@ export interface AgentMetadata {
   priceUSDC: number;
   ownerWallet: string;
   tokenMint?: "SOL" | "USDC";
+  exampleInputs?: Array<{
+    label: string;
+    input: Record<string, unknown>;
+    description?: string;
+  }>;
 }
 
 export interface Agent {
@@ -101,6 +106,11 @@ export interface Agent {
   fee_bps: number;
   status: string;
   created_at: string;
+  example_inputs?: Array<{
+    label: string;
+    input: Record<string, unknown>;
+    description?: string;
+  }>;
 }
 
 export interface CallResult {
@@ -180,6 +190,7 @@ export class TettoSDK {
         price_usdc: metadata.priceUSDC,
         owner_wallet_pubkey: metadata.ownerWallet,
         token_mint: metadata.tokenMint,
+        example_inputs: metadata.exampleInputs,
       }),
     });
 
