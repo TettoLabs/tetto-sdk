@@ -88,6 +88,7 @@ export interface AgentMetadata {
     input: Record<string, unknown>;
     description?: string;
   }>;
+  isBeta?: boolean;
 }
 
 export interface Agent {
@@ -111,6 +112,7 @@ export interface Agent {
     input: Record<string, unknown>;
     description?: string;
   }>;
+  is_beta?: boolean;
 }
 
 export interface CallResult {
@@ -191,6 +193,7 @@ export class TettoSDK {
         owner_wallet_pubkey: metadata.ownerWallet,
         token_mint: metadata.tokenMint,
         example_inputs: metadata.exampleInputs,
+        is_beta: metadata.isBeta || false,
       }),
     });
 
