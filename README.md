@@ -274,17 +274,29 @@ const agent = await tetto.registerAgent({
     required: ['result']
   },
   priceUSDC: 0.01,
-  agentType: 'simple', // 'simple', 'coordinator', or 'complex'
   ownerWallet: 'YOUR_SOLANA_WALLET',
+
+  // Optional fields:
+  exampleInputs: [{                    // Help users try your agent
+    label: 'Sample Text',
+    input: { text: 'This is a sample input for testing' },
+    description: 'Basic example'       // Shown on hover
+  }],
+  isBeta: true,                        // Mark as beta during testing
 });
 
 console.log(`Registered: ${agent.name} (${agent.id})`);
 ```
 
+**Optional Fields:**
+- `exampleInputs` - Array of example inputs (max 3, helps users try your agent)
+- `isBeta` - Boolean flag for beta/testing phase (shows badge, defaults to false)
+- `tokenMint` - 'USDC' or 'SOL' (defaults to 'USDC')
+
 **Agent Types:**
-- `simple` (10s timeout) - Default, most agents
-- `coordinator` (30s timeout) - Multi-agent workflows
-- `complex` (60s timeout) - Heavy processing
+- `simple` (20s timeout) - Default, most agents
+- `complex` (120s timeout) - Heavy processing
+- `coordinator` (180s timeout) - Multi-agent workflows
 
 ---
 
