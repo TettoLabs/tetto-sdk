@@ -19,22 +19,28 @@
 
 ## 🚀 Current Status
 
-**Status:** ✅ v0.2.0 COMPLETE (MVP3 Checkpoint 0)
+**Status:** ✅ v0.1.0 COMPLETE - First Stable Release
 
-**Version:** 0.2.0 (BREAKING CHANGE from v0.1.0)
+**Version:** 0.1.0 (Initial public release)
 
-**Completed:** 2025-10-13
+**Released:** 2025-10-18
 
-**What's Working:**
-- ✅ Client-side transaction signing (NEW in v0.2.0)
-- ✅ Browser wallet support (Phantom, Solflare)
-- ✅ Node.js keypair support (AI agents)
-- ✅ Network configuration helpers (mainnet/devnet)
-- ✅ Transaction builder with ATA handling
-- ✅ 5 core methods implemented and tested
+**What's Included:**
+- ✅ **For Agent Callers:** Complete SDK for calling agents
+  - Client-side transaction signing
+  - Browser wallet support (Phantom, Solflare)
+  - Node.js keypair support (AI agents)
+  - Network configuration helpers (mainnet/devnet)
+  - Transaction builder with ATA handling
+- ✅ **For Agent Builders:** Utilities to build agents (NEW!)
+  - `create-tetto-agent` CLI (scaffold in 60 seconds)
+  - Agent request handler utilities
+  - Environment validation helpers
+  - Anthropic SDK helper
+  - Token mint auto-derivation
 - ✅ Full TypeScript type safety
 - ✅ Comprehensive documentation
-- ✅ End-to-end tested on Solana MAINNET
+- ✅ Production tested on Solana mainnet
 
 **Mainnet Test Results:**
 - Transaction: `64wtpSWos4WNLVDQfUmrYL7LTfwmu5LzAiPXP8QP3nsADz9hTxWRtxo3KM9barpmz1Ucq3H7DuWmo9AbF3XdbPzr`
@@ -100,16 +106,23 @@ Developer's App
 ```
 tetto-sdk/
 ├── src/
-│   ├── index.ts              # Main SDK class
-│   ├── transaction-builder.ts # Payment transaction builder (NEW v0.2.0)
-│   ├── ensure-ata.ts         # ATA utilities (NEW v0.2.0)
-│   ├── network-helpers.ts    # Network config (NEW v0.2.0)
-│   └── wallet-helpers.ts     # Wallet creation (NEW v0.2.0)
+│   ├── index.ts              # Main SDK class (calling agents)
+│   ├── transaction-builder.ts # Payment transaction builder
+│   ├── ensure-ata.ts         # ATA utilities
+│   ├── network-helpers.ts    # Network config helpers
+│   ├── wallet-helpers.ts     # Wallet creation utilities
+│   └── agent/                # Agent builder utilities (NEW v0.1.0)
+│       ├── index.ts          # Exports all utilities
+│       ├── handler.ts        # Request handler wrapper
+│       ├── token-mint.ts     # Token mint auto-derivation
+│       ├── env.ts            # Environment validation
+│       └── anthropic.ts      # Anthropic client helper
 ├── test/
-│   └── node-test.ts          # Mainnet integration test (NEW v0.2.0)
-├── dist/                     # Compiled JS + .d.ts files (NEW v0.2.0)
+│   ├── node-test.ts          # Mainnet caller test
+│   └── agent.test.ts         # Agent utilities test (NEW v0.1.0)
+├── dist/                     # Compiled JS + .d.ts files
 ├── package.json              # NPM package config
-├── tsconfig.json             # TypeScript config (NEW v0.2.0)
+├── tsconfig.json             # TypeScript config
 └── README.md                 # User-facing documentation
 ```
 
@@ -142,24 +155,57 @@ tetto-sdk/
 - getUSDCMint() - Mint address helper
 - ~45 lines
 
-### `src/wallet-helpers.ts` (NEW v0.2.0)
+### `src/wallet-helpers.ts`
 - createWalletFromKeypair() - Node.js support
 - createWalletFromAdapter() - Browser support
 - ~75 lines
 
-### `test/node-test.ts` (NEW v0.2.0)
-- End-to-end mainnet test
+### `src/agent/` (NEW v0.1.0 - Agent Builder Utilities)
+
+**Purpose:** Make building Tetto agents trivial - eliminate boilerplate, prevent errors.
+
+**`src/agent/handler.ts`** (~100 lines)
+- createAgentHandler() - Wraps agent logic with automatic error handling
+- Eliminates 67% of boilerplate code
+- Automatic request parsing, input validation, error catching
+
+**`src/agent/token-mint.ts`** (~40 lines)
+- getTokenMint() - Auto-derives correct token mint addresses
+- Prevents configuration errors (found in production!)
+- Returns: mainnet/devnet USDC or SOL mint addresses
+
+**`src/agent/env.ts`** (~50 lines)
+- loadAgentEnv() - Environment variable validation with helpful errors
+- Checks for required vs optional variables
+- Clear error messages instead of cryptic failures
+
+**`src/agent/anthropic.ts`** (~40 lines)
+- createAnthropic() - Anthropic SDK client helper
+- Auto-loads from ANTHROPIC_API_KEY env var
+- Helpful error messages with setup instructions
+
+**`src/agent/index.ts`**
+- Exports all agent utilities with clean API surface
+- Import from 'tetto-sdk/agent'
+
+### `test/node-test.ts`
+- End-to-end mainnet test for caller SDK
 - Tests complete payment flow
 - Run with: `npm test`
 - ~100 lines
 
+### `test/agent.test.ts` (NEW v0.1.0)
+- Tests all 4 agent builder utilities
+- 17 comprehensive test cases
+- Validates token mints, env loading, error handling
+- ~200 lines
+
 ### `README.md` (Documentation)
-- Quick start guide (browser + Node.js)
-- Migration guide (v0.1.x → v0.2.0)
-- API reference for all methods
-- Complete examples (React, Node.js, multi-agent)
-- Troubleshooting section
-- Network configuration guide
+- Quick start for both callers AND builders (NEW v0.1.0)
+- API reference for caller SDK
+- API reference for builder utilities (NEW v0.1.0)
+- Complete examples (browser, Node.js, agent building)
+- Agent examples (simple, API, coordinator)
 
 ---
 

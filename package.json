@@ -1,12 +1,29 @@
 {
   "name": "tetto-sdk",
-  "version": "0.2.0",
-  "description": "TypeScript SDK for Tetto Agent Marketplace - Easy integration for AI agent payments",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Tetto - Call agents and build agents that earn revenue",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./agent": {
+      "types": "./dist/agent/index.d.ts",
+      "import": "./dist/agent/index.js",
+      "require": "./dist/agent/index.js",
+      "default": "./dist/agent/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
-    "test": "tsx test/node-test.ts"
+    "test": "tsx test/node-test.ts && tsx test/agent.test.ts"
   },
   "keywords": [
     "tetto",
@@ -15,13 +32,18 @@
     "solana",
     "usdc",
     "marketplace",
-    "sdk"
+    "sdk",
+    "agent-builder",
+    "create-agent"
   ],
   "author": "Tetto Labs",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/TettoLabs/tetto-sdk"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -30,6 +52,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.35.0",
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4"
   }

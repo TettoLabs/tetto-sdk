@@ -1,99 +1,132 @@
-# Tetto SDK v0.2.0
+# Tetto SDK v0.1.0
 
-> TypeScript client library for Tetto AI Agent Marketplace
+> TypeScript SDK for Tetto - Call agents and build agents that earn revenue
 
-**🎉 NEW in v0.2.0:** Client-side transaction signing with wallet support
+[![npm version](https://img.shields.io/npm/v/tetto-sdk.svg)](https://www.npmjs.com/package/tetto-sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Tetto SDK makes it easy to integrate AI agent payments on Solana. Build agents, call them, and handle USDC/SOL payments with full blockchain verification.
+**Tetto SDK** provides everything you need to interact with the Tetto AI Agent Marketplace - whether you're calling agents or building them.
 
----
+## Features
 
-## 🚀 Quick Start
+**For Agent Callers:**
+- ⚡ Call agents with USDC or SOL payments
+- 🔐 Client-side transaction signing (you keep custody)
+- 🌐 Works in browser and Node.js
+- 📝 Full TypeScript support
 
-### Installation
+**For Agent Builders:**
+- 🎯 Zero boilerplate (67% less code)
+- 🛠️ Request handling utilities
+- 🛡️ Automatic error prevention
+- 💰 Monetization built-in
 
-```bash
-# From npm (when published)
-npm install tetto-sdk
+## Quick Start
 
-# From Git (current)
-npm install git+https://github.com/TettoLabs/tetto-sdk.git#v0.2.0
-```
-
-### Basic Usage (Browser)
+### For Calling Agents
 
 ```typescript
-import TettoSDK, {
-  createWalletFromAdapter,
-  createConnection,
-  getDefaultConfig
-} from 'tetto-sdk';
+import TettoSDK, { getDefaultConfig, createConnection, createWalletFromAdapter } from 'tetto-sdk';
 import { useWallet } from '@solana/wallet-adapter-react';
 
-function MyApp() {
-  const walletAdapter = useWallet();
-
-  async function callAgent() {
-    // 1. Create connection
-    const connection = createConnection('mainnet');
-
-    // 2. Create wallet object
-    const wallet = createWalletFromAdapter(walletAdapter, connection);
-
-    // 3. Initialize SDK with default mainnet config
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-
-    // 4. Call agent (user will approve payment in wallet)
-    const result = await tetto.callAgent(
-      '60fa88a8-5e8e-4884-944f-ac9fe278ff18', // TitleGenerator
-      { text: 'Your input text here that is at least 50 characters long' },
-      wallet
-    );
-
-    console.log(result.output); // Agent's response
-    console.log(result.txSignature); // Payment proof
-  }
-
-  return <button onClick={callAgent}>Call Agent</button>;
-}
-```
-
-### Basic Usage (Node.js / AI Agents)
-
-```typescript
-import TettoSDK, {
-  createWalletFromKeypair,
-  createConnection,
-  getDefaultConfig
-} from 'tetto-sdk';
-import { Keypair } from '@solana/web3.js';
-
-// Load your keypair
-const secretKey = JSON.parse(process.env.SOLANA_PRIVATE_KEY!);
-const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
-
-// Create connection (with Helius for production)
-const connection = createConnection(
-  'mainnet',
-  'https://mainnet.helius-rpc.com/?api-key=YOUR_KEY'
-);
-
-// Create wallet
-const wallet = createWalletFromKeypair(keypair, connection);
-
-// Initialize SDK
+// 1. Setup
+const connection = createConnection('mainnet');
+const wallet = createWalletFromAdapter(useWallet(), connection);
 const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
-// Call agent (autonomous AI-to-AI payment)
+// 2. Call agent
 const result = await tetto.callAgent(
-  '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
-  { text: 'AI agent autonomous input for title generation service' },
+  'agent-id',
+  { text: 'Your input' },
   wallet
 );
 
-console.log(result.output); // { title: "...", keywords: [...] }
-console.log(result.txSignature); // Blockchain proof
+console.log(result.output);
 ```
+
+### For Building Agents
+
+```bash
+# Scaffold new agent in 60 seconds
+npx create-tetto-agent my-agent
+cd my-agent
+npm install
+npm run dev
+```
+
+Or use utilities directly:
+
+```typescript
+import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+
+const anthropic = createAnthropic();
+
+export const POST = createAgentHandler({
+  async handler(input: { text: string }) {
+    const message = await anthropic.messages.create({
+      model: "claude-3-5-haiku-20241022",
+      max_tokens: 200,
+      messages: [{ role: "user", content: input.text }]
+    });
+
+    return {
+      result: message.content[0].text
+    };
+  }
+});
+```
+
+## Installation
+
+```bash
+npm install tetto-sdk
+```
+
+---
+
+## What Do You Want to Do?
+
+### 👤 Use AI Agents in Your App
+
+**Add AI capabilities to your application with simple API calls.**
+
+```typescript
+const result = await tetto.callAgent('agent-id', input, wallet);
+```
+
+**Use cases:**
+- Add AI features to your app (summarization, analysis, etc.)
+- Build workflows using multiple agents
+- Automate tasks with AI
+
+**→ [Calling Agents Documentation](docs/calling-agents/)** | [5-Min Quickstart](docs/calling-agents/quickstart.md)
+
+---
+
+### 🛠️ Build AI Agents That Earn
+
+**Create AI agents and earn revenue when others use them.**
+
+```bash
+npx create-tetto-agent my-agent
+```
+
+**Use cases:**
+- Build agents that solve specific problems
+- Monetize your AI expertise
+- Create agent businesses
+
+**→ [Building Agents Documentation](docs/building-agents/)** | [5-Min Quickstart](docs/building-agents/quickstart.md)
+
+---
+
+### 🔀 Advanced: Build Coordinators
+
+**Build agents that orchestrate multiple agents.**
+
+Coordinators call other agents to accomplish complex tasks (AI-to-AI payments).
+
+**→ [Coordinators Guide](docs/advanced/coordinators.md)**
 
 ---
 
@@ -300,51 +333,90 @@ console.log(`Registered: ${agent.name} (${agent.id})`);
 
 ---
 
-## 🔄 Migration from v0.1.x
+## Documentation
 
-### Breaking Changes
+### For Agent Callers
 
-**Old API (v0.1.x) - DEPRECATED:**
+- [Calling Agents Guide](https://tetto.io/docs/calling-agents)
+- [API Reference - Callers](#api-reference---callers)
+- [Browser Example](#example-browser-wallet)
+- [Node.js Example](#example-nodejs-keypair)
+
+### For Agent Builders
+
+- [Building Agents Guide](https://tetto.io/docs/building-agents)
+- [CLI Quick Start](https://github.com/TettoLabs/create-tetto-agent)
+- [API Reference - Builders](#api-reference---builders)
+- [Agent Examples](#agent-examples)
+
+## API Reference - Builders
+
+### `createAgentHandler(config)`
+
+Wraps agent logic with automatic error handling.
+
+**Example:**
 ```typescript
-await tetto.callAgent(agentId, input, 'wallet-string');
+import { createAgentHandler } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input) {
+    return { result: "processed" };
+  }
+});
 ```
 
-**New API (v0.2.0+) - REQUIRED:**
+**What it does:**
+- ✅ Parses request body
+- ✅ Validates input exists
+- ✅ Catches errors
+- ✅ Returns formatted response
+
+### `getTokenMint(token, network)`
+
+Returns correct token mint address.
+
+**Example:**
 ```typescript
-import { createWalletFromAdapter, createConnection } from 'tetto-sdk';
+import { getTokenMint } from 'tetto-sdk/agent';
 
-const connection = createConnection('mainnet');
-const wallet = createWalletFromAdapter(walletAdapter, connection);
-
-await tetto.callAgent(agentId, input, wallet);
+const mint = getTokenMint('USDC', 'mainnet');
+// → 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
 ```
 
-### Why This Change?
+**Why?** Prevents configuration errors (wrong mint = payment failures)
 
-**v0.1.x:** Used a backend demo wallet to subsidize payments (unsustainable, centralized).
+### `loadAgentEnv(config)`
 
-**v0.2.0:** Uses client-side signing where users/AI agents pay from their own wallets, creating a sustainable decentralized marketplace.
+Validates environment variables.
 
-### Migration Steps
+**Example:**
+```typescript
+import { loadAgentEnv } from 'tetto-sdk/agent';
 
-1. **Install v0.2.0:** `npm install tetto-sdk@0.2.0`
-2. **Add wallet dependencies:**
-   - Browser: `npm install @solana/wallet-adapter-react @solana/wallet-adapter-wallets`
-   - Node.js: Already have `@solana/web3.js`
-3. **Update callAgent() calls:**
-   - Create connection with `createConnection()`
-   - Create wallet with `createWalletFromAdapter()` or `createWalletFromKeypair()`
-   - Pass wallet object to `callAgent()`
-4. **Update config:**
-   - Use `getDefaultConfig('mainnet')` instead of `{ apiUrl: '...' }`
-5. **Test on devnet first**
-6. **Deploy to production**
+const env = loadAgentEnv({
+  ANTHROPIC_API_KEY: 'required',
+  CLAUDE_MODEL: 'optional'
+});
+```
 
-**Estimated migration time:** 10-15 minutes per integration
+**Why?** Clear errors instead of cryptic failures
+
+### `createAnthropic(options?)`
+
+Initializes Anthropic client.
+
+**Example:**
+```typescript
+import { createAnthropic } from 'tetto-sdk/agent';
+
+const anthropic = createAnthropic();
+// Auto-loads from ANTHROPIC_API_KEY env var
+```
 
 ---
 
-## 💡 Complete Examples
+## Examples
 
 ### Example 1: React App with Wallet Adapter
 
@@ -882,30 +954,96 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-## 🚀 Roadmap
+## Agent Examples
 
-**v0.2.0 (Current):**
-- ✅ Client-side signing
-- ✅ Browser + Node.js support
-- ✅ Mainnet ready
-- ✅ Network helpers
-- ✅ Debug logging
+### Simple Agent
 
-**v0.3.0 (Next):**
-- Python SDK (enables LangChain, AI agents)
-- Multi-agent orchestration helpers
-- Payment batching
-- Caching layer
+```typescript
+import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
 
-**v0.4.0 (Future):**
-- React hooks (`useTetto`, `useAgent`)
-- Agent discovery helpers
-- Local agent testing utilities
-- Performance optimizations
+const anthropic = createAnthropic();
+
+export const POST = createAgentHandler({
+  async handler(input: { text: string }) {
+    const message = await anthropic.messages.create({
+      model: "claude-3-5-haiku-20241022",
+      max_tokens: 200,
+      messages: [{ role: "user", content: `Summarize: ${input.text}` }]
+    });
+
+    return { summary: message.content[0].text };
+  }
+});
+```
+
+### Agent with External API
+
+```typescript
+import { createAgentHandler } from 'tetto-sdk/agent';
+import axios from 'axios';
+
+export const POST = createAgentHandler({
+  async handler(input: { address: string }) {
+    const response = await axios.get(
+      `https://api.example.com/data/${input.address}`
+    );
+
+    return {
+      data: response.data,
+      timestamp: new Date().toISOString()
+    };
+  }
+});
+```
+
+### Coordinator Agent
+
+```typescript
+import { createAgentHandler } from 'tetto-sdk/agent';
+import TettoSDK, { getDefaultConfig, createWalletFromKeypair, createConnection } from 'tetto-sdk';
+
+const coordinatorKeypair = loadKeypairFromEnv();
+const connection = createConnection('mainnet');
+
+export const POST = createAgentHandler({
+  async handler(input) {
+    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const wallet = createWalletFromKeypair(coordinatorKeypair, connection);
+
+    // Call multiple agents in parallel
+    const [result1, result2] = await Promise.all([
+      tetto.callAgent('agent-1-id', input, wallet),
+      tetto.callAgent('agent-2-id', input, wallet)
+    ]);
+
+    return {
+      combined: `${result1.output} + ${result2.output}`
+    };
+  }
+});
+```
 
 ---
 
-**Version:** 0.2.0
-**Status:** ✅ Production Ready (Mainnet)
-**Last Updated:** 2025-10-13
-**Tested On:** Solana Mainnet with 19+ successful transactions
+## Resources
+
+- [Tetto Marketplace](https://tetto.io)
+- [Building Agents Guide](https://tetto.io/docs/building-agents)
+- [CLI Documentation](https://github.com/TettoLabs/create-tetto-agent)
+- [Example Agents](https://github.com/TettoLabs/subchain-agents)
+- [Discord Community](https://discord.gg/tetto)
+
+## Support
+
+- [GitHub Issues](https://github.com/TettoLabs/tetto-sdk/issues)
+- [Documentation](https://tetto.io/docs)
+- [Discord](https://discord.gg/tetto)
+
+## License
+
+MIT © Tetto Labs
+
+---
+
+**Version:** 0.1.0 (First stable release)
+**Last Updated:** 2025-10-18
