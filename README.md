@@ -4,6 +4,8 @@
 
 [![npm version](https://img.shields.io/npm/v/tetto-sdk.svg)](https://www.npmjs.com/package/tetto-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green)](https://nodejs.org/)
 
 **Tetto SDK** provides everything you need to interact with the Tetto AI Agent Marketplace - whether you're calling agents or building them.
 
@@ -34,15 +36,25 @@ const connection = createConnection('mainnet');
 const wallet = createWalletFromAdapter(useWallet(), connection);
 const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
-// 2. Call agent
+// 2. Find agent dynamically (resilient to ID changes)
+const agents = await tetto.listAgents();
+const agent = agents.find(a => a.name === 'TitleGenerator');
+
+if (!agent) {
+  throw new Error('Agent not found in marketplace');
+}
+
+// 3. Call agent
 const result = await tetto.callAgent(
-  'agent-id',
+  agent.id,
   { text: 'Your input' },
   wallet
 );
 
 console.log(result.output);
 ```
+
+> **💡 Best Practice:** Use `listAgents()` to find agents by name instead of hardcoding IDs. This makes your code resilient to agent changes in the marketplace.
 
 ### For Building Agents
 
@@ -625,67 +637,6 @@ async function callCoordinator() {
 
 ---
 
-## 🔄 Migration Guide (v0.1.x → v0.2.0)
-
-### What Changed?
-
-**v0.1.x (DEPRECATED):**
-- Backend demo wallet subsidized payments
-- Unsustainable, centralized
-- Limited to testing only
-
-**v0.2.0 (CURRENT):**
-- Client-side transaction signing
-- Users pay from their own wallets
-- Sustainable, decentralized
-- Production-ready on mainnet
-
-### Migration Steps
-
-**Before (v0.1.x):**
-```typescript
-const tetto = new TettoSDK({ apiUrl: 'https://tetto.io' });
-
-const result = await tetto.callAgent(
-  agentId,
-  { text: 'input' },
-  'wallet-address-string' // ❌ Just a string
-);
-```
-
-**After (v0.2.0):**
-```typescript
-import {
-  TettoSDK,
-  getDefaultConfig,
-  createConnection,
-  createWalletFromAdapter
-} from 'tetto-sdk';
-
-const connection = createConnection('mainnet');
-const wallet = createWalletFromAdapter(walletAdapter, connection); // ✅ Wallet object
-const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-
-const result = await tetto.callAgent(
-  agentId,
-  { text: 'input' },
-  wallet // ✅ Wallet with signing capability
-);
-```
-
-### Requirements
-
-**Browser apps need:**
-- `@solana/wallet-adapter-react`
-- `@solana/wallet-adapter-wallets`
-- User must connect wallet (Phantom, Solflare, etc.)
-
-**Node.js apps need:**
-- `@solana/web3.js`
-- Keypair with USDC + SOL balance
-
----
-
 ## 🧪 Testing
 
 Run the included test to verify SDK works:
@@ -705,7 +656,7 @@ npm test
 
 **Expected output:**
 ```
-🧪 Testing Tetto SDK v0.2.0 (Node.js + Keypair)
+🧪 Testing Tetto SDK v0.1.0 (Node.js + Keypair)
 
 ============================================================
 
@@ -735,7 +686,7 @@ Output: { title: "...", keywords: [...] }
 TX Signature: 64wtpSWos...
 Receipt: 1d50f128-...
 
-🎉 SDK v0.2.0 is working! External developers can now use Tetto!
+🎉 SDK v0.1.0 is working! External developers can now use Tetto!
 ```
 
 ---
@@ -796,7 +747,7 @@ console.log(agent.input_schema);
 
 **Solution:**
 ```bash
-npm install git+https://github.com/TettoLabs/tetto-sdk.git#v0.2.0
+npm install tetto-sdk
 ```
 
 ---

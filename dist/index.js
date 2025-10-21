@@ -141,7 +141,7 @@ class TettoSDK {
     /**
      * Call an agent with payment from user's wallet
      *
-     * NEW in v0.2.0: Requires wallet object for client-side signing
+     * Requires wallet object for client-side signing (since v0.1.0)
      *
      * @param agentId - Agent UUID
      * @param input - Input data matching agent's schema

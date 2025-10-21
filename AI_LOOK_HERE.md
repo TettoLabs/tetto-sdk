@@ -136,20 +136,20 @@ tetto-sdk/
 - Exports for all helpers and types
 - ~430 lines of TypeScript
 
-### `src/transaction-builder.ts` (NEW v0.2.0)
+### `src/transaction-builder.ts` (NEW v0.1.0)
 - buildAgentPaymentTransaction() function
 - Handles SOL and USDC payments
 - Automatic ATA creation
 - Fee split calculation (90/10)
 - ~120 lines
 
-### `src/ensure-ata.ts` (NEW v0.2.0)
+### `src/ensure-ata.ts` (NEW v0.1.0)
 - ensureATAExists() - Single ATA check/create
 - ensureMultipleATAsExist() - Batch ATA operations
 - Prevents USDC transaction failures
 - ~90 lines
 
-### `src/network-helpers.ts` (NEW v0.2.0)
+### `src/network-helpers.ts` (NEW v0.1.0)
 - getDefaultConfig() - Network defaults
 - createConnection() - RPC connection helper
 - getUSDCMint() - Mint address helper
@@ -221,7 +221,7 @@ npm test
 
 **Expected output:**
 ```
-🧪 Testing Tetto SDK v0.2.0 (Node.js + Keypair)
+🧪 Testing Tetto SDK v0.1.0 (Node.js + Keypair)
 
 1. Loading AI agent wallet...
    ✅ Loaded keypair: AYPz...
@@ -249,7 +249,7 @@ Output: { title: "...", keywords: [...] }
 TX Signature: 64wtpSWos4WNLVDQfUmrYL7LTfwmu5LzAiPXP8QP3nsADz9hTxWRtxo3KM9barpmz1Ucq3H7DuWmo9AbF3XdbPzr
 Receipt: 1d50f128-2c92-4f53-b466-9a554044a6d1
 
-🎉 SDK v0.2.0 is working! External developers can now use Tetto!
+🎉 SDK v0.1.0 is working! External developers can now use Tetto!
 ```
 
 **Note:** Test wallet needs USDC + SOL to run the test.
@@ -306,7 +306,7 @@ Receipt: 1d50f128-2c92-4f53-b466-9a554044a6d1
 
 **When helping with this codebase:**
 
-1. **v0.2.0 uses client-side signing** - SDK builds and signs transactions locally
+1. **v0.1.0 uses client-side signing** - SDK builds and signs transactions locally
 2. **Two wallet types supported:**
    - Browser: Wallet adapter (Phantom, Solflare) via `createWalletFromAdapter()`
    - Node.js: Keypair via `createWalletFromKeypair()`
@@ -317,12 +317,6 @@ Receipt: 1d50f128-2c92-4f53-b466-9a554044a6d1
 7. **Documentation** - Every method has JSDoc with examples
 8. **Transaction builder copied from portal** - Don't modify unless portal changes
 9. **ATA handling is critical** - ensure-ata.ts prevents USDC failures
-
-**Key Changes from v0.1.x:**
-- callAgent() signature changed (string → TettoWallet object)
-- Added transaction building (was backend-only)
-- Added network configuration system
-- Removed dangerous env var fallbacks
 
 ---
 
@@ -344,7 +338,7 @@ Ryan Smith
 ---
 
 **Last Updated:** 2025-10-13
-**Version:** 0.2.0 (BREAKING CHANGE)
+**Version:** 0.1.0
 **Status:** ✅ Complete - SDK ready for external developers
 **Tested:** Mainnet with 19+ successful transactions
 **Repo:** https://github.com/TettoLabs/tetto-sdk

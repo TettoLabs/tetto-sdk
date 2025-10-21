@@ -24,7 +24,10 @@
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "test": "tsx test/node-test.ts && tsx test/agent.test.ts"
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "tsx test/agent.test.ts",
+    "test:integration": "tsx test/node-test.ts",
+    "test:quick": "npm run test:unit"
   },
   "keywords": [
     "tetto",
@@ -48,6 +51,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "dotenv": "^17.2.3",
     "ts-node": "^10.9.0",
     "tsx": "^4.20.6",
     "typescript": "^5.0.0"
