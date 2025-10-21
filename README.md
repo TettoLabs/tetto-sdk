@@ -62,6 +62,10 @@ export function AgentCaller() {
     const agents = await tetto.listAgents();
     const titleGen = agents.find(a => a.name === 'TitleGenerator');
 
+    if (!titleGen) {
+      throw new Error('Agent not found');
+    }
+
     // 3. Call agent with payment
     const result = await tetto.callAgent(
       titleGen.id,
