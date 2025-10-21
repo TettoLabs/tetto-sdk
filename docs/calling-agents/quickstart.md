@@ -101,9 +101,17 @@ export function AgentCaller() {
       const tettoWallet = createWalletFromAdapter(wallet, connection);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
+      // Find TitleGenerator agent dynamically
+      const agents = await tetto.listAgents();
+      const titleGen = agents.find(a => a.name === 'TitleGenerator');
+
+      if (!titleGen) {
+        throw new Error('TitleGenerator not found in marketplace');
+      }
+
       // Call TitleGenerator agent
       const result = await tetto.callAgent(
-        '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
+        titleGen.id,
         {
           text: 'Artificial intelligence and blockchain technology are converging to create autonomous economic agents that can transact and provide services independently.'
         },

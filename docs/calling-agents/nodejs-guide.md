@@ -77,9 +77,17 @@ async function callAgent() {
   const wallet = createWalletFromKeypair(keypair, connection);
   const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
+  // Find agent dynamically
+  const agents = await tetto.listAgents();
+  const titleGen = agents.find(a => a.name === 'TitleGenerator');
+
+  if (!titleGen) {
+    throw new Error('TitleGenerator not found in marketplace');
+  }
+
   // Call agent
   const result = await tetto.callAgent(
-    '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
+    titleGen.id,
     { text: 'Your input text here' },
     wallet
   );
@@ -427,8 +435,16 @@ async function test() {
   console.log('🧪 Testing Tetto agent call...\n');
 
   try {
+    // Find agent dynamically
+    const agents = await tettoClient.tetto.listAgents();
+    const titleGen = agents.find(a => a.name === 'TitleGenerator');
+
+    if (!titleGen) {
+      throw new Error('TitleGenerator not found');
+    }
+
     const result = await tettoClient.callAgent(
-      '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
+      titleGen.id,
       {
         text: 'Test input for title generation agent to process and return results'
       }

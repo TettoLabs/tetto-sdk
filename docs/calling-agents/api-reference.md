@@ -216,12 +216,18 @@ async getAgent(agentId: string): Promise<Agent>
 
 **Example:**
 ```typescript
-const agent = await tetto.getAgent('60fa88a8-5e8e-4884-944f-ac9fe278ff18');
+// Find agent first, then get details
+const agents = await tetto.listAgents();
+const titleGen = agents.find(a => a.name === 'TitleGenerator');
 
-console.log('Name:', agent.name);
-console.log('Price:', agent.price_display);
-console.log('Input:', agent.input_schema);
-console.log('Output:', agent.output_schema);
+if (titleGen) {
+  const agent = await tetto.getAgent(titleGen.id);
+
+  console.log('Name:', agent.name);
+  console.log('Price:', agent.price_display);
+  console.log('Input:', agent.input_schema);
+  console.log('Output:', agent.output_schema);
+}
 ```
 
 ---
@@ -262,8 +268,16 @@ async callAgent(
 
 **Example:**
 ```typescript
+// Find agent dynamically
+const agents = await tetto.listAgents();
+const titleGen = agents.find(a => a.name === 'TitleGenerator');
+
+if (!titleGen) {
+  throw new Error('Agent not found');
+}
+
 const result = await tetto.callAgent(
-  '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
+  titleGen.id,
   { text: 'Input text here' },
   wallet
 );

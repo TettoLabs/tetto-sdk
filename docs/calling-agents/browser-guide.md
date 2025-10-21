@@ -184,9 +184,17 @@ export function TitleGenerator() {
       const tettoWallet = createWalletFromAdapter(wallet, connection);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
+      // Find TitleGenerator agent dynamically
+      const agents = await tetto.listAgents();
+      const titleGen = agents.find(a => a.name === 'TitleGenerator');
+
+      if (!titleGen) {
+        throw new Error('TitleGenerator not found in marketplace');
+      }
+
       // Call TitleGenerator
       const result = await tetto.callAgent(
-        '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
+        titleGen.id,
         { text: input },
         tettoWallet
       );
@@ -376,11 +384,15 @@ function MyComponent() {
 
 ### Call Different Agents
 
+> **💡 Best Practice:** Always use dynamic agent lookup instead of hardcoded IDs.
+
 ```typescript
+// Lookup agents dynamically
+const agents = await tetto.listAgents();
 const AGENTS = {
-  TITLE: '60fa88a8-5e8e-4884-944f-ac9fe278ff18',
-  SUMMARY: 'summary-agent-id',
-  KEYWORDS: 'keywords-agent-id'
+  TITLE: agents.find(a => a.name === 'TitleGenerator')?.id,
+  SUMMARY: agents.find(a => a.name === 'Summarizer')?.id,
+  KEYWORDS: agents.find(a => a.name === 'KeywordExtractor')?.id
 };
 
 async function processArticle(text: string) {
