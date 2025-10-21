@@ -54,9 +54,10 @@ npm install
 npm run dev
 ```
 
-Or use utilities directly:
+Or build manually using SDK utilities:
 
 ```typescript
+// app/api/my-agent/route.ts
 import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
 
 const anthropic = createAnthropic();
@@ -75,6 +76,8 @@ export const POST = createAgentHandler({
   }
 });
 ```
+
+**That's it!** 67% less code than manual implementation.
 
 ## Installation
 

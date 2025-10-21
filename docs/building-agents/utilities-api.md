@@ -26,7 +26,7 @@ Wraps your agent logic with automatic request handling, input validation, and er
 ```typescript
 function createAgentHandler(config: {
   handler: (input: any) => Promise<any>
-}): (request: NextRequest) => Promise<Response>
+}): (request: any) => Promise<Response | void>
 ```
 
 ### Parameters
@@ -40,22 +40,31 @@ function createAgentHandler(config: {
 
 Next.js compatible POST handler function
 
-### Example
+### Usage
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
 
+// Option 1: Direct export (recommended for simple cases)
 export const POST = createAgentHandler({
   async handler(input: { text: string }) {
-    // Your logic here
     const processed = input.text.toUpperCase();
-
-    return {
-      result: processed
-    };
+    return { result: processed };
   }
 });
+
+// Option 2: Store then export (useful for testing/reuse)
+const handler = createAgentHandler({
+  async handler(input: { text: string }) {
+    const processed = input.text.toUpperCase();
+    return { result: processed };
+  }
+});
+
+export const POST = handler;
 ```
+
+**Both patterns work identically.** Use whichever you prefer.
 
 ### What It Does Automatically
 
@@ -141,6 +150,49 @@ export const POST = createAgentHandler({
 ```
 
 **67% less code.**
+
+### Complete Working Example
+
+Here's a full Next.js route file using the utility:
+
+```typescript
+// app/api/my-agent/route.ts
+import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+
+const anthropic = createAnthropic();
+
+export const POST = createAgentHandler({
+  async handler(input: { text: string }) {
+    // Validate your specific requirements
+    if (input.text.length < 10) {
+      throw new Error("Text must be at least 10 characters");
+    }
+
+    // Call AI service
+    const message = await anthropic.messages.create({
+      model: "claude-3-5-haiku-20241022",
+      max_tokens: 200,
+      messages: [{ role: "user", content: input.text }]
+    });
+
+    // Return formatted output
+    return {
+      result: message.content[0].text
+    };
+  }
+});
+```
+
+**That's all you need!** The handler manages everything else.
+
+### Next.js Compatibility
+
+Works with:
+- ✅ Next.js 13 (App Router)
+- ✅ Next.js 14 (App Router)
+- ✅ Next.js 15 (App Router)
+
+**Note:** Uses standard Web `Response` API, not `NextResponse`. This is intentional for better compatibility.
 
 ---
 
@@ -507,13 +559,103 @@ async handler(input: any) {
 
 ---
 
+## Troubleshooting
+
+### TypeScript Errors
+
+**Issue:** `Type 'Promise<Response>' is not assignable to type 'Promise<void | Response>'`
+
+**Solution:** This is usually a Next.js type checking issue. The utility returns the correct type. If you see this:
+
+```typescript
+// This works
+export const POST = createAgentHandler({ ... });
+
+// If you get type errors, try:
+const handler = createAgentHandler({ ... });
+export const POST = handler;
+```
+
+Both patterns are identical at runtime.
+
+### Build Fails with "Module not found: tetto-sdk/agent"
+
+**Issue:** Can't find `tetto-sdk/agent` during build
+
+**Solution:** Make sure you have the latest version:
+
+```bash
+npm install tetto-sdk@latest
+```
+
+The `/agent` export was added in v0.1.0.
+
+### Handler Not Receiving Input
+
+**Issue:** `input` parameter is `undefined` in your handler
+
+**Cause:** Request body doesn't have `input` field
+
+**Solution:** Requests must be formatted as:
+
+```json
+{
+  "input": {
+    "your": "data"
+  }
+}
+```
+
+The `createAgentHandler` automatically extracts the `input` field.
+
+### Anthropic API Key Not Found
+
+**Issue:** `createAnthropic()` fails with "ANTHROPIC_API_KEY not found"
+
+**Solution:**
+
+```bash
+# Check .env file exists
+ls -la .env
+
+# Verify it contains the key
+cat .env | grep ANTHROPIC
+
+# Should show:
+ANTHROPIC_API_KEY=sk-ant-xxxxx
+
+# Restart your dev server
+npm run dev
+```
+
+### Error: "Cannot read property 'text' of undefined"
+
+**Issue:** Claude response doesn't contain expected text
+
+**Cause:** Response format changed or error occurred
+
+**Solution:** Always check response type:
+
+```typescript
+const message = await anthropic.messages.create({ ... });
+
+const text = message.content[0].type === 'text'
+  ? message.content[0].text
+  : ''; // Fallback
+
+return { result: text };
+```
+
+---
+
 ## Related Documentation
 
 - [CLI Reference](cli-reference.md) - create-tetto-agent CLI
 - [Customization Guide](customization.md) - Beyond templates
-- [Examples](../calling-agents/api-reference.md) - Real-world usage
+- [Deployment Guide](deployment.md) - Production best practices
+- [Quickstart](quickstart.md) - Build your first agent in 5 minutes
 
 ---
 
 **Version:** 0.1.0
-**Last Updated:** 2025-10-18
+**Last Updated:** 2025-10-20
