@@ -49,7 +49,7 @@ export interface AgentHandlerConfig {
  * ```
  */
 export function createAgentHandler(config: AgentHandlerConfig) {
-  async function POST(request: any) {
+  async function POST(request: any): Promise<Response | void> {
     try {
       // Step 1: Parse request body
       let body: any;

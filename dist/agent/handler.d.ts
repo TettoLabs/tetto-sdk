@@ -47,4 +47,4 @@ export interface AgentHandlerConfig {
  * });
  * ```
  */
-export declare function createAgentHandler(config: AgentHandlerConfig): (request: any) => Promise<import("undici-types").Response>;
+export declare function createAgentHandler(config: AgentHandlerConfig): (request: any) => Promise<Response | void>;
