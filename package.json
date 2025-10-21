@@ -27,7 +27,8 @@
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "tsx test/agent.test.ts",
     "test:integration": "tsx test/node-test.ts",
-    "test:quick": "npm run test:unit"
+    "test:quick": "npm run test:unit",
+    "lint": "tsc --noEmit"
   },
   "keywords": [
     "tetto",
