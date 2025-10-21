@@ -23,6 +23,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "test": "tsx test/node-test.ts && tsx test/agent.test.ts"
   },
   "keywords": [
