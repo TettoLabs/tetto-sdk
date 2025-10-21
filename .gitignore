@@ -3,7 +3,7 @@ node_modules/
 package-lock.json
 
 # Build outputs
-dist/
+# dist/ - COMMITTED for git installs to work
 build/
 *.tsbuildinfo
 
