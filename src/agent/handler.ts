@@ -49,21 +49,16 @@ export interface AgentHandlerConfig {
  * ```
  */
 export function createAgentHandler(config: AgentHandlerConfig) {
-  return async (request: any) => {
+  async function POST(request: any) {
     try {
       // Step 1: Parse request body
       let body: any;
       try {
         body = await request.json();
       } catch (parseError) {
-        return new Response(
-          JSON.stringify({
-            error: 'Invalid JSON in request body'
-          }),
-          {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-          }
+        return Response.json(
+          { error: 'Invalid JSON in request body' },
+          { status: 400 }
         );
       }
 
@@ -71,14 +66,9 @@ export function createAgentHandler(config: AgentHandlerConfig) {
       const { input } = body;
 
       if (!input) {
-        return new Response(
-          JSON.stringify({
-            error: "Missing 'input' field in request body"
-          }),
-          {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-          }
+        return Response.json(
+          { error: "Missing 'input' field in request body" },
+          { status: 400 }
         );
       }
 
@@ -86,13 +76,7 @@ export function createAgentHandler(config: AgentHandlerConfig) {
       const output = await config.handler(input);
 
       // Step 4: Return success response
-      return new Response(
-        JSON.stringify(output),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      return Response.json(output, { status: 200 });
 
     } catch (error: unknown) {
       // Step 5: Handle errors gracefully
@@ -102,15 +86,12 @@ export function createAgentHandler(config: AgentHandlerConfig) {
 
       console.error('Agent error:', errorMessage);
 
-      return new Response(
-        JSON.stringify({
-          error: errorMessage
-        }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        }
+      return Response.json(
+        { error: errorMessage },
+        { status: 500 }
       );
     }
-  };
+  }
+
+  return POST;
 }
