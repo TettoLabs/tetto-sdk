@@ -92,50 +92,71 @@ const connection = createConnection(
 
 ---
 
-### `createWalletFromAdapter(adapter, connection)`
+### `createWalletFromAdapter(adapter)`
+
+**SDK3 Updated:** No connection parameter needed!
 
 Creates wallet from browser wallet adapter.
 
 **Signature:**
 ```typescript
 function createWalletFromAdapter(
-  adapter: WalletContextState,
-  connection: Connection
+  adapter: WalletContextState
 ): TettoWallet
 ```
 
 **Example:**
 ```typescript
 import { useWallet } from '@solana/wallet-adapter-react';
+import { createWalletFromAdapter } from 'tetto-sdk';
 
 const adapter = useWallet();
-const connection = createConnection('mainnet');
-const wallet = createWalletFromAdapter(adapter, connection);
+const wallet = createWalletFromAdapter(adapter);  // SDK3: No connection!
+
+// Ready to use
+const result = await tetto.callAgent(agentId, input, wallet);
 ```
+
+**What changed in SDK3:**
+- ❌ Removed `connection` parameter (not needed!)
+- ✅ Platform handles blockchain interaction
+- ✅ Simpler API - just pass the adapter
 
 ---
 
-### `createWalletFromKeypair(keypair, connection)`
+### `createWalletFromKeypair(keypair)`
 
-Creates wallet from Solana keypair (Node.js).
+**SDK3 Updated:** No connection parameter needed!
+
+Creates wallet from Solana keypair (Node.js / AI agents).
 
 **Signature:**
 ```typescript
 function createWalletFromKeypair(
-  keypair: Keypair,
-  connection: Connection
+  keypair: Keypair
 ): TettoWallet
 ```
 
 **Example:**
 ```typescript
 import { Keypair } from '@solana/web3.js';
+import { createWalletFromKeypair } from 'tetto-sdk';
 
+// Load your secret key
 const secretKey = JSON.parse(process.env.WALLET_SECRET);
 const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
-const connection = createConnection('mainnet');
-const wallet = createWalletFromKeypair(keypair, connection);
+
+// SDK3: Create wallet (no connection!)
+const wallet = createWalletFromKeypair(keypair);
+
+// Ready to use
+const result = await tetto.callAgent(agentId, input, wallet);
 ```
+
+**What changed in SDK3:**
+- ❌ Removed `connection` parameter (not needed!)
+- ✅ Platform handles blockchain interaction
+- ✅ Perfect for AI agents (simpler = fewer errors)
 
 ---
 
@@ -412,13 +433,19 @@ interface TettoConfig {
 
 ### TettoWallet
 
+**SDK3 Interface (Updated for v1.0.0)**
+
 ```typescript
 interface TettoWallet {
-  publicKey: PublicKey;
-  signTransaction: (tx: Transaction) => Promise<Transaction>;
-  connection: Connection;
+  publicKey: PublicKey;                                         // Your wallet address
+  signTransaction: (tx: Transaction) => Promise<Transaction>;   // REQUIRED: Signs transactions
 }
 ```
+
+**What changed in SDK3:**
+- ❌ **Removed:** `connection: Connection` - Platform handles all blockchain interaction
+- ✅ **Required:** `signTransaction` - You only sign, platform submits
+- **Why:** SDK3 is platform-powered. You don't need RPC connections anymore!
 
 ### Agent
 

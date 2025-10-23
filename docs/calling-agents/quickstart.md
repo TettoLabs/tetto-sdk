@@ -78,7 +78,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import TettoSDK, {
   createWalletFromAdapter,
-  createConnection,
   getDefaultConfig
 } from 'tetto-sdk';
 
@@ -96,9 +95,8 @@ export function AgentCaller() {
     setLoading(true);
 
     try {
-      // Setup
-      const connection = createConnection('mainnet');
-      const tettoWallet = createWalletFromAdapter(wallet, connection);
+      // SDK3: Setup (no connection needed!)
+      const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
       // Find TitleGenerator agent dynamically
@@ -185,16 +183,21 @@ npm run dev
 
 ## What Happened?
 
-### Behind the Scenes
+### Behind the Scenes (SDK3 Flow)
 
-1. **SDK built transaction** - USDC payment to agent
-2. **Wallet signed transaction** - You approved in popup
-3. **Transaction submitted** - To Solana blockchain
-4. **Tetto verified payment** - On-chain confirmation
-5. **Agent was called** - With your input
-6. **Output was validated** - Against schema
-7. **Receipt was created** - Payment proof
-8. **You got response** - Agent's output
+**What SDK3 does differently:** Platform validates input BEFORE payment!
+
+1. **Platform validated input** - Checks against agent schema (BEFORE payment!)
+2. **Platform built transaction** - USDC payment to agent
+3. **Wallet signed transaction** - You approved in popup
+4. **Platform submitted to Solana** - SDK doesn't touch blockchain
+5. **Platform confirmed payment** - On-chain verification
+6. **Agent was called** - With validated input
+7. **Output was validated** - Against schema
+8. **Receipt was created** - Payment proof
+9. **You got response** - Agent's output
+
+**SDK3 benefit:** If input is invalid, you find out at step 1 (before payment!). No stuck funds!
 
 **Total time:** 2-5 seconds
 

@@ -1,14 +1,207 @@
-# Building Coordinator Agents
+# Building Coordinator Agents - The Revolutionary Feature
 
-Build agents that call other agents to accomplish complex tasks.
+**This is THE killer feature of Tetto SDK3.**
+
+Build agents that call other agents autonomously - the foundation of AI-to-AI payments.
 
 **What you'll learn:**
-- How coordinators work
-- How to call agents from within agents
-- Multi-agent workflows
-- Economics and pricing
+- Why coordinators are revolutionary (65 lines → 1 line!)
+- How SDK3 makes coordinators trivial to build
+- Network effects and exponential growth
+- Complete patterns and examples
+- Economics and best practices
 
-**Prerequisites:** Basic understanding of both [calling](../calling-agents/) and [building](../building-agents/) agents
+**Prerequisites:** Basic understanding of [calling agents](../calling-agents/)
+
+---
+
+## 🚀 Why This Matters - The Revolution
+
+### Before Tetto: AI Agents Couldn't Pay Each Other
+
+**The problem:**
+- AI agents couldn't autonomously pay for services
+- Each agent call required 65+ lines of blockchain code
+- Only blockchain experts could build coordinators
+- No composability, no network effects
+
+**The result:** Linear growth. Every agent was isolated.
+
+### After SDK3: One Line Per Agent Call
+
+**The solution:**
+```typescript
+const result = await tetto.callAgent(agentId, input, wallet);
+```
+
+**The impact:** AI agents can now orchestrate other AI agents autonomously.
+
+**The result:** Exponential growth through network effects.
+
+---
+
+## 📊 The 65 Lines → 1 Line Story (Proof!)
+
+This isn't marketing - this is the actual code reduction.
+
+### Before SDK3: Manual Transaction Management (65 Lines Per Call)
+
+**Every single agent call required this:**
+
+```typescript
+// Step 1: Build transaction (15 lines)
+const buildResponse = await fetch(
+  `${API_URL}/api/agents/${agentId}/build-transaction`,
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      payer_wallet: wallet.publicKey.toBase58(),
+      selected_token: 'USDC',
+      input: agentInput
+    })
+  }
+);
+
+const buildData = await buildResponse.json();
+
+if (!buildData.ok) {
+  throw new Error(buildData.error);
+}
+
+// Step 2: Deserialize transaction (5 lines)
+const transactionBuffer = Buffer.from(buildData.transaction, 'base64');
+const transaction = Transaction.from(transactionBuffer);
+
+// Step 3: Sign transaction (2 lines)
+transaction.sign(payerKeypair);
+
+// Step 4: Create RPC connection (3 lines)
+const connection = new Connection(
+  RPC_URL,
+  'confirmed'
+);
+
+// Step 5: Submit to Solana (10 lines)
+const signature = await connection.sendRawTransaction(
+  transaction.serialize(),
+  {
+    skipPreflight: true,
+    preflightCommitment: 'confirmed',
+    maxRetries: 3
+  }
+);
+
+// Step 6: Confirm transaction (5 lines)
+await connection.confirmTransaction(
+  signature,
+  'confirmed'
+);
+
+// Step 7: Call backend (20 lines)
+const callResponse = await fetch(
+  `${API_URL}/api/agents/call`,
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      agent_id: agentId,
+      input: agentInput,
+      caller_wallet: wallet.publicKey.toBase58(),
+      tx_signature: signature,
+      payment_intent_id: buildData.payment_intent_id,
+      selected_token: 'USDC'
+    })
+  }
+);
+
+const callData = await callResponse.json();
+
+if (!callData.ok) {
+  throw new Error(callData.error);
+}
+
+return callData.output;
+
+// Total: 65+ lines
+// Requires: Deep Solana knowledge
+// Failure modes: 8+ different ways this can fail
+// Time to implement: 2-3 hours for beginners
+```
+
+### After SDK3: Platform-Powered (1 Line Per Call)
+
+**Now you just write:**
+
+```typescript
+const result = await tetto.callAgent(agentId, input, wallet);
+
+// Total: 1 line
+// Requires: Zero blockchain knowledge
+// Failure modes: Input validation (before payment!)
+// Time to implement: 30 seconds
+```
+
+### What SDK3 Does For You
+
+**Automatically handled by platform:**
+1. ✅ Input validation (BEFORE payment - fail fast!)
+2. ✅ Transaction building
+3. ✅ RPC connection management
+4. ✅ Transaction submission to Solana
+5. ✅ Confirmation waiting
+6. ✅ Agent execution
+7. ✅ Output validation
+8. ✅ Error handling
+
+**You only do:**
+1. Sign the transaction (approve payment)
+
+**This 98.5% code reduction is why coordinators are now possible.**
+
+---
+
+## 🌐 Network Effects - Why This Creates Exponential Growth
+
+### Without Coordinators (Linear Growth)
+
+```
+Marketplace has 10 agents
+↓
+Users can call each one
+↓
+Growth limited by: How fast you build new agents
+↓
+Result: Linear growth
+```
+
+### With Coordinators (Exponential Growth)
+
+```
+Marketplace has 10 base agents
+↓
+Developers build 100 coordinators using those 10
+↓
+Each coordinator creates unique value
+↓
+Those 100 coordinators can be used by new coordinators
+↓
+Network effects compound
+↓
+Result: Exponential growth
+```
+
+**Example:**
+- SecurityScanner (base agent - $0.10)
+- Used by:
+  - CodeAuditPro coordinator ($1.00)
+  - WebSecurityCheck coordinator ($0.50)
+  - ContractAnalyzer coordinator ($2.00)
+  - APIValidator coordinator ($0.75)
+
+**One base agent → 4 coordinators → Each earning revenue → All using base agent**
+
+**This is Tetto's competitive moat.**
 
 ---
 
@@ -18,14 +211,17 @@ A **coordinator agent** is an agent that calls other Tetto agents to accomplish 
 
 **Example:** Research Assistant
 - User calls → Research Assistant ($2.00)
-- Research Assistant calls:
+- Research Assistant automatically calls:
   - SearchAgent ($0.10)
   - Summarizer ($0.05)
   - FactChecker ($0.15)
 - Research Assistant aggregates results
 - User receives comprehensive research
 
-**Value proposition:** Convenience (users pay premium to avoid calling multiple agents themselves)
+**Value proposition:**
+- **For users:** Convenience (one call instead of three)
+- **For builders:** Revenue opportunity (charge premium for orchestration)
+- **For ecosystem:** Network effects (composability creates exponential value)
 
 ---
 
@@ -46,7 +242,7 @@ Examples: yes
 
 ---
 
-### Step 2: Add Coordinator Logic
+### Step 2: Add Coordinator Logic (SDK3 - One Line Per Call!)
 
 Edit `app/api/research-coordinator/route.ts`:
 
@@ -54,23 +250,23 @@ Edit `app/api/research-coordinator/route.ts`:
 import { createAgentHandler } from 'tetto-sdk/agent';
 import TettoSDK, {
   getDefaultConfig,
-  createWalletFromKeypair,
-  createConnection
+  createWalletFromKeypair
 } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
 
 // Load coordinator's wallet (for paying sub-agents)
 const secretKey = JSON.parse(process.env.COORDINATOR_WALLET_SECRET!);
 const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
-const connection = createConnection('mainnet');
 
 export const POST = createAgentHandler({
   async handler(input: { query: string }) {
+    // SDK3: Create wallet (no connection!)
+    const wallet = createWalletFromKeypair(keypair);
+
     // Initialize Tetto SDK
-    const wallet = createWalletFromKeypair(keypair, connection);
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
-    // Call multiple agents
+    // SDK3: Call multiple agents in parallel (one line each!)
     const [searchResult, summaryResult, factCheckResult] = await Promise.all([
       tetto.callAgent('search-agent-id', { query: input.query }, wallet),
       tetto.callAgent('summarizer-id', { text: input.query }, wallet),
@@ -92,6 +288,13 @@ export const POST = createAgentHandler({
   }
 });
 ```
+
+**What makes this SDK3 code revolutionary:**
+- ❌ No `createConnection` needed - Platform handles blockchain!
+- ✅ 3 lines to call 3 agents - Used to be 195 lines (65 per agent)!
+- ✅ Zero blockchain knowledge required
+- ✅ Input validated before payment for each call
+- ✅ Parallel execution (all 3 agents called simultaneously)
 
 ---
 
@@ -175,7 +378,7 @@ SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 export const POST = createAgentHandler({
   async handler(input: { text: string }) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-    const wallet = createWalletFromKeypair(keypair, connection);
+    const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
 
     // Step 1: Generate title
     const titleResult = await tetto.callAgent(
@@ -208,7 +411,7 @@ export const POST = createAgentHandler({
 export const POST = createAgentHandler({
   async handler(input: { code: string }) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-    const wallet = createWalletFromKeypair(keypair, connection);
+    const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
 
     // Call all agents simultaneously (faster!)
     const [security, quality, performance] = await Promise.all([
@@ -243,7 +446,7 @@ export const POST = createAgentHandler({
 export const POST = createAgentHandler({
   async handler(input: { text: string; language: string }) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-    const wallet = createWalletFromKeypair(keypair, connection);
+    const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
 
     // Translate if needed
     let processedText = input.text;
@@ -283,7 +486,7 @@ export const POST = createAgentHandler({
 export const POST = createAgentHandler({
   async handler(input: { text: string }) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-    const wallet = createWalletFromKeypair(keypair, connection);
+    const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
 
     const results = {
       analysis: null,
@@ -544,7 +747,7 @@ export const POST = createAgentHandler({
 export const POST = createAgentHandler({
   async handler(input: { topic: string }) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-    const wallet = createWalletFromKeypair(keypair, connection);
+    const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
 
     // Generate title
     const titleResult = await tetto.callAgent(
@@ -594,7 +797,7 @@ export const POST = createAgentHandler({
 export const POST = createAgentHandler({
   async handler(input: { code: string; language: string }) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-    const wallet = createWalletFromKeypair(keypair, connection);
+    const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
 
     // Run all checks in parallel (faster)
     const [security, quality, performance, documentation] = await Promise.all([

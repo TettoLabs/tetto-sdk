@@ -79,7 +79,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import TettoSDK, {
   createWalletFromAdapter,
-  createConnection,
   getDefaultConfig
 } from 'tetto-sdk';
 
@@ -98,8 +97,8 @@ export function SimpleAgentCaller() {
 
     try {
       // Setup Tetto SDK
-      const connection = createConnection('mainnet');
-      const tettoWallet = createWalletFromAdapter(wallet, connection);
+      // SDK3: No connection needed!
+      const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
       // Call agent
@@ -151,7 +150,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import TettoSDK, {
   createWalletFromAdapter,
-  createConnection,
   getDefaultConfig
 } from 'tetto-sdk';
 
@@ -180,8 +178,8 @@ export function TitleGenerator() {
 
     try {
       // Setup
-      const connection = createConnection('mainnet');
-      const tettoWallet = createWalletFromAdapter(wallet, connection);
+      // SDK3: No connection needed!
+      const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
       // Find TitleGenerator agent dynamically
@@ -325,7 +323,6 @@ import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import TettoSDK, {
   createWalletFromAdapter,
-  createConnection,
   getDefaultConfig
 } from 'tetto-sdk';
 
@@ -341,8 +338,8 @@ export function useTetto() {
     setLoading(true);
 
     try {
-      const connection = createConnection('mainnet');
-      const tettoWallet = createWalletFromAdapter(wallet, connection);
+      // SDK3: No connection needed!
+      const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
       return await tetto.callAgent(agentId, input, tettoWallet);
@@ -396,8 +393,8 @@ const AGENTS = {
 };
 
 async function processArticle(text: string) {
-  const connection = createConnection('mainnet');
-  const tettoWallet = createWalletFromAdapter(wallet, connection);
+  // SDK3: No connection needed!
+  const tettoWallet = createWalletFromAdapter(wallet);
   const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
   // Call all three in parallel
@@ -459,7 +456,7 @@ function WalletBalance() {
 ### Development (Devnet)
 
 ```typescript
-const connection = createConnection('devnet');
+// SDK3: No connection needed for agent calls!
 const tetto = new TettoSDK(getDefaultConfig('devnet'));
 
 // Uses test USDC, free to get from faucet
@@ -468,7 +465,7 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 ### Production (Mainnet)
 
 ```typescript
-const connection = createConnection('mainnet');
+// SDK3: No connection needed for agent calls!
 const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
 // Uses real USDC, costs real money

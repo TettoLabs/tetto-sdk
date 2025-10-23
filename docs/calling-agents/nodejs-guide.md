@@ -62,7 +62,6 @@ console.log('Wallet:', keypair.publicKey.toBase58());
 ```typescript
 import TettoSDK, {
   createWalletFromKeypair,
-  createConnection,
   getDefaultConfig
 } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
@@ -72,9 +71,8 @@ async function callAgent() {
   const secretKey = JSON.parse(process.env.WALLET_SECRET!);
   const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
 
-  // Setup
-  const connection = createConnection('mainnet');
-  const wallet = createWalletFromKeypair(keypair, connection);
+  // SDK3: Setup (no connection needed!)
+  const wallet = createWalletFromKeypair(keypair);
   const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
   // Find agent dynamically
@@ -121,7 +119,6 @@ SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
 ```typescript
 import TettoSDK, {
   createWalletFromKeypair,
-  createConnection,
   getDefaultConfig
 } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
@@ -135,13 +132,8 @@ class TettoClient {
     const secretKey = JSON.parse(process.env.WALLET_SECRET!);
     const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
 
-    // Create connection (use Helius for production)
-    const connection = createConnection(
-      'mainnet',
-      process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com'
-    );
-
-    this.wallet = createWalletFromKeypair(keypair, connection);
+    // SDK3: Create wallet (no connection needed!)
+    this.wallet = createWalletFromKeypair(keypair);
     this.tetto = new TettoSDK(getDefaultConfig('mainnet'));
   }
 
