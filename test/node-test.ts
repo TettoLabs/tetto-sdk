@@ -1,14 +1,14 @@
 /**
- * Test SDK v0.1.0 with Node.js Keypair
+ * Test SDK v1.0.0 (SDK3) with Node.js Keypair
  *
- * This tests the client-side signing flow on devnet (default) or mainnet
+ * SDK3: No Connection needed! Platform handles transaction submission.
+ * This tests the simplified signing flow on devnet (default) or mainnet.
  */
 
 import { Keypair } from '@solana/web3.js';
 import dotenv from 'dotenv';
 import TettoSDK, {
   createWalletFromKeypair,
-  createConnection,
   getDefaultConfig
 } from '../src/index';
 
@@ -16,7 +16,7 @@ import TettoSDK, {
 dotenv.config();
 
 async function testSDK() {
-  console.log('🧪 Testing Tetto SDK v0.1.0 (Node.js + Keypair)\n');
+  console.log('🧪 Testing Tetto SDK v1.0.0 - SDK3 (Node.js + Keypair)\n');
   console.log('='.repeat(60));
 
   // Step 1: Load test wallet from local .env
@@ -51,19 +51,11 @@ async function testSDK() {
     process.exit(1);
   }
 
-  // Step 2: Create connection (defaults to devnet)
-  console.log('\n2. Creating Solana connection...');
+  // Step 2: Determine network (SDK3: No connection needed!)
+  console.log('\n2. Determining network...');
   const network = (process.env.TEST_NETWORK as 'mainnet' | 'devnet') || 'devnet';
-  const rpcUrl = process.env.SOLANA_RPC_URL;
-
-  const connection = rpcUrl
-    ? createConnection(network, rpcUrl)
-    : createConnection(network);
-
-  console.log(`   ✅ Connected to ${network}`);
-  if (rpcUrl) {
-    console.log(`   ✅ Using custom RPC: ${rpcUrl.substring(0, 40)}...`);
-  }
+  console.log(`   ✅ Using ${network}`);
+  console.log(`   ✅ SDK3: No RPC connection needed!`);
 
   if (network === 'mainnet') {
     console.warn('\n⚠️  WARNING: Running tests on MAINNET');
@@ -72,9 +64,9 @@ async function testSDK() {
     await new Promise(resolve => setTimeout(resolve, 3000));
   }
 
-  // Step 3: Create wallet object
+  // Step 3: Create wallet object (SDK3: No connection parameter!)
   console.log('\n3. Creating wallet object...');
-  const wallet = createWalletFromKeypair(keypair, connection);
+  const wallet = createWalletFromKeypair(keypair);
   console.log(`   ✅ Wallet ready: ${wallet.publicKey.toBase58()}`);
 
   // Step 4: Initialize Tetto SDK
@@ -101,12 +93,12 @@ async function testSDK() {
   console.log(`      Owner: ${titleGen.owner_wallet}`);
 
   // Step 6: Call agent with test input
-  console.log('\n6. Calling agent (this will submit a transaction)...');
-  console.log('   Input: "Tetto SDK v0.1.0 enables autonomous AI agent payments"');
+  console.log('\n6. Calling agent (SDK3: input validated before payment!)...');
+  console.log('   Input: "Tetto SDK v1.0.0 - platform-powered, 75% smaller"');
 
   const result = await tetto.callAgent(
     titleGen.id,
-    { text: 'Tetto SDK v0.1.0 enables autonomous AI agent payments on Solana mainnet with client-side transaction signing' },
+    { text: 'Tetto SDK v1.0.0 (SDK3) enables autonomous AI agent payments with platform-powered transactions and zero blockchain complexity' },
     wallet
   );
 

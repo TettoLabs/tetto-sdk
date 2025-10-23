@@ -1,6 +1,7 @@
 /**
- * Node.js Example: Call Tetto Agent with Keypair
+ * Node.js Example: Call Tetto Agent with Keypair (SDK3)
  *
+ * SDK3: No Connection needed! Platform handles transaction submission.
  * This example shows how to call agents from a backend/script
  * using a Solana keypair for autonomous payments.
  *
@@ -11,8 +12,8 @@
  * - Scheduled tasks
  *
  * Requirements:
- * - tetto-sdk
- * - @solana/web3.js
+ * - tetto-sdk (v1.0.0+)
+ * - @solana/web3.js (for Keypair type only)
  * - dotenv (for loading env vars)
  */
 
@@ -20,7 +21,6 @@ import { Keypair } from '@solana/web3.js';
 import dotenv from 'dotenv';
 import TettoSDK, {
   createWalletFromKeypair,
-  createConnection,
   getDefaultConfig
 } from 'tetto-sdk';
 
@@ -28,7 +28,7 @@ import TettoSDK, {
 dotenv.config();
 
 async function main() {
-  console.log('🤖 Autonomous Agent Call Example\n');
+  console.log('🤖 Autonomous Agent Call Example (SDK3)\n');
 
   // Step 1: Load keypair from environment
   const secretKeyArray = JSON.parse(process.env.WALLET_SECRET || '[]');
@@ -41,19 +41,16 @@ async function main() {
   const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKeyArray));
   console.log(`✅ Loaded keypair: ${keypair.publicKey.toBase58()}`);
 
-  // Step 2: Setup connection
+  // Step 2: Create wallet (SDK3: No connection needed!)
+  const wallet = createWalletFromKeypair(keypair);
+  console.log(`✅ Wallet created (no RPC connection needed!)`);
+
+  // Step 3: Initialize SDK
   const network = (process.env.NETWORK as 'mainnet' | 'devnet') || 'devnet';
-  const connection = createConnection(network);
-  console.log(`✅ Connected to ${network}`);
-
-  // Step 3: Create wallet
-  const wallet = createWalletFromKeypair(keypair, connection);
-
-  // Step 4: Initialize SDK
   const tetto = new TettoSDK(getDefaultConfig(network));
-  console.log(`✅ SDK initialized\n`);
+  console.log(`✅ SDK initialized for ${network}\n`);
 
-  // Step 5: Find agent to call
+  // Step 4: Find agent to call
   console.log('🔍 Finding TitleGenerator agent...');
   const agents = await tetto.listAgents();
   const titleGen = agents.find(a => a.name === 'TitleGenerator');
@@ -66,8 +63,8 @@ async function main() {
   console.log(`   Price: $${titleGen.price_display} ${titleGen.token}`);
   console.log(`   Owner: ${titleGen.owner_wallet}\n`);
 
-  // Step 6: Call agent autonomously
-  console.log('🚀 Calling agent...');
+  // Step 5: Call agent autonomously (SDK3: input validated before payment!)
+  console.log('🚀 Calling agent (SDK3 validates input first)...');
 
   const result = await tetto.callAgent(
     titleGen.id,
@@ -77,7 +74,7 @@ async function main() {
     wallet
   );
 
-  // Step 7: Display results
+  // Step 6: Display results
   console.log('\n✅ Success!\n');
   console.log('📊 Output:');
   console.log(JSON.stringify(result.output, null, 2));
@@ -93,7 +90,7 @@ async function main() {
   console.log(`   ${result.explorerUrl}`);
   console.log();
 
-  // Step 8: Verify receipt (optional)
+  // Step 7: Verify receipt (optional)
   console.log('📝 Fetching receipt...');
   const receipt = await tetto.getReceipt(result.receiptId);
   console.log('✅ Receipt verified:');

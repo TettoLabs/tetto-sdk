@@ -5,6 +5,128 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-10-23 - SDK3 Release 🚀
+
+### Major Version Release - Breaking Changes
+
+**SDK3 represents a complete architectural shift** - transactions are now built and submitted by the Tetto platform, dramatically simplifying the SDK and improving security.
+
+### Breaking Changes
+
+- **Wallet Interface Simplified**
+  - `TettoWallet` no longer requires `connection` property (❌ REMOVED)
+  - `TettoWallet` no longer has `sendTransaction` method (❌ REMOVED)
+  - `signTransaction` is now **required** (was optional)
+
+- **Wallet Helpers Updated**
+  - `createWalletFromKeypair(keypair)` - removed `connection` parameter
+  - `createWalletFromAdapter(adapter)` - removed `connection` parameter
+
+- **Removed Exports**
+  - `buildAgentPaymentTransaction` - transaction building now handled by platform
+
+### Added
+
+- ✅ **Input validation before payment** - Invalid input fails BEFORE creating payment transaction
+- 🚀 **Platform-powered transactions** - Platform builds, signs, and submits transactions
+- 📦 **Build transaction endpoint** - New `/api/agents/[id]/build-transaction` endpoint
+- 🎯 **Payment intent system** - All transaction context in single payment_intent record
+- 🔒 **Enhanced security** - Platform verifies transaction structure before submission
+
+### Changed
+
+- **API Simplification** - `/api/agents/call` now accepts only 2 fields:
+  - `payment_intent_id` (UUID from build-transaction)
+  - `signed_transaction` (base64 serialized signed transaction)
+- **Flow Update** - New flow:
+  1. Request transaction from platform (with input validation)
+  2. Sign transaction (client-side)
+  3. Send signed transaction to platform
+  4. Platform submits to Solana and executes agent
+
+### Removed
+
+- 📦 **Deleted Files**:
+  - `src/transaction-builder.ts` (121 lines) - Platform builds transactions now
+  - `src/ensure-ata.ts` (99 lines) - Platform handles ATA creation
+
+- 🎁 **Dependencies Removed**:
+  - `@solana/spl-token` (17 packages removed)
+
+- 🧹 **Code Reduction**:
+  - Total: -260 lines of code (24% reduction)
+  - Bundle size: ~24KB (was ~25KB+, target: ~50KB)
+
+### Improved
+
+- **Developer Experience**
+  - No RPC connection management needed
+  - No blockchain complexity exposed
+  - Clearer error messages for invalid input
+  - Simpler wallet creation (just keypair, no connection)
+
+- **Bundle Size**
+  - Target: 75% reduction (200KB → 50KB)
+  - Current: ~24KB compiled output
+  - Removed SPL Token dependency
+
+- **Type Safety**
+  - `TettoWallet` now enforces required `signTransaction`
+  - Added `BuildTransactionResult` interface
+  - Better TypeScript inference
+
+### Migration Guide
+
+**Step 1: Update wallet creation**
+```diff
+// Before (v0.x)
+- import { createConnection, createWalletFromKeypair } from 'tetto-sdk';
+- const connection = createConnection('mainnet');
+- const wallet = createWalletFromKeypair(keypair, connection);
+
+// After (v1.0.0)
++ import { createWalletFromKeypair } from 'tetto-sdk';
++ const wallet = createWalletFromKeypair(keypair);  // No connection!
+```
+
+**Step 2: Remove connection references**
+```diff
+// Before (v0.x)
+- const connection = createConnection('mainnet');
+- const wallet = createWalletFromAdapter(walletAdapter, connection);
+
+// After (v1.0.0)
++ const wallet = createWalletFromAdapter(walletAdapter);  // No connection!
+```
+
+**That's it!** Everything else works the same way. The `callAgent()` API is unchanged.
+
+### Technical Details
+
+- **Platform Architecture**: TETTO3 (platform-powered transactions)
+- **API Version**: v1.0.0
+- **Node Version**: ≥20.0.0
+- **TypeScript**: 5.0+
+- **Dependencies**: 2 (was 3)
+- **Checkpoints Completed**: CP0, CP1, CP2, CP3
+
+### Documentation Updates
+
+- Updated README.md with "What's New in v1.0.0" section
+- Updated all examples to remove Connection usage
+- Updated API reference documentation
+- Updated calling guides (browser, Node.js, quickstart)
+- Added comprehensive migration guide
+- Updated CHANGELOG.md with full v1.0.0 details
+
+### Related Links
+
+- [SDK3 Implementation Guide](DOCS/OCT21/FATAL_FLAW/SDK3/)
+- [TETTO3 Platform Architecture](DOCS/OCT21/FATAL_FLAW/TETTO3/)
+- [Migration Guide](docs/migration-v1.md)
+
+---
+
 ## [0.1.0] - 2025-10-18
 
 ### Initial Stable Release
@@ -96,6 +218,6 @@ First production-ready release of Tetto SDK with complete functionality for both
 
 ---
 
-**Version:** 0.1.0
-**Released:** 2025-10-18
+**Current Version:** 1.0.0 (SDK3)
+**Latest Release:** 2025-10-23
 **License:** MIT
