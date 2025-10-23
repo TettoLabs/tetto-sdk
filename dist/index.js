@@ -28,7 +28,7 @@
  * ```
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildAgentPaymentTransaction = exports.getUSDCMint = exports.createConnection = exports.getDefaultConfig = exports.createWalletFromAdapter = exports.createWalletFromKeypair = exports.TettoSDK = exports.NETWORK_DEFAULTS = void 0;
+exports.getUSDCMint = exports.createConnection = exports.getDefaultConfig = exports.createWalletFromAdapter = exports.createWalletFromKeypair = exports.TettoSDK = exports.NETWORK_DEFAULTS = void 0;
 const web3_js_1 = require("@solana/web3.js");
 // Network defaults
 exports.NETWORK_DEFAULTS = {
@@ -310,5 +310,3 @@ var network_helpers_1 = require("./network-helpers");
 Object.defineProperty(exports, "getDefaultConfig", { enumerable: true, get: function () { return network_helpers_1.getDefaultConfig; } });
 Object.defineProperty(exports, "createConnection", { enumerable: true, get: function () { return network_helpers_1.createConnection; } });
 Object.defineProperty(exports, "getUSDCMint", { enumerable: true, get: function () { return network_helpers_1.getUSDCMint; } });
-var transaction_builder_1 = require("./transaction-builder");
-Object.defineProperty(exports, "buildAgentPaymentTransaction", { enumerable: true, get: function () { return transaction_builder_1.buildAgentPaymentTransaction; } });

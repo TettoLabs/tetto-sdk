@@ -26,7 +26,7 @@
  * console.log(result.txSignature); // Solana transaction
  * ```
  */
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 export interface TettoConfig {
     apiUrl: string;
     network: 'mainnet' | 'devnet';
@@ -35,9 +35,7 @@ export interface TettoConfig {
 }
 export interface TettoWallet {
     publicKey: PublicKey;
-    signTransaction?: (tx: Transaction) => Promise<Transaction>;
-    sendTransaction?: (tx: Transaction, connection: Connection) => Promise<string>;
-    connection: Connection;
+    signTransaction: (tx: Transaction) => Promise<Transaction>;
 }
 export interface CallAgentOptions {
     skipConfirmation?: boolean;
@@ -248,4 +246,3 @@ export declare class TettoSDK {
 export default TettoSDK;
 export { createWalletFromKeypair, createWalletFromAdapter } from "./wallet-helpers";
 export { getDefaultConfig, createConnection, getUSDCMint } from "./network-helpers";
-export { buildAgentPaymentTransaction } from "./transaction-builder";

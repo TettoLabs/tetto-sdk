@@ -33,7 +33,6 @@ import {
   Transaction,
   Keypair,
 } from "@solana/web3.js";
-import { buildAgentPaymentTransaction } from "./transaction-builder";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -46,11 +45,10 @@ export interface TettoConfig {
   debug?: boolean; // Optional: Enable console logging
 }
 
+// SDK3 - CP2: Simplified wallet interface (no Connection needed)
 export interface TettoWallet {
   publicKey: PublicKey;
-  signTransaction?: (tx: Transaction) => Promise<Transaction>;
-  sendTransaction?: (tx: Transaction, connection: Connection) => Promise<string>;
-  connection: Connection;
+  signTransaction: (tx: Transaction) => Promise<Transaction>;  // Required (platform submits)
 }
 
 export interface CallAgentOptions {
@@ -463,4 +461,3 @@ export default TettoSDK;
 // Helpers
 export { createWalletFromKeypair, createWalletFromAdapter } from "./wallet-helpers";
 export { getDefaultConfig, createConnection, getUSDCMint } from "./network-helpers";
-export { buildAgentPaymentTransaction } from "./transaction-builder";
