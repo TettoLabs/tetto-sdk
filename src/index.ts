@@ -126,6 +126,19 @@ export interface CallResult {
   protocolFee: number;
 }
 
+// SDK3 - CP1: Build transaction response from platform
+export interface BuildTransactionResult {
+  ok: boolean;
+  transaction: string;          // Base64 unsigned transaction
+  payment_intent_id: string;    // UUID for agents/call
+  amount_base: number;          // Amount in base units
+  token: string;                // 'SOL' or 'USDC'
+  expires_at: string;           // ISO timestamp
+  input_hash: string;           // SHA256 of input
+  message?: string;
+  error?: string;
+}
+
 export interface Receipt {
   id: string;
   agent: {
@@ -299,17 +312,13 @@ export class TettoSDK {
     wallet: TettoWallet,
     options?: CallAgentOptions
   ): Promise<CallResult> {
-    // Validate wallet
+    // Validate wallet (SDK3 - CP1: Simplified validation)
     if (!wallet.publicKey) {
       throw new Error('Wallet public key is required');
     }
 
-    if (!wallet.signTransaction && !wallet.sendTransaction) {
-      throw new Error('Wallet must provide either signTransaction or sendTransaction');
-    }
-
-    if (!wallet.connection) {
-      throw new Error('Wallet must provide connection');
+    if (!wallet.signTransaction) {
+      throw new Error('Wallet must provide signTransaction method');
     }
 
     if (this.config.debug) {
@@ -325,68 +334,76 @@ export class TettoSDK {
       console.log(`   Price: ${agent.price_display} ${agent.token}`);
     }
 
-    // Step 2: Get protocol wallet from config
-    const protocolWalletPubkey = new PublicKey(this.config.protocolWallet);
-
-    // Step 3: Calculate fees (10% default)
-    const feeBps = agent.fee_bps || 1000;
-    const protocolFee = Math.floor(agent.price_base * (feeBps / 10000));
-    const agentAmount = agent.price_base - protocolFee;
-
+    // Step 2: Request transaction from platform (SDK3 - CP1: Phase 1)
+    // Platform validates input BEFORE payment_intent creation (fail fast!)
     if (this.config.debug) {
-      console.log(`   Amount: ${agent.price_base} base units`);
-      console.log(`   Fee split: ${agentAmount} / ${protocolFee}`);
+      console.log("   Requesting transaction from platform (with input validation)...");
     }
 
-    // Step 4: Build unsigned transaction
-    const { transaction } = await buildAgentPaymentTransaction({
-      connection: wallet.connection,
-      payerPublicKey: wallet.publicKey,
-      agentWalletPublicKey: new PublicKey(agent.owner_wallet),
-      protocolWalletPublicKey: protocolWalletPubkey,
-      amountBase: agent.price_base,
-      protocolFeeBase: protocolFee,
-      tokenMint: agent.token_mint || "SOL",
-      tokenDecimals: agent.token_decimals || 9,
-      debug: this.config.debug,
-    });
+    const buildResponse = await fetch(
+      `${this.apiUrl}/api/agents/${agentId}/build-transaction`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payer_wallet: wallet.publicKey.toBase58(),
+          selected_token: options?.preferredToken,
+          input: input,  // SDK3 - CP1: Input validated at build-time!
+        }),
+      }
+    );
 
-    if (this.config.debug) console.log("   Transaction built, requesting signature...");
+    const buildResult = await buildResponse.json() as BuildTransactionResult;
 
-    // Step 5: Sign and submit transaction
-    let signature: string;
+    if (!buildResult.ok) {
+      if (this.config.debug) {
+        console.error("   ❌ Transaction building failed:", buildResult.error);
+      }
+      throw new Error(buildResult.error || "Transaction building failed");
+    }
+
+    if (this.config.debug) {
+      console.log(`   ✅ Transaction built (input validated)`);
+      console.log(`   Payment intent: ${buildResult.payment_intent_id}`);
+      console.log(`   Amount: ${buildResult.amount_base} base units`);
+      console.log(`   Token: ${buildResult.token}`);
+      console.log(`   Input hash: ${buildResult.input_hash}`);
+    }
+
+    // Step 3: Deserialize transaction from platform
+    const transaction = Transaction.from(
+      Buffer.from(buildResult.transaction, 'base64')
+    );
+
+    const payment_intent_id = buildResult.payment_intent_id;
+
+    if (this.config.debug) console.log("   Transaction deserialized, requesting signature...");
+
+    // Step 4: Sign transaction (SDK3 - CP1: Phase 2)
+    // SDK only signs, platform will submit to Solana
+    if (this.config.debug) console.log("   Signing transaction...");
+
+    let signedTransaction: Transaction;
 
     try {
-      if (wallet.sendTransaction) {
-        // Wallet adapter pattern (browser)
-        signature = await wallet.sendTransaction(transaction, wallet.connection);
-        if (this.config.debug) console.log(`   ✅ Transaction submitted: ${signature}`);
-      } else if (wallet.signTransaction) {
-        // Manual sign + submit pattern (Node.js)
-        const signedTx = await wallet.signTransaction(transaction);
-        signature = await wallet.connection.sendRawTransaction(signedTx.serialize());
-        if (this.config.debug) console.log(`   ✅ Transaction signed and submitted: ${signature}`);
-      } else {
-        throw new Error("Wallet must provide either sendTransaction or signTransaction");
-      }
+      signedTransaction = await wallet.signTransaction(transaction);
+      if (this.config.debug) console.log("   ✅ Transaction signed (platform will submit)");
     } catch (error) {
-      if (this.config.debug) console.error("   ❌ Transaction failed:", error);
+      if (this.config.debug) console.error("   ❌ Transaction signing failed:", error);
       throw error;
     }
 
-    // Step 6: Call backend API with transaction signature
-    // Note: Backend has retry logic to handle confirmation timing
-    if (this.config.debug) console.log("   Calling backend API...");
+    // Step 5: Call platform API with signed transaction (SDK3 - CP1: Phase 3)
+    // SDK3: Only 2 fields - payment_intent_id + signed_transaction
+    // All context (agent_id, input, caller_wallet, token) is in payment_intent
+    if (this.config.debug) console.log("   Sending signed transaction to platform...");
 
     const response = await fetch(`${this.apiUrl}/api/agents/call`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        agent_id: agentId,
-        input,
-        caller_wallet: wallet.publicKey.toBase58(),
-        tx_signature: signature,
-        selected_token: options?.preferredToken, // CP3: Pass preferred token to backend
+        payment_intent_id: payment_intent_id,
+        signed_transaction: signedTransaction.serialize().toString('base64'),
       }),
     });
 

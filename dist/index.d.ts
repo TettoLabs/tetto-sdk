@@ -106,6 +106,17 @@ export interface CallResult {
     agentReceived: number;
     protocolFee: number;
 }
+export interface BuildTransactionResult {
+    ok: boolean;
+    transaction: string;
+    payment_intent_id: string;
+    amount_base: number;
+    token: string;
+    expires_at: string;
+    input_hash: string;
+    message?: string;
+    error?: string;
+}
 export interface Receipt {
     id: string;
     agent: {
