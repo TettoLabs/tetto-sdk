@@ -44,7 +44,7 @@ export interface CallAgentOptions {
 }
 export declare const NETWORK_DEFAULTS: {
     readonly mainnet: {
-        readonly apiUrl: "https://tetto.io";
+        readonly apiUrl: "https://www.tetto.io";
         readonly protocolWallet: "CYSnefexbvrRU6VxzGfvZqKYM4UixupvDeZg3sUSWm84";
         readonly usdcMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
         readonly rpcUrl: "https://api.mainnet-beta.solana.com";
