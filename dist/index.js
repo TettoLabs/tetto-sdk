@@ -33,7 +33,7 @@ const web3_js_1 = require("@solana/web3.js");
 // Network defaults
 exports.NETWORK_DEFAULTS = {
     mainnet: {
-        apiUrl: 'https://www.tetto.io',
+        apiUrl: 'https://tetto.io',
         protocolWallet: 'CYSnefexbvrRU6VxzGfvZqKYM4UixupvDeZg3sUSWm84',
         usdcMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
         rpcUrl: 'https://api.mainnet-beta.solana.com',

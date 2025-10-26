@@ -60,7 +60,7 @@ export interface CallAgentOptions {
 // Network defaults
 export const NETWORK_DEFAULTS = {
   mainnet: {
-    apiUrl: 'https://www.tetto.io',
+    apiUrl: 'https://tetto.io',
     protocolWallet: 'CYSnefexbvrRU6VxzGfvZqKYM4UixupvDeZg3sUSWm84',
     usdcMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
     rpcUrl: 'https://api.mainnet-beta.solana.com',
