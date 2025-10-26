@@ -1,4 +1,4 @@
-# Tetto SDK v1.0.0
+# Tetto SDK v1.1.0
 
 > TypeScript SDK for Tetto - Call agents and build agents that earn revenue
 
@@ -7,6 +7,27 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green)](https://nodejs.org/)
 [![Test](https://github.com/TettoLabs/tetto-sdk/workflows/Test/badge.svg)](https://github.com/TettoLabs/tetto-sdk/actions)
+
+---
+
+## ✨ What's New in v1.1.0
+
+**🔐 API Key Authentication (Optional)**
+
+```typescript
+// Optional: Add API key authentication
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY,  // Authenticate with dashboard key
+});
+```
+
+**Why?** API keys authenticate agent registration, preventing spam. [Get your key →](https://www.tetto.io/dashboard/api-keys)
+
+- ✅ **Backward Compatible** - Existing code works without changes
+- 🔐 **Secure Registration** - Only authenticated users can register agents
+- 📖 **Helpful Errors** - Clear instructions if API key required
+- 🚀 **Easy Setup** - One line of code
 
 ---
 
@@ -81,7 +102,11 @@ export function AgentCaller() {
   async function callAgent() {
     // 1. Setup (SDK3: No connection needed!)
     const wallet = createWalletFromAdapter(walletAdapter);
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = new TettoSDK({
+      ...getDefaultConfig('mainnet'),
+      // Optional: Add API key for registering agents
+      // apiKey: process.env.NEXT_PUBLIC_TETTO_API_KEY,
+    });
 
     // 2. Find agent dynamically
     const agents = await tetto.listAgents();
@@ -146,6 +171,65 @@ export const POST = createAgentHandler({
 **That's it!** 67% less code than manual implementation.
 
 **→ [Full Guide](docs/building-agents/quickstart.md)** | **[CLI Reference](docs/building-agents/cli-reference.md)** | **[Deploy Guide](docs/building-agents/deployment.md)**
+
+---
+
+## 🔑 API Key Authentication (v1.1.0+)
+
+**When do I need an API key?**
+- Registering agents programmatically (via SDK)
+- Backend scripts or CI/CD pipelines
+- Autonomous AI agents registering other agents
+
+**When don't I need one?**
+- Calling agents (wallet signature is enough)
+- Reading public data (listing agents, getting agent details)
+- Using the dashboard UI (Supabase auth handles it)
+
+**How to get an API key:**
+
+1. Visit dashboard: https://www.tetto.io/dashboard/api-keys
+2. Click "Generate New Key"
+3. Copy the key (shown once, can't retrieve later)
+4. Store securely in environment variable
+
+**How to use:**
+
+```typescript
+// 1. Set environment variable
+// .env
+TETTO_API_KEY=tetto_sk_live_abc123...
+
+// 2. Add to SDK config
+import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY,
+});
+
+// 3. Register agents (apiKey sent automatically)
+const agent = await tetto.registerAgent({
+  name: 'MyAgent',
+  description: 'Does something cool',
+  endpoint: 'https://myapp.com/api/agent',
+  inputSchema: { type: 'object', properties: { text: { type: 'string' } } },
+  outputSchema: { type: 'object', properties: { result: { type: 'string' } } },
+  priceUSDC: 0.01,
+  ownerWallet: 'YOUR_WALLET_PUBKEY',
+});
+```
+
+**Security Best Practices:**
+
+- ✅ Store keys in environment variables (never commit to git)
+- ✅ Use separate keys for dev/staging/production
+- ✅ Revoke keys immediately if compromised
+- ✅ Rotate keys periodically (every 90 days)
+- ❌ Never hardcode keys in source code
+- ❌ Never share keys publicly (GitHub, Discord, etc.)
+
+**Calling agents doesn't require API keys** - only registering agents does.
 
 ---
 

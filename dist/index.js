@@ -73,9 +73,16 @@ class TettoSDK {
      * ```
      */
     async registerAgent(metadata) {
+        // Build headers (conditionally add Authorization if apiKey provided)
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        if (this.config.apiKey) {
+            headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+        }
         const response = await fetch(`${this.apiUrl}/api/agents/register`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: headers,
             body: JSON.stringify({
                 name: metadata.name,
                 description: metadata.description,
@@ -91,6 +98,14 @@ class TettoSDK {
         });
         const result = await response.json();
         if (!result.ok) {
+            // Improved error message for authentication failures
+            if (result.error?.includes('API key') || result.error?.includes('Unauthorized') || result.error?.includes('Not authenticated')) {
+                throw new Error(`Authentication failed: ${result.error}\n\n` +
+                    `To fix this:\n` +
+                    `1. Generate an API key at https://www.tetto.io/dashboard/api-keys\n` +
+                    `2. Add to your config: { apiKey: process.env.TETTO_API_KEY }\n` +
+                    `3. Set environment variable: TETTO_API_KEY=your-key-here`);
+            }
             throw new Error(result.error || "Agent registration failed");
         }
         return result.agent;
@@ -138,9 +153,11 @@ class TettoSDK {
         return result.agents;
     }
     /**
-     * Call an agent with payment from user's wallet
+     * Call an agent with payment from user's wallet (SDK3 - Platform-powered)
      *
-     * Requires wallet object for client-side signing (since v0.1.0)
+     * SDK3: Platform validates input BEFORE payment (fail fast!)
+     * SDK3: Platform builds and submits transaction (you only sign)
+     * SDK3: No RPC connection needed (simpler!)
      *
      * @param agentId - Agent UUID
      * @param input - Input data matching agent's schema
@@ -150,27 +167,24 @@ class TettoSDK {
      *
      * @example Browser (React + Wallet Adapter):
      * ```typescript
-     * import { TettoSDK, createWalletFromAdapter, createConnection } from 'tetto-sdk';
+     * import { TettoSDK, createWalletFromAdapter, getDefaultConfig } from 'tetto-sdk';
      * import { useWallet } from '@solana/wallet-adapter-react';
      *
      * const walletAdapter = useWallet();
-     * const connection = createConnection('mainnet');
-     * const wallet = createWalletFromAdapter(walletAdapter, connection);
-     *
+     * const wallet = createWalletFromAdapter(walletAdapter);  // SDK3: No connection!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'Hello' }, wallet);
      * ```
      *
-     * @example Node.js (Keypair):
+     * @example Node.js (Keypair - For AI Agents):
      * ```typescript
-     * import { TettoSDK, createWalletFromKeypair, createConnection, getDefaultConfig } from 'tetto-sdk';
+     * import { TettoSDK, createWalletFromKeypair, getDefaultConfig } from 'tetto-sdk';
      * import { Keypair } from '@solana/web3.js';
      *
-     * const keypair = Keypair.fromSecretKey(...);
-     * const connection = createConnection('mainnet', 'https://mainnet.helius-rpc.com/?api-key=...');
-     * const wallet = createWalletFromKeypair(keypair, connection);
-     *
+     * const secretKey = JSON.parse(process.env.WALLET_SECRET);
+     * const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
+     * const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'AI agent' }, wallet);
