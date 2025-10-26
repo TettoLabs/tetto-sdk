@@ -32,6 +32,7 @@ export interface TettoConfig {
     network: 'mainnet' | 'devnet';
     protocolWallet: string;
     debug?: boolean;
+    apiKey?: string;
 }
 export interface TettoWallet {
     publicKey: PublicKey;
@@ -188,9 +189,11 @@ export declare class TettoSDK {
      */
     listAgents(): Promise<Agent[]>;
     /**
-     * Call an agent with payment from user's wallet
+     * Call an agent with payment from user's wallet (SDK3 - Platform-powered)
      *
-     * Requires wallet object for client-side signing (since v0.1.0)
+     * SDK3: Platform validates input BEFORE payment (fail fast!)
+     * SDK3: Platform builds and submits transaction (you only sign)
+     * SDK3: No RPC connection needed (simpler!)
      *
      * @param agentId - Agent UUID
      * @param input - Input data matching agent's schema
@@ -200,27 +203,24 @@ export declare class TettoSDK {
      *
      * @example Browser (React + Wallet Adapter):
      * ```typescript
-     * import { TettoSDK, createWalletFromAdapter, createConnection } from 'tetto-sdk';
+     * import { TettoSDK, createWalletFromAdapter, getDefaultConfig } from 'tetto-sdk';
      * import { useWallet } from '@solana/wallet-adapter-react';
      *
      * const walletAdapter = useWallet();
-     * const connection = createConnection('mainnet');
-     * const wallet = createWalletFromAdapter(walletAdapter, connection);
-     *
+     * const wallet = createWalletFromAdapter(walletAdapter);  // SDK3: No connection!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'Hello' }, wallet);
      * ```
      *
-     * @example Node.js (Keypair):
+     * @example Node.js (Keypair - For AI Agents):
      * ```typescript
-     * import { TettoSDK, createWalletFromKeypair, createConnection, getDefaultConfig } from 'tetto-sdk';
+     * import { TettoSDK, createWalletFromKeypair, getDefaultConfig } from 'tetto-sdk';
      * import { Keypair } from '@solana/web3.js';
      *
-     * const keypair = Keypair.fromSecretKey(...);
-     * const connection = createConnection('mainnet', 'https://mainnet.helius-rpc.com/?api-key=...');
-     * const wallet = createWalletFromKeypair(keypair, connection);
-     *
+     * const secretKey = JSON.parse(process.env.WALLET_SECRET);
+     * const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
+     * const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'AI agent' }, wallet);

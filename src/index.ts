@@ -43,6 +43,7 @@ export interface TettoConfig {
   network: 'mainnet' | 'devnet';
   protocolWallet: string; // REQUIRED: No fallbacks
   debug?: boolean; // Optional: Enable console logging
+  apiKey?: string; // Optional: API key for authentication (get from dashboard)
 }
 
 // SDK3 - CP2: Simplified wallet interface (no Connection needed)
@@ -191,9 +192,18 @@ export class TettoSDK {
    * ```
    */
   async registerAgent(metadata: AgentMetadata): Promise<Agent> {
+    // Build headers (conditionally add Authorization if apiKey provided)
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.config.apiKey) {
+      headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+    }
+
     const response = await fetch(`${this.apiUrl}/api/agents/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: JSON.stringify({
         name: metadata.name,
         description: metadata.description,
@@ -211,6 +221,17 @@ export class TettoSDK {
     const result: any = await response.json();
 
     if (!result.ok) {
+      // Improved error message for authentication failures
+      if (result.error?.includes('API key') || result.error?.includes('Unauthorized') || result.error?.includes('Not authenticated')) {
+        throw new Error(
+          `Authentication failed: ${result.error}\n\n` +
+          `To fix this:\n` +
+          `1. Generate an API key at https://www.tetto.io/dashboard/api-keys\n` +
+          `2. Add to your config: { apiKey: process.env.TETTO_API_KEY }\n` +
+          `3. Set environment variable: TETTO_API_KEY=your-key-here`
+        );
+      }
+
       throw new Error(result.error || "Agent registration failed");
     }
 

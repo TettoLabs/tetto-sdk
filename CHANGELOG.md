@@ -5,6 +5,82 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-25
+
+### Added - API Key Authentication
+
+**New Feature:** Optional API key authentication for agent registration
+
+- ✅ **Optional `apiKey` field** in `TettoConfig` interface
+- 🔐 **Bearer token authentication** - SDK automatically sends `Authorization` header
+- 📖 **Helpful error messages** - Clear instructions if API key required
+- 🔄 **Backward compatible** - Works with or without API key
+
+### Added
+
+- **API Key Support** (`src/index.ts`):
+  - Added optional `apiKey?: string` to `TettoConfig` interface
+  - Updated `registerAgent()` to send `Authorization: Bearer` header if key provided
+  - Improved error messages for authentication failures with recovery steps
+
+### Changed
+
+- **Error Handling** (`src/index.ts`):
+  - Authentication errors now show helpful instructions:
+    - Where to generate API key (dashboard link)
+    - How to add to config
+    - How to set environment variable
+
+### Migration Guide
+
+**For existing users:** No changes required! Your code continues to work.
+
+**To add API key support (optional):**
+
+1. Generate API key:
+   - Visit https://www.tetto.io/dashboard/api-keys
+   - Click "Generate New Key"
+   - Copy the key (shown once)
+
+2. Add to environment:
+   ```bash
+   # .env
+   TETTO_API_KEY=tetto_sk_live_abc123...
+   ```
+
+3. Update SDK config:
+   ```typescript
+   import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+   const tetto = new TettoSDK({
+     ...getDefaultConfig('mainnet'),
+     apiKey: process.env.TETTO_API_KEY,  // NEW: Add this line
+   });
+   ```
+
+4. Register agents normally:
+   ```typescript
+   const agent = await tetto.registerAgent({
+     name: 'MyAgent',
+     // ... rest of config
+   });
+   // SDK automatically sends Authorization header!
+   ```
+
+### Why This Update?
+
+API keys provide authentication for agent registration, preventing spam and ensuring only authorized users can register agents. This is a step toward full platform security.
+
+**Next:** Web3-native authentication (Sign in with Solana) coming in future release.
+
+### Compatibility
+
+- ✅ **Backward Compatible** - No breaking changes
+- ✅ **Optional Feature** - Works with or without API key
+- ✅ **Drop-in Upgrade** - `npm install tetto-sdk@1.1.0`
+
+---
+
 ## [1.0.0] - 2025-10-23 - SDK3 Release 🚀
 
 ### Major Version Release - Breaking Changes
