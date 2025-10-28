@@ -649,7 +649,7 @@ Subscribe to updates: support@tetto.io
 
 ### Devnet Testing
 
-**Devnet Base URL:** `https://tetto-portal-seven.vercel.app`
+**Devnet Base URL:** `https://dev.tetto.io`
 
 **Test Wallets:**
 - Fund with devnet SOL: https://faucet.solana.com

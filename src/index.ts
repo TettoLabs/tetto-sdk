@@ -66,7 +66,7 @@ export const NETWORK_DEFAULTS = {
     rpcUrl: 'https://api.mainnet-beta.solana.com',
   },
   devnet: {
-    apiUrl: 'https://tetto-portal-seven.vercel.app',
+    apiUrl: 'https://dev.tetto.io',
     protocolWallet: 'BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt',
     usdcMint: 'EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4',
     rpcUrl: 'https://api.devnet.solana.com',

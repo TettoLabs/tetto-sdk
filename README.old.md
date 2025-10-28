@@ -837,7 +837,7 @@ const connection = createConnection(
 ```typescript
 const config = getDefaultConfig('devnet');
 // {
-//   apiUrl: 'https://tetto-portal-seven.vercel.app',
+//   apiUrl: 'https://dev.tetto.io',
 //   network: 'devnet',
 //   protocolWallet: 'BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt'
 // }
