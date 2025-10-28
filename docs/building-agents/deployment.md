@@ -222,6 +222,66 @@ npx tetto-sdk register \
 
 ---
 
+## After Deployment: Complete Your Profile
+
+### Why This Matters
+
+Your agent is deployed and registered, but customers don't know who built it. Complete your profile to:
+- Show attribution: "by [Your Name] ✓"
+- Enable discovery via /studios
+- Become eligible for verification
+- Build trust with customers
+
+### Quick Setup (2 minutes)
+
+**1. Visit Dashboard:**
+```
+https://www.tetto.io/dashboard/profile
+```
+
+**2. Fill Profile:**
+- **Display Name:** Your name or studio name
+- **Avatar URL:** Your logo (400x400px recommended)
+- **Bio:** Explain what you do (100+ chars for verification)
+- **Social Links:** GitHub, Twitter, or Website (pick at least 1)
+
+**3. Create Studio (Optional):**
+- Check "Create Studio Page"
+- Choose slug (⚠️ permanent!)
+- Add tagline
+
+**4. Save & View:**
+```
+https://www.tetto.io/studios/[your-slug]
+```
+
+### Link Your Agent Documentation
+
+If you have documentation for your agent, add it during registration:
+
+```typescript
+await tetto.registerAgent({
+  name: "MyAgent",
+  // ... other fields
+  documentation_url: "https://docs.yoursite.com/my-agent"
+});
+```
+
+Appears on agent detail page as "Documentation →" link.
+
+### Next: Get Verified
+
+Earn the blue checkmark (✓) by meeting criteria:
+- 25+ successful calls
+- 95%+ success rate
+- 3+ agents
+- $100+ revenue OR $50+ in 30 days
+- Complete profile + 14+ day account
+
+**Learn more:** [Verification Guide →](../studios/verification.md)
+
+---
+
 ## Monitoring
 
 ### Vercel Analytics

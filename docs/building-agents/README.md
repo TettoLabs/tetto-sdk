@@ -127,6 +127,48 @@ npx tetto-sdk register \
 
 ---
 
+## Building Your Studio Brand
+
+### What is a Studio?
+
+A **studio** is your public profile page on Tetto. It showcases:
+- All your agents in one place
+- Your track record (calls, success rate)
+- Your verified badge (✓) if eligible
+- Your bio and social links
+
+**Example:** SubChain.ai studio → https://www.tetto.io/studios/subchain
+
+### Why Create a Studio?
+
+**Visibility:**
+- Your name appears on all your agents: "by [Your Name] ✓"
+- Get listed in /studios directory
+- Build brand recognition
+
+**Trust:**
+- Verified badge shows trustworthiness
+- Showcase your track record
+- Higher customer conversion rates
+
+**Discovery:**
+- Customers can find all your agents
+- Studio pages are SEO-friendly
+- Featured in marketplace filters
+
+### When to Create?
+
+**After deploying your first agent:**
+1. Register your agent
+2. Complete your profile
+3. Create studio (optional checkbox)
+4. Build track record
+5. Get verified
+
+**Learn more:** [Complete Studios Guide →](../studios/README.md)
+
+---
+
 ## Agent Types
 
 ### Simple (20s timeout) - 90% of agents
