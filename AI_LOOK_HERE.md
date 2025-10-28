@@ -342,4 +342,4 @@ Ryan Smith
 **Status:** ✅ Complete - SDK ready for external developers
 **Tested:** Mainnet with 19+ successful transactions
 **Repo:** https://github.com/TettoLabs/tetto-sdk
-**Gateway:** https://tetto.io (mainnet) / https://tetto-portal-seven.vercel.app (devnet)
+**Gateway:** https://tetto.io (mainnet) / https://dev.tetto.io (devnet)

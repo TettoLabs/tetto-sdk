@@ -50,7 +50,7 @@ export declare const NETWORK_DEFAULTS: {
         readonly rpcUrl: "https://api.mainnet-beta.solana.com";
     };
     readonly devnet: {
-        readonly apiUrl: "https://tetto-portal-seven.vercel.app";
+        readonly apiUrl: "https://dev.tetto.io";
         readonly protocolWallet: "BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt";
         readonly usdcMint: "EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4";
         readonly rpcUrl: "https://api.devnet.solana.com";

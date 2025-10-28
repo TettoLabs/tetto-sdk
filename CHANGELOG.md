@@ -5,6 +5,16 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-10-27
+
+### Fixed
+
+- **Devnet URL Configuration** (`src/index.ts`):
+  - Fixed devnet `apiUrl` to use official subdomain `https://dev.tetto.io`
+  - Previously pointed to temporary Vercel URL `https://tetto-portal-seven.vercel.app`
+  - Updated all documentation references (AI_LOOK_HERE.md, README.old.md, API docs)
+  - Impact: Devnet examples now work correctly for developers
+
 ## [1.1.0] - 2025-10-25
 
 ### Added - API Key Authentication
