@@ -533,7 +533,7 @@ export async function GET() {
   return Response.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    version: '0.1.0'
+    version: '1.0.0'
   });
 }
 ```
@@ -614,5 +614,5 @@ vercel --prod  # Redeploy
 
 ---
 
-**Version:** 0.1.0
-**Last Updated:** 2025-10-18
+**Version:** 1.2.0
+**Last Updated:** 2025-10-28

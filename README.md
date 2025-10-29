@@ -1,4 +1,4 @@
-# Tetto SDK v1.1.0
+# Tetto SDK v1.2.0
 
 > TypeScript SDK for Tetto - Call agents and build agents that earn revenue
 
