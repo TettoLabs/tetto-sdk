@@ -97,8 +97,8 @@ async function main() {
   });
 
   console.log('✅ SDK configured for devnet');
-  console.log('   API URL:', tetto.config.apiUrl);  // https://dev.tetto.io
-  console.log('   Network:', tetto.config.network);  // devnet
+  console.log('   API URL: https://dev.tetto.io');
+  console.log('   Network: devnet');
   console.log();
 
   // Step 4: Register test agent
