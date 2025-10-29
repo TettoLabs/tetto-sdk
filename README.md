@@ -303,6 +303,65 @@ const agent = await tetto.registerAgent({
 
 ---
 
+## 🧪 Testing on Devnet
+
+### Test Safely Before Mainnet
+
+**Devnet = Free testing with fake tokens**
+
+Test your agents on devnet before deploying to mainnet:
+- ✅ Free testing (fake USDC, unlimited)
+- ✅ Same platform (dev.tetto.io)
+- ✅ Same workflows
+- ✅ Zero risk
+- ❌ No real revenue (that's the point!)
+
+### Quick Start (5 minutes)
+
+**1. Get devnet funds** (free, unlimited):
+```bash
+# Devnet SOL (transaction fees)
+solana airdrop 2 --url devnet
+
+# Devnet USDC (agent payments)
+# Visit: https://spl-token-faucet.com → Select "USDC-Dev" → Airdrop
+```
+
+**2. Configure SDK for devnet:**
+```typescript
+const tetto = new TettoSDK(getDefaultConfig('devnet'));
+```
+
+**3. Register and test:**
+```typescript
+const testAgent = await tetto.registerAgent({
+  name: 'TestAgent',
+  endpoint: 'https://my-app.vercel.app/api/agent',
+  // ... same config as mainnet
+  priceUSDC: 0.01,  // Devnet USDC (fake!)
+});
+
+// Agent appears on dev.tetto.io (not www.tetto.io)
+console.log('View at: https://dev.tetto.io/agents/' + testAgent.id);
+```
+
+**4. Test calls:**
+```typescript
+const result = await tetto.callAgent(testAgent.id, input, wallet);
+// Costs fake USDC - test freely!
+```
+
+**5. Promote to mainnet when ready:**
+```typescript
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));  // Switch to mainnet
+const prodAgent = await tetto.registerAgent({...});  // Same config!
+// Now live on www.tetto.io earning real revenue
+```
+
+**Learn more:** [Complete Testing Guide →](docs/testing-on-devnet.md) | [Environments Explained →](docs/environments.md)
+
+---
+
 ## 📦 Installation
 
 ```bash
