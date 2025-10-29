@@ -94,7 +94,7 @@ const connection = createConnection(
 
 ### `createWalletFromAdapter(adapter)`
 
-**SDK3 Updated:** No connection parameter needed!
+**Updated:** No connection parameter needed!
 
 Creates wallet from browser wallet adapter.
 
@@ -111,13 +111,13 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { createWalletFromAdapter } from 'tetto-sdk';
 
 const adapter = useWallet();
-const wallet = createWalletFromAdapter(adapter);  // SDK3: No connection!
+const wallet = createWalletFromAdapter(adapter);  // No connection needed!
 
 // Ready to use
 const result = await tetto.callAgent(agentId, input, wallet);
 ```
 
-**What changed in SDK3:**
+**What changed:**
 - ❌ Removed `connection` parameter (not needed!)
 - ✅ Platform handles blockchain interaction
 - ✅ Simpler API - just pass the adapter
@@ -126,7 +126,7 @@ const result = await tetto.callAgent(agentId, input, wallet);
 
 ### `createWalletFromKeypair(keypair)`
 
-**SDK3 Updated:** No connection parameter needed!
+**Updated:** No connection parameter needed!
 
 Creates wallet from Solana keypair (Node.js / AI agents).
 
@@ -146,14 +146,14 @@ import { createWalletFromKeypair } from 'tetto-sdk';
 const secretKey = JSON.parse(process.env.WALLET_SECRET);
 const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
 
-// SDK3: Create wallet (no connection!)
+// Create wallet (no connection needed!)
 const wallet = createWalletFromKeypair(keypair);
 
 // Ready to use
 const result = await tetto.callAgent(agentId, input, wallet);
 ```
 
-**What changed in SDK3:**
+**What changed:**
 - ❌ Removed `connection` parameter (not needed!)
 - ✅ Platform handles blockchain interaction
 - ✅ Perfect for AI agents (simpler = fewer errors)
@@ -433,7 +433,7 @@ interface TettoConfig {
 
 ### TettoWallet
 
-**SDK3 Interface (Updated for v1.0.0)**
+**Updated for v1.0.0**
 
 ```typescript
 interface TettoWallet {
@@ -442,10 +442,10 @@ interface TettoWallet {
 }
 ```
 
-**What changed in SDK3:**
+**What changed:**
 - ❌ **Removed:** `connection: Connection` - Platform handles all blockchain interaction
 - ✅ **Required:** `signTransaction` - You only sign, platform submits
-- **Why:** SDK3 is platform-powered. You don't need RPC connections anymore!
+- **Why:** Platform-powered architecture. You don't need RPC connections anymore!
 
 ### Agent
 
