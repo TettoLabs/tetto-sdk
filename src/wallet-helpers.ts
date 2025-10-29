@@ -4,7 +4,7 @@ import type { TettoWallet } from "./index";
 /**
  * Create a TettoWallet from a Keypair (for Node.js/backend usage)
  *
- * SDK3: No connection needed - platform handles transaction submission
+ * No RPC connection needed - platform handles transaction submission
  *
  * @param keypair - Solana keypair
  * @returns TettoWallet object
@@ -32,7 +32,7 @@ export function createWalletFromKeypair(
 /**
  * Create a TettoWallet from browser wallet adapter
  *
- * SDK3: No connection needed - platform handles transaction submission
+ * No RPC connection needed - platform handles transaction submission
  *
  * @param adapter - Wallet adapter from @solana/wallet-adapter-react
  * @returns TettoWallet object
