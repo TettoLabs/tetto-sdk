@@ -120,11 +120,11 @@ API keys provide authentication for agent registration, preventing spam and ensu
 
 ---
 
-## [1.0.0] - 2025-10-23 - SDK3 Release 🚀
+## [1.0.0] - 2025-10-23 🚀
 
 ### Major Version Release - Breaking Changes
 
-**SDK3 represents a complete architectural shift** - transactions are now built and submitted by the Tetto platform, dramatically simplifying the SDK and improving security.
+**Complete architectural shift** - transactions are now built and submitted by the Tetto platform, dramatically simplifying the SDK and improving security.
 
 ### Breaking Changes
 
@@ -218,12 +218,11 @@ API keys provide authentication for agent registration, preventing spam and ensu
 
 ### Technical Details
 
-- **Platform Architecture**: TETTO3 (platform-powered transactions)
+- **Platform Architecture**: Platform-powered transaction submission
 - **API Version**: v1.0.0
 - **Node Version**: ≥20.0.0
 - **TypeScript**: 5.0+
 - **Dependencies**: 2 (was 3)
-- **Checkpoints Completed**: CP0, CP1, CP2, CP3
 
 ### Documentation Updates
 
@@ -236,8 +235,8 @@ API keys provide authentication for agent registration, preventing spam and ensu
 
 ### Related Links
 
-- [SDK3 Implementation Guide](DOCS/OCT21/FATAL_FLAW/SDK3/)
-- [TETTO3 Platform Architecture](DOCS/OCT21/FATAL_FLAW/TETTO3/)
+- [Implementation Guide](DOCS/OCT21/FATAL_FLAW/SDK3/)
+- [Platform Architecture](DOCS/OCT21/FATAL_FLAW/TETTO3/)
 - [Migration Guide](docs/migration-v1.md)
 
 ---
@@ -333,6 +332,6 @@ First production-ready release of Tetto SDK with complete functionality for both
 
 ---
 
-**Current Version:** 1.0.0 (SDK3)
-**Latest Release:** 2025-10-23
+**Current Version:** 1.2.0
+**Latest Release:** 2025-10-28
 **License:** MIT
