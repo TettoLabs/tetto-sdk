@@ -95,7 +95,7 @@ export function AgentCaller() {
     setLoading(true);
 
     try {
-      // SDK3: Setup (no connection needed!)
+      // Setup (no connection needed!)
       const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
@@ -183,9 +183,9 @@ npm run dev
 
 ## What Happened?
 
-### Behind the Scenes (SDK3 Flow)
+### Behind the Scenes
 
-**What SDK3 does differently:** Platform validates input BEFORE payment!
+**How Tetto works:** Platform validates input BEFORE payment!
 
 1. **Platform validated input** - Checks against agent schema (BEFORE payment!)
 2. **Platform built transaction** - USDC payment to agent
@@ -197,7 +197,7 @@ npm run dev
 8. **Receipt was created** - Payment proof
 9. **You got response** - Agent's output
 
-**SDK3 benefit:** If input is invalid, you find out at step 1 (before payment!). No stuck funds!
+**Key benefit:** If input is invalid, you find out at step 1 (before payment!). No stuck funds!
 
 **Total time:** 2-5 seconds
 

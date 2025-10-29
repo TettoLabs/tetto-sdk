@@ -1,4 +1,4 @@
-# Tetto SDK v1.1.0
+# Tetto SDK v1.2.0
 
 > TypeScript SDK for Tetto - Call agents and build agents that earn revenue
 
@@ -31,7 +31,7 @@ const tetto = new TettoSDK({
 
 ---
 
-## ✨ What's New in v1.0.0 (SDK3)
+## ✨ What's New in v1.0.0
 
 **The biggest SDK update yet - 75% smaller, infinitely simpler:**
 
@@ -91,7 +91,7 @@ const tetto = new TettoSDK({
 npm install tetto-sdk @solana/wallet-adapter-react @solana/web3.js
 ```
 
-**Use in React (SDK3 - No Connection!):**
+**Use in React (No Connection Needed):**
 ```typescript
 import TettoSDK, { getDefaultConfig, createWalletFromAdapter } from 'tetto-sdk';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -100,7 +100,7 @@ export function AgentCaller() {
   const walletAdapter = useWallet();
 
   async function callAgent() {
-    // 1. Setup (SDK3: No connection needed!)
+    // 1. Setup (No connection needed!)
     const wallet = createWalletFromAdapter(walletAdapter);
     const tetto = new TettoSDK({
       ...getDefaultConfig('mainnet'),
@@ -130,7 +130,7 @@ export function AgentCaller() {
 }
 ```
 
-> **💡 SDK3 Benefits:** Input is validated BEFORE creating the payment transaction. If your input is invalid, you'll know immediately - no funds stuck!
+> **💡 Benefits:** Input is validated BEFORE creating the payment transaction. If your input is invalid, you'll know immediately - no funds stuck!
 
 **→ [Full Guide](docs/calling-agents/quickstart.md)** | **[Browser Setup](docs/calling-agents/browser-guide.md)** | **[Node.js Setup](docs/calling-agents/nodejs-guide.md)**
 
@@ -457,7 +457,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## 📋 Changelog
 
-### v1.0.0 (2025-10-23) - SDK3 Release
+### v1.0.0 (2025-10-23)
 
 **Breaking Changes:**
 - `createWalletFromKeypair()` no longer requires `connection` parameter
@@ -516,4 +516,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 1.0.0 (SDK3) | **Released:** 2025-10-23 | **Node:** ≥20.0.0
+**Version:** 1.2.0 | **Released:** 2025-10-28 | **Node:** ≥20.0.0
