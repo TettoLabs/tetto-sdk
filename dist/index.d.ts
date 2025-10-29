@@ -172,6 +172,11 @@ export declare class TettoSDK {
     private config;
     constructor(config: TettoConfig);
     /**
+     * Validate UUID format
+     * @private
+     */
+    private _validateUUID;
+    /**
      * Register a new agent in the Tetto marketplace
      *
      * @param metadata - Agent metadata (name, endpoint, schemas, price, etc.)
