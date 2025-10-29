@@ -176,6 +176,44 @@ export interface BuildTransactionResult {
   error?: string;
 }
 
+// API Response interfaces for type safety
+interface AgentResponse {
+  ok: boolean;
+  agent?: Agent;
+  error?: string;
+}
+
+interface AgentsResponse {
+  ok: boolean;
+  agents?: Agent[];
+  count?: number;
+  error?: string;
+}
+
+interface ReceiptResponse {
+  ok: boolean;
+  receipt?: Receipt;
+  error?: string;
+}
+
+interface RegisterResponse {
+  ok: boolean;
+  agent?: Agent;
+  error?: string;
+}
+
+interface CallResponse {
+  ok: boolean;
+  message?: string;
+  output?: Record<string, unknown>;
+  tx_signature?: string;
+  receipt_id?: string;
+  explorer_url?: string;
+  agent_received?: number;
+  protocol_fee?: number;
+  error?: string;
+}
+
 export interface Receipt {
   id: string;
   agent: {
@@ -256,7 +294,7 @@ export class TettoSDK {
       }),
     });
 
-    const result: any = await response.json();
+    const result = await response.json() as RegisterResponse;
 
     if (!result.ok) {
       // Improved error message for authentication failures
@@ -271,6 +309,10 @@ export class TettoSDK {
       }
 
       throw new Error(result.error || "Agent registration failed");
+    }
+
+    if (!result.agent) {
+      throw new Error("Agent data missing from response");
     }
 
     return result.agent;
@@ -291,10 +333,14 @@ export class TettoSDK {
    */
   async getAgent(agentId: string): Promise<Agent> {
     const response = await fetch(`${this.apiUrl}/api/agents/${agentId}`);
-    const result: any = await response.json();
+    const result = await response.json() as AgentResponse;
 
     if (!result.ok) {
       throw new Error(result.error || "Agent not found");
+    }
+
+    if (!result.agent) {
+      throw new Error("Agent data missing from response");
     }
 
     return result.agent;
@@ -315,10 +361,14 @@ export class TettoSDK {
    */
   async listAgents(): Promise<Agent[]> {
     const response = await fetch(`${this.apiUrl}/api/agents`);
-    const result: any = await response.json();
+    const result = await response.json() as AgentsResponse;
 
     if (!result.ok) {
       throw new Error(result.error || "Failed to list agents");
+    }
+
+    if (!result.agents) {
+      throw new Error("Agents data missing from response");
     }
 
     return result.agents;
@@ -463,7 +513,7 @@ export class TettoSDK {
       }),
     });
 
-    const result: any = await response.json();
+    const result = await response.json() as CallResponse;
 
     if (!result.ok) {
       if (this.config.debug) console.error("   ❌ Backend call failed:", result.error);
@@ -474,13 +524,13 @@ export class TettoSDK {
 
     return {
       ok: result.ok,
-      message: result.message,
-      output: result.output,
-      txSignature: result.tx_signature,
-      receiptId: result.receipt_id,
-      explorerUrl: result.explorer_url,
-      agentReceived: result.agent_received,
-      protocolFee: result.protocol_fee,
+      message: result.message || "",
+      output: result.output || {},
+      txSignature: result.tx_signature || "",
+      receiptId: result.receipt_id || "",
+      explorerUrl: result.explorer_url || "",
+      agentReceived: result.agent_received || 0,
+      protocolFee: result.protocol_fee || 0,
     };
   }
 
@@ -500,10 +550,14 @@ export class TettoSDK {
    */
   async getReceipt(receiptId: string): Promise<Receipt> {
     const response = await fetch(`${this.apiUrl}/api/receipts/${receiptId}`);
-    const result: any = await response.json();
+    const result = await response.json() as ReceiptResponse;
 
     if (!result.ok) {
       throw new Error(result.error || "Receipt not found");
+    }
+
+    if (!result.receipt) {
+      throw new Error("Receipt data missing from response");
     }
 
     return result.receipt;
