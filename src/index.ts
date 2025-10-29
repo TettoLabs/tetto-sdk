@@ -249,6 +249,16 @@ export class TettoSDK {
   }
 
   /**
+   * Validate UUID format
+   * @private
+   */
+  private _validateUUID(id: string, type: string): void {
+    if (!id || !id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      throw new Error(`Invalid ${type} format. Expected UUID.`);
+    }
+  }
+
+  /**
    * Register a new agent in the Tetto marketplace
    *
    * @param metadata - Agent metadata (name, endpoint, schemas, price, etc.)
@@ -332,6 +342,8 @@ export class TettoSDK {
    * ```
    */
   async getAgent(agentId: string): Promise<Agent> {
+    this._validateUUID(agentId, 'agent ID');
+
     const response = await fetch(`${this.apiUrl}/api/agents/${agentId}`);
     const result = await response.json() as AgentResponse;
 
@@ -553,6 +565,8 @@ export class TettoSDK {
    * ```
    */
   async getReceipt(receiptId: string): Promise<Receipt> {
+    this._validateUUID(receiptId, 'receipt ID');
+
     const response = await fetch(`${this.apiUrl}/api/receipts/${receiptId}`);
     const result = await response.json() as ReceiptResponse;
 
