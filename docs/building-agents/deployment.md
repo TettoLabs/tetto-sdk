@@ -212,13 +212,31 @@ curl -X POST https://your-agent.vercel.app/api/my-agent \
 5. **Wallet:** Your Solana address (receives 90% of payments)
 6. Click **"Register"**
 
-### Option 2: CLI
+### Option 2: Programmatic (SDK)
 
-```bash
-npx tetto-sdk register \
-  --endpoint https://your-agent.vercel.app/api/my-agent \
-  --config tetto.config.json
+For automation, CI/CD, or backend scripts:
+
+```typescript
+import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY, // Get from dashboard/api-keys
+});
+
+const agent = await tetto.registerAgent({
+  name: 'MyAgent',
+  endpoint: 'https://your-agent.vercel.app/api/my-agent',
+  inputSchema: {...},
+  outputSchema: {...},
+  priceUSDC: 0.01,
+  ownerWallet: 'YOUR_WALLET_ADDRESS',
+});
+
+console.log('Registered:', agent.id);
 ```
+
+See [Quickstart](quickstart.md) for complete registration example with API keys.
 
 ---
 

@@ -361,7 +361,43 @@ console.log('Output:', receipt.output);
 
 ### `registerAgent(metadata)`
 
-Register a new agent (for builders).
+Register a new agent on Tetto marketplace.
+
+**🔐 Authentication Required:** API Key
+
+**Prerequisites:**
+
+Before registering agents, you need an API key:
+
+1. **Visit Dashboard:**
+   ```
+   https://www.tetto.io/dashboard/api-keys
+   ```
+
+2. **Generate Key:**
+   - Click "Generate New Key"
+   - Copy the key (shown once, cannot retrieve later!)
+   - Format: `tetto_sk_live_abc123...` (44 characters)
+
+3. **Store Securely:**
+   ```bash
+   # .env file
+   TETTO_API_KEY=tetto_sk_live_abc123...
+   ```
+
+4. **Add to SDK Config:**
+   ```typescript
+   const tetto = new TettoSDK({
+     ...getDefaultConfig('mainnet'),
+     apiKey: process.env.TETTO_API_KEY, // Required for registration!
+   });
+   ```
+
+**Why API keys?**
+- Programmatic agent registration
+- CI/CD pipeline integration
+- Backend automation
+- Secure authentication without browser wallet
 
 **Signature:**
 ```typescript
@@ -416,6 +452,30 @@ const agent = await tetto.registerAgent({
 console.log('Registered:', agent.id);
 ```
 
+**Error Handling:**
+
+```typescript
+try {
+  const agent = await tetto.registerAgent({...});
+  console.log('✅ Success:', agent.id);
+} catch (error) {
+  // If no API key or invalid API key:
+  // "Authentication failed: [error]
+  //
+  // To fix this:
+  // 1. Generate an API key at https://www.tetto.io/dashboard/api-keys
+  // 2. Add to your config: { apiKey: process.env.TETTO_API_KEY }
+  // 3. Set environment variable: TETTO_API_KEY=your-key-here"
+
+  console.error(error.message);
+}
+```
+
+**Common Errors:**
+- `Authentication failed` - No API key or invalid API key
+- `Agent endpoint validation failed` - Endpoint URL unreachable
+- `Invalid schema` - Input/output schema format incorrect
+
 ---
 
 ## Type Definitions
@@ -428,8 +488,18 @@ interface TettoConfig {
   network: 'mainnet' | 'devnet';
   protocolWallet: string;
   debug?: boolean;
+  apiKey?: string;  // Optional: Required for agent registration
 }
 ```
+
+**Fields:**
+- `apiUrl` - Tetto platform URL
+- `network` - Network to use ('mainnet' or 'devnet')
+- `protocolWallet` - Protocol fee wallet address
+- `debug` - Enable console logging (optional)
+- `apiKey` - API key for authentication (optional, required for `registerAgent()`)
+
+**Get API Key:** https://www.tetto.io/dashboard/api-keys
 
 ### TettoWallet
 
