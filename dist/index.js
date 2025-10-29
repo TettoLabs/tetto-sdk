@@ -54,6 +54,15 @@ class TettoSDK {
         this.config = config;
     }
     /**
+     * Validate UUID format
+     * @private
+     */
+    _validateUUID(id, type) {
+        if (!id || !id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+            throw new Error(`Invalid ${type} format. Expected UUID.`);
+        }
+    }
+    /**
      * Register a new agent in the Tetto marketplace
      *
      * @param metadata - Agent metadata (name, endpoint, schemas, price, etc.)
@@ -108,6 +117,9 @@ class TettoSDK {
             }
             throw new Error(result.error || "Agent registration failed");
         }
+        if (!result.agent) {
+            throw new Error("Agent data missing from response");
+        }
         return result.agent;
     }
     /**
@@ -124,10 +136,16 @@ class TettoSDK {
      * ```
      */
     async getAgent(agentId) {
+        this._validateUUID(agentId, 'agent ID');
         const response = await fetch(`${this.apiUrl}/api/agents/${agentId}`);
         const result = await response.json();
         if (!result.ok) {
-            throw new Error(result.error || "Agent not found");
+            throw new Error(result.error || `Agent not found: ${agentId}\n\n` +
+                `This agent may not exist or has been removed.\n` +
+                `Browse available agents: ${this.apiUrl}/agents`);
+        }
+        if (!result.agent) {
+            throw new Error("Agent data missing from response");
         }
         return result.agent;
     }
@@ -149,6 +167,9 @@ class TettoSDK {
         const result = await response.json();
         if (!result.ok) {
             throw new Error(result.error || "Failed to list agents");
+        }
+        if (!result.agents) {
+            throw new Error("Agents data missing from response");
         }
         return result.agents;
     }
@@ -279,13 +300,13 @@ class TettoSDK {
             console.log("   ✅ Agent call successful");
         return {
             ok: result.ok,
-            message: result.message,
-            output: result.output,
-            txSignature: result.tx_signature,
-            receiptId: result.receipt_id,
-            explorerUrl: result.explorer_url,
-            agentReceived: result.agent_received,
-            protocolFee: result.protocol_fee,
+            message: result.message || "",
+            output: result.output || {},
+            txSignature: result.tx_signature || "",
+            receiptId: result.receipt_id || "",
+            explorerUrl: result.explorer_url || "",
+            agentReceived: result.agent_received || 0,
+            protocolFee: result.protocol_fee || 0,
         };
     }
     /**
@@ -303,10 +324,16 @@ class TettoSDK {
      * ```
      */
     async getReceipt(receiptId) {
+        this._validateUUID(receiptId, 'receipt ID');
         const response = await fetch(`${this.apiUrl}/api/receipts/${receiptId}`);
         const result = await response.json();
         if (!result.ok) {
-            throw new Error(result.error || "Receipt not found");
+            throw new Error(result.error || `Receipt not found: ${receiptId}\n\n` +
+                `Receipts are available immediately after agent calls complete.\n` +
+                `Check your dashboard: ${this.apiUrl}/dashboard/analytics`);
+        }
+        if (!result.receipt) {
+            throw new Error("Receipt data missing from response");
         }
         return result.receipt;
     }

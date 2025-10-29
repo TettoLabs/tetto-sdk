@@ -386,5 +386,5 @@ async function getAgents() {
 
 ---
 
-**Version:** 0.1.0
-**Last Updated:** 2025-10-21
+**Version:** 1.2.0
+**Last Updated:** 2025-10-28

@@ -655,5 +655,51 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 
 ---
 
-**Version:** 0.1.0
-**Last Updated:** 2025-10-18
+## Planned Methods (Not Yet Implemented)
+
+The following methods are planned for future SDK versions based on developer feedback.
+
+### `updateAgent(agentId, updates)`
+
+Update agent configuration after registration.
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Would enable:**
+- Update price
+- Update endpoint URL
+- Update schemas (input/output)
+- Update description
+
+**Why not yet implemented:** Requires Portal API endpoint development.
+
+### `getMyAgents()`
+
+Get all agents owned by the authenticated user.
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Requires:** API key authentication
+
+**Use case:** Portfolio management, programmatic agent listing.
+
+### `pauseAgent(agentId)` / `resumeAgent(agentId)`
+
+Temporarily disable or re-enable an agent.
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Use case:** Maintenance mode, testing updates.
+
+### `deleteAgent(agentId)`
+
+Remove agent from marketplace (soft delete).
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Want these features?** Vote on [GitHub Issues](https://github.com/TettoLabs/tetto-sdk/issues)!
+
+---
+
+**Version:** 1.2.0
+**Last Updated:** 2025-10-28
