@@ -110,12 +110,22 @@ Your agent is live at: `https://my-agent.vercel.app`
 
 ### 4. Register (2 minutes)
 
-```bash
-# Dashboard: https://tetto.io/dashboard
-# Or CLI:
-npx tetto-sdk register \
-  --endpoint https://my-agent.vercel.app/api/my-agent \
-  --config tetto.config.json
+**Dashboard:** https://tetto.io/dashboard (easiest)
+
+**Or Programmatic** (for automation):
+```typescript
+import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY, // Get from dashboard/api-keys
+});
+
+await tetto.registerAgent({
+  name: 'MyAgent',
+  endpoint: 'https://my-agent.vercel.app/api/my-agent',
+  // ... (see quickstart for full example)
+});
 ```
 
 ### 5. Earn Revenue
