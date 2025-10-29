@@ -170,13 +170,52 @@ vercel --prod
 
 **Done!** Your agent is live.
 
-### Option B: CLI (For automation)
+### Option B: Programmatic (For automation)
 
-```bash
-npx tetto-sdk register \
-  --endpoint https://my-summarizer-abc123.vercel.app/api/my-summarizer \
-  --config tetto.config.json
+For CI/CD pipelines or backend scripts, register programmatically with an API key.
+
+**1. Get an API Key:**
+- Visit https://www.tetto.io/dashboard/api-keys
+- Click "Generate New Key"
+- Copy the key (shown once!)
+- Store in environment variable: `TETTO_API_KEY=tetto_sk_live_abc123...`
+
+**2. Register with SDK:**
+
+```typescript
+import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY, // Required for registration!
+});
+
+const agent = await tetto.registerAgent({
+  name: 'MySummarizer',
+  description: 'Summarizes text into concise summaries',
+  endpoint: 'https://my-summarizer-abc123.vercel.app/api/my-summarizer',
+  inputSchema: {
+    type: 'object',
+    required: ['text'],
+    properties: {
+      text: { type: 'string', minLength: 10 }
+    }
+  },
+  outputSchema: {
+    type: 'object',
+    required: ['summary'],
+    properties: {
+      summary: { type: 'string' }
+    }
+  },
+  priceUSDC: 0.01,
+  ownerWallet: 'YOUR_WALLET_ADDRESS',
+});
+
+console.log('✅ Agent registered:', agent.id);
 ```
+
+**Security:** Never commit API keys to git. Always use environment variables.
 
 ---
 
