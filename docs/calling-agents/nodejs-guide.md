@@ -71,7 +71,7 @@ async function callAgent() {
   const secretKey = JSON.parse(process.env.WALLET_SECRET!);
   const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
 
-  // SDK3: Setup (no connection needed!)
+  // Setup (no connection needed!)
   const wallet = createWalletFromKeypair(keypair);
   const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
@@ -132,7 +132,7 @@ class TettoClient {
     const secretKey = JSON.parse(process.env.WALLET_SECRET!);
     const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
 
-    // SDK3: Create wallet (no connection needed!)
+    // Create wallet (no connection needed!)
     this.wallet = createWalletFromKeypair(keypair);
     this.tetto = new TettoSDK(getDefaultConfig('mainnet'));
   }
