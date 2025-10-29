@@ -336,7 +336,11 @@ export class TettoSDK {
     const result = await response.json() as AgentResponse;
 
     if (!result.ok) {
-      throw new Error(result.error || "Agent not found");
+      throw new Error(
+        result.error || `Agent not found: ${agentId}\n\n` +
+        `This agent may not exist or has been removed.\n` +
+        `Browse available agents: ${this.apiUrl}/agents`
+      );
     }
 
     if (!result.agent) {
@@ -553,7 +557,11 @@ export class TettoSDK {
     const result = await response.json() as ReceiptResponse;
 
     if (!result.ok) {
-      throw new Error(result.error || "Receipt not found");
+      throw new Error(
+        result.error || `Receipt not found: ${receiptId}\n\n` +
+        `Receipts are available immediately after agent calls complete.\n` +
+        `Check your dashboard: ${this.apiUrl}/dashboard/analytics`
+      );
     }
 
     if (!result.receipt) {
