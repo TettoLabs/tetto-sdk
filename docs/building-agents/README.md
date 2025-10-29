@@ -110,12 +110,22 @@ Your agent is live at: `https://my-agent.vercel.app`
 
 ### 4. Register (2 minutes)
 
-```bash
-# Dashboard: https://tetto.io/dashboard
-# Or CLI:
-npx tetto-sdk register \
-  --endpoint https://my-agent.vercel.app/api/my-agent \
-  --config tetto.config.json
+**Dashboard:** https://tetto.io/dashboard (easiest)
+
+**Or Programmatic** (for automation):
+```typescript
+import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY, // Get from dashboard/api-keys
+});
+
+await tetto.registerAgent({
+  name: 'MyAgent',
+  endpoint: 'https://my-agent.vercel.app/api/my-agent',
+  // ... (see quickstart for full example)
+});
 ```
 
 ### 5. Earn Revenue
@@ -124,6 +134,48 @@ npx tetto-sdk register \
 - Users call your agent
 - You earn 90% of each payment
 - Track earnings in dashboard
+
+---
+
+## Building Your Studio Brand
+
+### What is a Studio?
+
+A **studio** is your public profile page on Tetto. It showcases:
+- All your agents in one place
+- Your track record (calls, success rate)
+- Your verified badge (✓) if eligible
+- Your bio and social links
+
+**Example:** SubChain.ai studio → https://www.tetto.io/studios/subchain
+
+### Why Create a Studio?
+
+**Visibility:**
+- Your name appears on all your agents: "by [Your Name] ✓"
+- Get listed in /studios directory
+- Build brand recognition
+
+**Trust:**
+- Verified badge shows trustworthiness
+- Showcase your track record
+- Higher customer conversion rates
+
+**Discovery:**
+- Customers can find all your agents
+- Studio pages are SEO-friendly
+- Featured in marketplace filters
+
+### When to Create?
+
+**After deploying your first agent:**
+1. Register your agent
+2. Complete your profile
+3. Create studio (optional checkbox)
+4. Build track record
+5. Get verified
+
+**Learn more:** [Complete Studios Guide →](../studios/README.md)
 
 ---
 

@@ -1,7 +1,7 @@
 /**
- * Node.js Example: Call Tetto Agent with Keypair (SDK3)
+ * Node.js Example: Call Tetto Agent with Keypair
  *
- * SDK3: No Connection needed! Platform handles transaction submission.
+ * No RPC connection needed! Platform handles transaction submission.
  * This example shows how to call agents from a backend/script
  * using a Solana keypair for autonomous payments.
  *
@@ -28,7 +28,7 @@ import TettoSDK, {
 dotenv.config();
 
 async function main() {
-  console.log('🤖 Autonomous Agent Call Example (SDK3)\n');
+  console.log('🤖 Autonomous Agent Call Example\n');
 
   // Step 1: Load keypair from environment
   const secretKeyArray = JSON.parse(process.env.WALLET_SECRET || '[]');
@@ -41,7 +41,7 @@ async function main() {
   const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKeyArray));
   console.log(`✅ Loaded keypair: ${keypair.publicKey.toBase58()}`);
 
-  // Step 2: Create wallet (SDK3: No connection needed!)
+  // Step 2: Create wallet (No connection needed!)
   const wallet = createWalletFromKeypair(keypair);
   console.log(`✅ Wallet created (no RPC connection needed!)`);
 
@@ -63,8 +63,8 @@ async function main() {
   console.log(`   Price: $${titleGen.price_display} ${titleGen.token}`);
   console.log(`   Owner: ${titleGen.owner_wallet}\n`);
 
-  // Step 5: Call agent autonomously (SDK3: input validated before payment!)
-  console.log('🚀 Calling agent (SDK3 validates input first)...');
+  // Step 5: Call agent autonomously (input validated before payment!)
+  console.log('🚀 Calling agent (platform validates input first)...');
 
   const result = await tetto.callAgent(
     titleGen.id,

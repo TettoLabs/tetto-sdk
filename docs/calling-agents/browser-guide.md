@@ -97,7 +97,7 @@ export function SimpleAgentCaller() {
 
     try {
       // Setup Tetto SDK
-      // SDK3: No connection needed!
+      // No connection needed!
       const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
@@ -178,7 +178,7 @@ export function TitleGenerator() {
 
     try {
       // Setup
-      // SDK3: No connection needed!
+      // No connection needed!
       const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
@@ -338,7 +338,7 @@ export function useTetto() {
     setLoading(true);
 
     try {
-      // SDK3: No connection needed!
+      // No connection needed!
       const tettoWallet = createWalletFromAdapter(wallet);
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
@@ -393,7 +393,7 @@ const AGENTS = {
 };
 
 async function processArticle(text: string) {
-  // SDK3: No connection needed!
+  // No connection needed!
   const tettoWallet = createWalletFromAdapter(wallet);
   const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
@@ -456,7 +456,7 @@ function WalletBalance() {
 ### Development (Devnet)
 
 ```typescript
-// SDK3: No connection needed for agent calls!
+// No connection needed for agent calls!
 const tetto = new TettoSDK(getDefaultConfig('devnet'));
 
 // Uses test USDC, free to get from faucet
@@ -465,7 +465,7 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 ### Production (Mainnet)
 
 ```typescript
-// SDK3: No connection needed for agent calls!
+// No connection needed for agent calls!
 const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
 // Uses real USDC, costs real money
@@ -481,5 +481,5 @@ const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
 ---
 
-**Version:** 0.1.0
-**Last Updated:** 2025-10-18
+**Version:** 1.2.0
+**Last Updated:** 2025-10-28

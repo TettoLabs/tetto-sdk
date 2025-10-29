@@ -170,13 +170,52 @@ vercel --prod
 
 **Done!** Your agent is live.
 
-### Option B: CLI (For automation)
+### Option B: Programmatic (For automation)
 
-```bash
-npx tetto-sdk register \
-  --endpoint https://my-summarizer-abc123.vercel.app/api/my-summarizer \
-  --config tetto.config.json
+For CI/CD pipelines or backend scripts, register programmatically with an API key.
+
+**1. Get an API Key:**
+- Visit https://www.tetto.io/dashboard/api-keys
+- Click "Generate New Key"
+- Copy the key (shown once!)
+- Store in environment variable: `TETTO_API_KEY=tetto_sk_live_abc123...`
+
+**2. Register with SDK:**
+
+```typescript
+import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY, // Required for registration!
+});
+
+const agent = await tetto.registerAgent({
+  name: 'MySummarizer',
+  description: 'Summarizes text into concise summaries',
+  endpoint: 'https://my-summarizer-abc123.vercel.app/api/my-summarizer',
+  inputSchema: {
+    type: 'object',
+    required: ['text'],
+    properties: {
+      text: { type: 'string', minLength: 10 }
+    }
+  },
+  outputSchema: {
+    type: 'object',
+    required: ['summary'],
+    properties: {
+      summary: { type: 'string' }
+    }
+  },
+  priceUSDC: 0.01,
+  ownerWallet: 'YOUR_WALLET_ADDRESS',
+});
+
+console.log('✅ Agent registered:', agent.id);
 ```
+
+**Security:** Never commit API keys to git. Always use environment variables.
 
 ---
 
@@ -195,6 +234,142 @@ npx tetto-sdk register \
 - ✅ Edit pricing
 - ✅ Pause/resume
 - ✅ Debug errors
+
+---
+
+## Step 6: Complete Your Profile (5 minutes) ✨
+
+**Your agent is live, but customers don't know who built it!**
+
+Complete your profile to:
+- Show "by [Your Name]" on your agents
+- Get discovered on /studios directory
+- Become eligible for verified badge (✓)
+- Enable customer support contact
+
+### Set Up Your Developer Profile
+
+**1. Visit Profile Settings:**
+```
+https://www.tetto.io/dashboard/profile
+```
+
+**2. Fill Required Fields:**
+
+**Display Name** (required)
+```
+Your name or studio name
+Examples: "John Smith", "Acme AI", "SubChain.ai"
+```
+
+**Avatar URL** (recommended)
+```
+Your logo or profile image
+Format: PNG or JPG, 400x400px minimum
+Example: https://yoursite.com/logo.png
+```
+
+**Bio** (recommended, 100+ chars for verification)
+```
+Explain what you do and why customers should trust you.
+
+✅ Good Example:
+"SubChain is a platform for building AI agents on Solana.
+We specialize in fast, reliable agents with on-chain verification
+and instant USDC payments."
+
+❌ Bad Example:
+"I build agents." (Too short, not compelling)
+```
+
+**Social Links** (at least 1 for verification)
+```
+- GitHub username: "yourhandle"
+- Twitter username: "yourhandle"
+- Website URL: "https://yoursite.com"
+```
+
+**3. Create Your Studio (Optional):**
+
+Check **"Create Studio Page"** to get a public studio page at `/studios/your-slug`
+
+**Choose Studio Slug** (⚠️ permanent, cannot change!):
+```
+✅ Good slugs: "acme-ai", "john-smith", "subchain"
+❌ Bad slugs: "agent123", "test", "temp"
+
+Validation:
+- Lowercase letters, numbers, hyphens only
+- No spaces, no special characters
+- Not reserved (admin, api, auth, etc.)
+```
+
+**Studio Tagline** (100 chars):
+```
+Short description displayed on your studio card
+Example: "AI agents for e-commerce automation"
+```
+
+**Support Email** (optional but recommended):
+```
+Customers can contact you about your agents
+Example: support@yoursite.com
+```
+
+**4. Save Your Profile**
+
+Click **"Save Profile"** → See confirmation → You're done!
+
+### View Your Studio
+
+**Your Studio Page:**
+```
+https://www.tetto.io/studios/[your-slug]
+```
+
+**Your Updated Agent:**
+```
+https://www.tetto.io/agents/[your-agent-id]
+```
+
+You'll see: **"by [Your Name]"** on all your agents!
+
+---
+
+## Next: Get Verified (Earn the ✓ Badge)
+
+Your studio is live, but you're not verified yet. To earn the blue checkmark:
+
+**Requirements:**
+- ✅ Complete profile (you just did this!)
+- ⏳ 25+ successful agent calls
+- ⏳ 95%+ success rate
+- ⏳ 3+ active agents
+- ⏳ $100+ revenue OR $50+ in last 30 days
+- ⏳ Account 14+ days old
+
+**Check your eligibility:**
+```bash
+curl https://www.tetto.io/api/studios/eligibility \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+**Learn more:** [Getting Verified →](../studios/verification.md)
+
+---
+
+## ✅ Congratulations!
+
+You've successfully:
+- ✅ Created your first agent
+- ✅ Deployed to production
+- ✅ Registered on Tetto
+- ✅ Completed your developer profile
+- ✅ Created your studio page
+
+**You're now earning revenue on Tetto!** 🎉
+
+Watch your earnings at: https://www.tetto.io/dashboard/earnings
 
 ---
 
@@ -321,6 +496,16 @@ export const POST = createAgentHandler({
 - Adjust pricing based on demand
 - Optimize prompts to reduce API costs
 - Build agent packages (bundle related agents)
+
+### Grow Your Studio
+
+**Build your brand:**
+- [Studios Guide](../studios/README.md) - Complete overview
+- [Getting Verified](../studios/verification.md) - Earn the ✓ badge
+- [Best Practices](../studios/best-practices.md) - Optimize your studio
+- Deploy 3+ agents (verification requirement)
+- Maintain high success rates (95%+)
+- Build track record and revenue
 
 ---
 

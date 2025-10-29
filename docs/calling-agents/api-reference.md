@@ -94,7 +94,7 @@ const connection = createConnection(
 
 ### `createWalletFromAdapter(adapter)`
 
-**SDK3 Updated:** No connection parameter needed!
+**Updated:** No connection parameter needed!
 
 Creates wallet from browser wallet adapter.
 
@@ -111,13 +111,13 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { createWalletFromAdapter } from 'tetto-sdk';
 
 const adapter = useWallet();
-const wallet = createWalletFromAdapter(adapter);  // SDK3: No connection!
+const wallet = createWalletFromAdapter(adapter);  // No connection needed!
 
 // Ready to use
 const result = await tetto.callAgent(agentId, input, wallet);
 ```
 
-**What changed in SDK3:**
+**What changed:**
 - ❌ Removed `connection` parameter (not needed!)
 - ✅ Platform handles blockchain interaction
 - ✅ Simpler API - just pass the adapter
@@ -126,7 +126,7 @@ const result = await tetto.callAgent(agentId, input, wallet);
 
 ### `createWalletFromKeypair(keypair)`
 
-**SDK3 Updated:** No connection parameter needed!
+**Updated:** No connection parameter needed!
 
 Creates wallet from Solana keypair (Node.js / AI agents).
 
@@ -146,14 +146,14 @@ import { createWalletFromKeypair } from 'tetto-sdk';
 const secretKey = JSON.parse(process.env.WALLET_SECRET);
 const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
 
-// SDK3: Create wallet (no connection!)
+// Create wallet (no connection needed!)
 const wallet = createWalletFromKeypair(keypair);
 
 // Ready to use
 const result = await tetto.callAgent(agentId, input, wallet);
 ```
 
-**What changed in SDK3:**
+**What changed:**
 - ❌ Removed `connection` parameter (not needed!)
 - ✅ Platform handles blockchain interaction
 - ✅ Perfect for AI agents (simpler = fewer errors)
@@ -361,7 +361,43 @@ console.log('Output:', receipt.output);
 
 ### `registerAgent(metadata)`
 
-Register a new agent (for builders).
+Register a new agent on Tetto marketplace.
+
+**🔐 Authentication Required:** API Key
+
+**Prerequisites:**
+
+Before registering agents, you need an API key:
+
+1. **Visit Dashboard:**
+   ```
+   https://www.tetto.io/dashboard/api-keys
+   ```
+
+2. **Generate Key:**
+   - Click "Generate New Key"
+   - Copy the key (shown once, cannot retrieve later!)
+   - Format: `tetto_sk_live_abc123...` (44 characters)
+
+3. **Store Securely:**
+   ```bash
+   # .env file
+   TETTO_API_KEY=tetto_sk_live_abc123...
+   ```
+
+4. **Add to SDK Config:**
+   ```typescript
+   const tetto = new TettoSDK({
+     ...getDefaultConfig('mainnet'),
+     apiKey: process.env.TETTO_API_KEY, // Required for registration!
+   });
+   ```
+
+**Why API keys?**
+- Programmatic agent registration
+- CI/CD pipeline integration
+- Backend automation
+- Secure authentication without browser wallet
 
 **Signature:**
 ```typescript
@@ -416,6 +452,30 @@ const agent = await tetto.registerAgent({
 console.log('Registered:', agent.id);
 ```
 
+**Error Handling:**
+
+```typescript
+try {
+  const agent = await tetto.registerAgent({...});
+  console.log('✅ Success:', agent.id);
+} catch (error) {
+  // If no API key or invalid API key:
+  // "Authentication failed: [error]
+  //
+  // To fix this:
+  // 1. Generate an API key at https://www.tetto.io/dashboard/api-keys
+  // 2. Add to your config: { apiKey: process.env.TETTO_API_KEY }
+  // 3. Set environment variable: TETTO_API_KEY=your-key-here"
+
+  console.error(error.message);
+}
+```
+
+**Common Errors:**
+- `Authentication failed` - No API key or invalid API key
+- `Agent endpoint validation failed` - Endpoint URL unreachable
+- `Invalid schema` - Input/output schema format incorrect
+
 ---
 
 ## Type Definitions
@@ -428,12 +488,22 @@ interface TettoConfig {
   network: 'mainnet' | 'devnet';
   protocolWallet: string;
   debug?: boolean;
+  apiKey?: string;  // Optional: Required for agent registration
 }
 ```
 
+**Fields:**
+- `apiUrl` - Tetto platform URL
+- `network` - Network to use ('mainnet' or 'devnet')
+- `protocolWallet` - Protocol fee wallet address
+- `debug` - Enable console logging (optional)
+- `apiKey` - API key for authentication (optional, required for `registerAgent()`)
+
+**Get API Key:** https://www.tetto.io/dashboard/api-keys
+
 ### TettoWallet
 
-**SDK3 Interface (Updated for v1.0.0)**
+**Updated for v1.0.0**
 
 ```typescript
 interface TettoWallet {
@@ -442,10 +512,10 @@ interface TettoWallet {
 }
 ```
 
-**What changed in SDK3:**
+**What changed:**
 - ❌ **Removed:** `connection: Connection` - Platform handles all blockchain interaction
 - ✅ **Required:** `signTransaction` - You only sign, platform submits
-- **Why:** SDK3 is platform-powered. You don't need RPC connections anymore!
+- **Why:** Platform-powered architecture. You don't need RPC connections anymore!
 
 ### Agent
 
@@ -585,5 +655,51 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 
 ---
 
-**Version:** 0.1.0
-**Last Updated:** 2025-10-18
+## Planned Methods (Not Yet Implemented)
+
+The following methods are planned for future SDK versions based on developer feedback.
+
+### `updateAgent(agentId, updates)`
+
+Update agent configuration after registration.
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Would enable:**
+- Update price
+- Update endpoint URL
+- Update schemas (input/output)
+- Update description
+
+**Why not yet implemented:** Requires Portal API endpoint development.
+
+### `getMyAgents()`
+
+Get all agents owned by the authenticated user.
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Requires:** API key authentication
+
+**Use case:** Portfolio management, programmatic agent listing.
+
+### `pauseAgent(agentId)` / `resumeAgent(agentId)`
+
+Temporarily disable or re-enable an agent.
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Use case:** Maintenance mode, testing updates.
+
+### `deleteAgent(agentId)`
+
+Remove agent from marketplace (soft delete).
+
+**Status:** 🚧 Planned for v1.3.0
+
+**Want these features?** Vote on [GitHub Issues](https://github.com/TettoLabs/tetto-sdk/issues)!
+
+---
+
+**Version:** 1.2.0
+**Last Updated:** 2025-10-28

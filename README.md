@@ -1,4 +1,4 @@
-# Tetto SDK v1.1.0
+# Tetto SDK v1.2.0
 
 > TypeScript SDK for Tetto - Call agents and build agents that earn revenue
 
@@ -31,7 +31,7 @@ const tetto = new TettoSDK({
 
 ---
 
-## ✨ What's New in v1.0.0 (SDK3)
+## ✨ What's New in v1.0.0
 
 **The biggest SDK update yet - 75% smaller, infinitely simpler:**
 
@@ -91,7 +91,7 @@ const tetto = new TettoSDK({
 npm install tetto-sdk @solana/wallet-adapter-react @solana/web3.js
 ```
 
-**Use in React (SDK3 - No Connection!):**
+**Use in React (No Connection Needed):**
 ```typescript
 import TettoSDK, { getDefaultConfig, createWalletFromAdapter } from 'tetto-sdk';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -100,7 +100,7 @@ export function AgentCaller() {
   const walletAdapter = useWallet();
 
   async function callAgent() {
-    // 1. Setup (SDK3: No connection needed!)
+    // 1. Setup (No connection needed!)
     const wallet = createWalletFromAdapter(walletAdapter);
     const tetto = new TettoSDK({
       ...getDefaultConfig('mainnet'),
@@ -130,7 +130,7 @@ export function AgentCaller() {
 }
 ```
 
-> **💡 SDK3 Benefits:** Input is validated BEFORE creating the payment transaction. If your input is invalid, you'll know immediately - no funds stuck!
+> **💡 Benefits:** Input is validated BEFORE creating the payment transaction. If your input is invalid, you'll know immediately - no funds stuck!
 
 **→ [Full Guide](docs/calling-agents/quickstart.md)** | **[Browser Setup](docs/calling-agents/browser-guide.md)** | **[Node.js Setup](docs/calling-agents/nodejs-guide.md)**
 
@@ -171,6 +171,76 @@ export const POST = createAgentHandler({
 **That's it!** 67% less code than manual implementation.
 
 **→ [Full Guide](docs/building-agents/quickstart.md)** | **[CLI Reference](docs/building-agents/cli-reference.md)** | **[Deploy Guide](docs/building-agents/deployment.md)**
+
+---
+
+## 🎨 Building Your Studio Brand
+
+### What is a Studio?
+
+A **studio** is your public profile on Tetto. It showcases all your agents, your track record, and your verified badge (if earned).
+
+**Example:** [SubChain.ai Studio →](https://www.tetto.io/studios/subchain)
+
+### Why Create a Studio?
+
+**Visibility:**
+- Your name appears on all your agents: "by SubChain.ai ✓"
+- Get listed in /studios directory (200+ visitors/month)
+- Build brand recognition across marketplace
+
+**Trust:**
+- Verified badge (✓) increases conversion by 3x
+- Showcase track record (calls, success rate)
+- Customers prefer verified developers
+
+**Discovery:**
+- Customers find all your agents in one place
+- Studio pages indexed by Google
+- Featured in marketplace filters
+
+### Quick Setup (2 minutes)
+
+**After deploying your first agent:**
+
+1. **Visit Profile Settings:**
+   ```
+   https://www.tetto.io/dashboard/profile
+   ```
+
+2. **Complete Profile:**
+   - Display Name: "Your Name" or "Studio Name"
+   - Avatar URL: Your logo (400x400px, PNG/JPG)
+   - Bio: Explain what you do (100+ chars for verification)
+   - Social Links: GitHub, Twitter, or Website (pick 1+)
+
+3. **Create Studio (Optional):**
+   - Check "Create Studio Page"
+   - Choose slug: `your-name` (⚠️ permanent, can't change!)
+   - Add tagline: Short description (100 chars)
+   - Add support email: For customer contact
+
+4. **View Your Studio:**
+   ```
+   https://www.tetto.io/studios/[your-slug]
+   ```
+
+### Get Verified (Earn ✓ Badge)
+
+**Automatic verification when you meet ALL criteria:**
+- 25+ successful agent calls
+- 95%+ success rate
+- 3+ active agents
+- $100+ revenue OR $50+ in last 30 days
+- Complete profile + 14+ day account
+
+**Check eligibility:**
+```bash
+curl https://www.tetto.io/api/studios/eligibility \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+**Learn more:** [Studios Documentation →](docs/studios/README.md)
 
 ---
 
@@ -230,6 +300,65 @@ const agent = await tetto.registerAgent({
 - ❌ Never share keys publicly (GitHub, Discord, etc.)
 
 **Calling agents doesn't require API keys** - only registering agents does.
+
+---
+
+## 🧪 Testing on Devnet
+
+### Test Safely Before Mainnet
+
+**Devnet = Free testing with fake tokens**
+
+Test your agents on devnet before deploying to mainnet:
+- ✅ Free testing (fake USDC, unlimited)
+- ✅ Same platform (dev.tetto.io)
+- ✅ Same workflows
+- ✅ Zero risk
+- ❌ No real revenue (that's the point!)
+
+### Quick Start (5 minutes)
+
+**1. Get devnet funds** (free, unlimited):
+```bash
+# Devnet SOL (transaction fees)
+solana airdrop 2 --url devnet
+
+# Devnet USDC (agent payments)
+# Visit: https://spl-token-faucet.com → Select "USDC-Dev" → Airdrop
+```
+
+**2. Configure SDK for devnet:**
+```typescript
+const tetto = new TettoSDK(getDefaultConfig('devnet'));
+```
+
+**3. Register and test:**
+```typescript
+const testAgent = await tetto.registerAgent({
+  name: 'TestAgent',
+  endpoint: 'https://my-app.vercel.app/api/agent',
+  // ... same config as mainnet
+  priceUSDC: 0.01,  // Devnet USDC (fake!)
+});
+
+// Agent appears on dev.tetto.io (not www.tetto.io)
+console.log('View at: https://dev.tetto.io/agents/' + testAgent.id);
+```
+
+**4. Test calls:**
+```typescript
+const result = await tetto.callAgent(testAgent.id, input, wallet);
+// Costs fake USDC - test freely!
+```
+
+**5. Promote to mainnet when ready:**
+```typescript
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));  // Switch to mainnet
+const prodAgent = await tetto.registerAgent({...});  // Same config!
+// Now live on www.tetto.io earning real revenue
+```
+
+**Learn more:** [Complete Testing Guide →](docs/testing-on-devnet.md) | [Environments Explained →](docs/environments.md)
 
 ---
 
@@ -387,7 +516,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## 📋 Changelog
 
-### v1.0.0 (2025-10-23) - SDK3 Release
+### v1.0.0 (2025-10-23)
 
 **Breaking Changes:**
 - `createWalletFromKeypair()` no longer requires `connection` parameter
@@ -446,4 +575,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 1.0.0 (SDK3) | **Released:** 2025-10-23 | **Node:** ≥20.0.0
+**Version:** 1.2.0 | **Released:** 2025-10-28 | **Node:** ≥20.0.0

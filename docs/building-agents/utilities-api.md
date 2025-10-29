@@ -588,8 +588,6 @@ Both patterns are identical at runtime.
 npm install tetto-sdk@latest
 ```
 
-The `/agent` export was added in v0.1.0.
-
 ### Handler Not Receiving Input
 
 **Issue:** `input` parameter is `undefined` in your handler
@@ -657,5 +655,5 @@ return { result: text };
 
 ---
 
-**Version:** 0.1.0
-**Last Updated:** 2025-10-20
+**Version:** 1.2.0
+**Last Updated:** 2025-10-28

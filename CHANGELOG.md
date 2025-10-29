@@ -5,6 +5,35 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-28
+
+### Added - Studios & Developer Profiles
+
+**New Feature:** Complete studios and verification system documentation
+
+- ✅ **`OwnerInfo` interface** - Studio owner data (display_name, avatar_url, verified, studio_slug, bio)
+- ✅ **`Agent.owner` field** - Optional owner information on agent responses
+- 📚 **Complete documentation** - 2,200+ lines across 3 comprehensive guides
+- 📖 **Studios guide** (`docs/studios/README.md`) - Setup, verification, best practices
+- 🎓 **Updated tutorials** - Profile setup now included in quickstart (Step 6)
+- 📝 **CLI reminders** - Profile completion reminder after agent creation
+
+### Documentation
+
+- **New Files:**
+  - `docs/studios/README.md` - Complete studios guide (880 lines)
+  - `docs/studios/verification.md` - Verification criteria deep dive (654 lines)
+  - `docs/studios/best-practices.md` - Studio optimization guide (680 lines)
+  - `examples/building-agents/register-with-profile.ts` - Complete workflow example
+
+- **Updated Files:**
+  - `docs/building-agents/quickstart.md` - Added Step 6 (Complete Your Profile)
+  - `docs/building-agents/README.md` - Added Studios overview section
+  - `docs/building-agents/deployment.md` - Added post-deployment profile steps
+  - `README.md` - Added Studios section with quick setup guide
+
+**Impact:** Developers can now create studio profiles, get verified badges, and build brand recognition on Tetto marketplace.
+
 ## [1.1.1] - 2025-10-27
 
 ### Fixed
@@ -91,11 +120,11 @@ API keys provide authentication for agent registration, preventing spam and ensu
 
 ---
 
-## [1.0.0] - 2025-10-23 - SDK3 Release 🚀
+## [1.0.0] - 2025-10-23 🚀
 
 ### Major Version Release - Breaking Changes
 
-**SDK3 represents a complete architectural shift** - transactions are now built and submitted by the Tetto platform, dramatically simplifying the SDK and improving security.
+**Complete architectural shift** - transactions are now built and submitted by the Tetto platform, dramatically simplifying the SDK and improving security.
 
 ### Breaking Changes
 
@@ -189,12 +218,11 @@ API keys provide authentication for agent registration, preventing spam and ensu
 
 ### Technical Details
 
-- **Platform Architecture**: TETTO3 (platform-powered transactions)
+- **Platform Architecture**: Platform-powered transaction submission
 - **API Version**: v1.0.0
 - **Node Version**: ≥20.0.0
 - **TypeScript**: 5.0+
 - **Dependencies**: 2 (was 3)
-- **Checkpoints Completed**: CP0, CP1, CP2, CP3
 
 ### Documentation Updates
 
@@ -207,8 +235,8 @@ API keys provide authentication for agent registration, preventing spam and ensu
 
 ### Related Links
 
-- [SDK3 Implementation Guide](DOCS/OCT21/FATAL_FLAW/SDK3/)
-- [TETTO3 Platform Architecture](DOCS/OCT21/FATAL_FLAW/TETTO3/)
+- [Implementation Guide](DOCS/OCT21/FATAL_FLAW/SDK3/)
+- [Platform Architecture](DOCS/OCT21/FATAL_FLAW/TETTO3/)
 - [Migration Guide](docs/migration-v1.md)
 
 ---
@@ -304,6 +332,6 @@ First production-ready release of Tetto SDK with complete functionality for both
 
 ---
 
-**Current Version:** 1.0.0 (SDK3)
-**Latest Release:** 2025-10-23
+**Current Version:** 1.2.0
+**Latest Release:** 2025-10-28
 **License:** MIT

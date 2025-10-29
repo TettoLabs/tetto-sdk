@@ -72,6 +72,26 @@ export interface AgentMetadata {
     }>;
     isBeta?: boolean;
 }
+/**
+ * Studio owner information returned by the platform API
+ *
+ * Represents the developer/studio that owns an agent.
+ * Used for marketplace attribution ("by SubChain.ai ✓").
+ *
+ * @since v1.2.0 - Added studio support
+ */
+export interface OwnerInfo {
+    /** Display name of the studio/developer */
+    display_name: string;
+    /** Avatar/logo URL (null if not set) */
+    avatar_url: string | null;
+    /** Whether studio has verified badge (blue checkmark ✓) */
+    verified: boolean;
+    /** Studio slug for profile page (null if no studio created) */
+    studio_slug: string | null;
+    /** Studio bio/description (null if not set) */
+    bio: string | null;
+}
 export interface Agent {
     id: string;
     name: string;
@@ -85,6 +105,17 @@ export interface Agent {
     input_schema: Record<string, unknown>;
     output_schema: Record<string, unknown>;
     owner_wallet: string;
+    /**
+     * Studio owner information (added in v1.2.0)
+     *
+     * Null for agents registered before studios feature,
+     * or if owner hasn't completed their profile yet.
+     *
+     * Use this to display attribution like "by SubChain.ai ✓"
+     *
+     * @since v1.2.0
+     */
+    owner?: OwnerInfo | null;
     fee_bps: number;
     status: string;
     created_at: string;
@@ -141,6 +172,11 @@ export declare class TettoSDK {
     private config;
     constructor(config: TettoConfig);
     /**
+     * Validate UUID format
+     * @private
+     */
+    private _validateUUID;
+    /**
      * Register a new agent in the Tetto marketplace
      *
      * @param metadata - Agent metadata (name, endpoint, schemas, price, etc.)
@@ -189,11 +225,11 @@ export declare class TettoSDK {
      */
     listAgents(): Promise<Agent[]>;
     /**
-     * Call an agent with payment from user's wallet (SDK3 - Platform-powered)
+     * Call an agent with payment from user's wallet
      *
-     * SDK3: Platform validates input BEFORE payment (fail fast!)
-     * SDK3: Platform builds and submits transaction (you only sign)
-     * SDK3: No RPC connection needed (simpler!)
+     * Platform validates input BEFORE payment (fail fast!)
+     * Platform builds and submits transaction (you only sign)
+     * No RPC connection needed (simpler!)
      *
      * @param agentId - Agent UUID
      * @param input - Input data matching agent's schema
@@ -207,7 +243,7 @@ export declare class TettoSDK {
      * import { useWallet } from '@solana/wallet-adapter-react';
      *
      * const walletAdapter = useWallet();
-     * const wallet = createWalletFromAdapter(walletAdapter);  // SDK3: No connection!
+     * const wallet = createWalletFromAdapter(walletAdapter);  // No connection needed!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'Hello' }, wallet);
@@ -220,7 +256,7 @@ export declare class TettoSDK {
      *
      * const secretKey = JSON.parse(process.env.WALLET_SECRET);
      * const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
-     * const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
+     * const wallet = createWalletFromKeypair(keypair);  // No connection needed!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'AI agent' }, wallet);

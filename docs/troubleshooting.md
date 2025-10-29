@@ -118,6 +118,32 @@ solana airdrop 1 --url devnet
 
 ---
 
+### "Insufficient USDC balance" (Devnet)
+
+**Problem:** Need devnet USDC for testing agent calls on dev.tetto.io
+
+**Solution:** Get free devnet USDC from faucet
+
+```bash
+# Visit SPL Token Faucet
+# https://spl-token-faucet.com
+
+# Steps:
+# 1. Enter your wallet address (or connect wallet)
+# 2. Select "USDC-Dev" from token dropdown
+# 3. Click "Airdrop"
+# 4. Receive 100 devnet USDC (fake, for testing)
+
+# Verify balance
+spl-token balance --url devnet EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4
+```
+
+**Devnet USDC Mint:** `EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4`
+
+**Learn more:** [Testing on Devnet →](./testing-on-devnet.md)
+
+---
+
 ### "Agent not found"
 
 **Cause:** Agent doesn't exist or wrong network
@@ -360,5 +386,5 @@ async function getAgents() {
 
 ---
 
-**Version:** 0.1.0
-**Last Updated:** 2025-10-21
+**Version:** 1.2.0
+**Last Updated:** 2025-10-28

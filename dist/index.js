@@ -54,6 +54,15 @@ class TettoSDK {
         this.config = config;
     }
     /**
+     * Validate UUID format
+     * @private
+     */
+    _validateUUID(id, type) {
+        if (!id || !id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+            throw new Error(`Invalid ${type} format. Expected UUID.`);
+        }
+    }
+    /**
      * Register a new agent in the Tetto marketplace
      *
      * @param metadata - Agent metadata (name, endpoint, schemas, price, etc.)
@@ -108,6 +117,9 @@ class TettoSDK {
             }
             throw new Error(result.error || "Agent registration failed");
         }
+        if (!result.agent) {
+            throw new Error("Agent data missing from response");
+        }
         return result.agent;
     }
     /**
@@ -124,10 +136,16 @@ class TettoSDK {
      * ```
      */
     async getAgent(agentId) {
+        this._validateUUID(agentId, 'agent ID');
         const response = await fetch(`${this.apiUrl}/api/agents/${agentId}`);
         const result = await response.json();
         if (!result.ok) {
-            throw new Error(result.error || "Agent not found");
+            throw new Error(result.error || `Agent not found: ${agentId}\n\n` +
+                `This agent may not exist or has been removed.\n` +
+                `Browse available agents: ${this.apiUrl}/agents`);
+        }
+        if (!result.agent) {
+            throw new Error("Agent data missing from response");
         }
         return result.agent;
     }
@@ -150,14 +168,17 @@ class TettoSDK {
         if (!result.ok) {
             throw new Error(result.error || "Failed to list agents");
         }
+        if (!result.agents) {
+            throw new Error("Agents data missing from response");
+        }
         return result.agents;
     }
     /**
-     * Call an agent with payment from user's wallet (SDK3 - Platform-powered)
+     * Call an agent with payment from user's wallet
      *
-     * SDK3: Platform validates input BEFORE payment (fail fast!)
-     * SDK3: Platform builds and submits transaction (you only sign)
-     * SDK3: No RPC connection needed (simpler!)
+     * Platform validates input BEFORE payment (fail fast!)
+     * Platform builds and submits transaction (you only sign)
+     * No RPC connection needed (simpler!)
      *
      * @param agentId - Agent UUID
      * @param input - Input data matching agent's schema
@@ -171,7 +192,7 @@ class TettoSDK {
      * import { useWallet } from '@solana/wallet-adapter-react';
      *
      * const walletAdapter = useWallet();
-     * const wallet = createWalletFromAdapter(walletAdapter);  // SDK3: No connection!
+     * const wallet = createWalletFromAdapter(walletAdapter);  // No connection needed!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'Hello' }, wallet);
@@ -184,14 +205,14 @@ class TettoSDK {
      *
      * const secretKey = JSON.parse(process.env.WALLET_SECRET);
      * const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
-     * const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
+     * const wallet = createWalletFromKeypair(keypair);  // No connection needed!
      * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
      *
      * const result = await tetto.callAgent(agentId, { text: 'AI agent' }, wallet);
      * ```
      */
     async callAgent(agentId, input, wallet, options) {
-        // Validate wallet (SDK3 - CP1: Simplified validation)
+        // Validate wallet format
         if (!wallet.publicKey) {
             throw new Error('Wallet public key is required');
         }
@@ -208,7 +229,7 @@ class TettoSDK {
             console.log(`   Agent: ${agent.name}`);
             console.log(`   Price: ${agent.price_display} ${agent.token}`);
         }
-        // Step 2: Request transaction from platform (SDK3 - CP1: Phase 1)
+        // Step 2: Request unsigned transaction from platform
         // Platform validates input BEFORE payment_intent creation (fail fast!)
         if (this.config.debug) {
             console.log("   Requesting transaction from platform (with input validation)...");
@@ -219,7 +240,7 @@ class TettoSDK {
             body: JSON.stringify({
                 payer_wallet: wallet.publicKey.toBase58(),
                 selected_token: options?.preferredToken,
-                input: input, // SDK3 - CP1: Input validated at build-time!
+                input: input, // Input validated at build-time (fail fast!)
             }),
         });
         const buildResult = await buildResponse.json();
@@ -241,7 +262,7 @@ class TettoSDK {
         const payment_intent_id = buildResult.payment_intent_id;
         if (this.config.debug)
             console.log("   Transaction deserialized, requesting signature...");
-        // Step 4: Sign transaction (SDK3 - CP1: Phase 2)
+        // Step 4: Sign transaction (client-side signing)
         // SDK only signs, platform will submit to Solana
         if (this.config.debug)
             console.log("   Signing transaction...");
@@ -256,8 +277,8 @@ class TettoSDK {
                 console.error("   ❌ Transaction signing failed:", error);
             throw error;
         }
-        // Step 5: Call platform API with signed transaction (SDK3 - CP1: Phase 3)
-        // SDK3: Only 2 fields - payment_intent_id + signed_transaction
+        // Step 5: Submit signed transaction to platform
+        // Simple submission: payment_intent_id + signed_transaction
         // All context (agent_id, input, caller_wallet, token) is in payment_intent
         if (this.config.debug)
             console.log("   Sending signed transaction to platform...");
@@ -279,13 +300,13 @@ class TettoSDK {
             console.log("   ✅ Agent call successful");
         return {
             ok: result.ok,
-            message: result.message,
-            output: result.output,
-            txSignature: result.tx_signature,
-            receiptId: result.receipt_id,
-            explorerUrl: result.explorer_url,
-            agentReceived: result.agent_received,
-            protocolFee: result.protocol_fee,
+            message: result.message || "",
+            output: result.output || {},
+            txSignature: result.tx_signature || "",
+            receiptId: result.receipt_id || "",
+            explorerUrl: result.explorer_url || "",
+            agentReceived: result.agent_received || 0,
+            protocolFee: result.protocol_fee || 0,
         };
     }
     /**
@@ -303,10 +324,16 @@ class TettoSDK {
      * ```
      */
     async getReceipt(receiptId) {
+        this._validateUUID(receiptId, 'receipt ID');
         const response = await fetch(`${this.apiUrl}/api/receipts/${receiptId}`);
         const result = await response.json();
         if (!result.ok) {
-            throw new Error(result.error || "Receipt not found");
+            throw new Error(result.error || `Receipt not found: ${receiptId}\n\n` +
+                `Receipts are available immediately after agent calls complete.\n` +
+                `Check your dashboard: ${this.apiUrl}/dashboard/analytics`);
+        }
+        if (!result.receipt) {
+            throw new Error("Receipt data missing from response");
         }
         return result.receipt;
     }
