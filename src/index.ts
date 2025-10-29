@@ -46,7 +46,7 @@ export interface TettoConfig {
   apiKey?: string; // Optional: API key for authentication (get from dashboard)
 }
 
-// SDK3 - CP2: Simplified wallet interface (no Connection needed)
+// Simplified wallet interface (no RPC connection needed - platform handles submission)
 export interface TettoWallet {
   publicKey: PublicKey;
   signTransaction: (tx: Transaction) => Promise<Transaction>;  // Required (platform submits)
@@ -54,7 +54,7 @@ export interface TettoWallet {
 
 export interface CallAgentOptions {
   skipConfirmation?: boolean;
-  preferredToken?: 'SOL' | 'USDC'; // CP3: Let users specify payment token preference
+  preferredToken?: 'SOL' | 'USDC'; // Optional: Specify payment token preference
 }
 
 // Network defaults
@@ -163,7 +163,7 @@ export interface CallResult {
   protocolFee: number;
 }
 
-// SDK3 - CP1: Build transaction response from platform
+// Platform builds unsigned transaction (client signs and submits)
 export interface BuildTransactionResult {
   ok: boolean;
   transaction: string;          // Base64 unsigned transaction
@@ -325,11 +325,11 @@ export class TettoSDK {
   }
 
   /**
-   * Call an agent with payment from user's wallet (SDK3 - Platform-powered)
+   * Call an agent with payment from user's wallet
    *
-   * SDK3: Platform validates input BEFORE payment (fail fast!)
-   * SDK3: Platform builds and submits transaction (you only sign)
-   * SDK3: No RPC connection needed (simpler!)
+   * Platform validates input BEFORE payment (fail fast!)
+   * Platform builds and submits transaction (you only sign)
+   * No RPC connection needed (simpler!)
    *
    * @param agentId - Agent UUID
    * @param input - Input data matching agent's schema
@@ -343,7 +343,7 @@ export class TettoSDK {
    * import { useWallet } from '@solana/wallet-adapter-react';
    *
    * const walletAdapter = useWallet();
-   * const wallet = createWalletFromAdapter(walletAdapter);  // SDK3: No connection!
+   * const wallet = createWalletFromAdapter(walletAdapter);  // No connection needed!
    * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
    *
    * const result = await tetto.callAgent(agentId, { text: 'Hello' }, wallet);
@@ -356,7 +356,7 @@ export class TettoSDK {
    *
    * const secretKey = JSON.parse(process.env.WALLET_SECRET);
    * const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
-   * const wallet = createWalletFromKeypair(keypair);  // SDK3: No connection!
+   * const wallet = createWalletFromKeypair(keypair);  // No connection needed!
    * const tetto = new TettoSDK(getDefaultConfig('mainnet'));
    *
    * const result = await tetto.callAgent(agentId, { text: 'AI agent' }, wallet);
@@ -368,7 +368,7 @@ export class TettoSDK {
     wallet: TettoWallet,
     options?: CallAgentOptions
   ): Promise<CallResult> {
-    // Validate wallet (SDK3 - CP1: Simplified validation)
+    // Validate wallet format
     if (!wallet.publicKey) {
       throw new Error('Wallet public key is required');
     }
@@ -390,7 +390,7 @@ export class TettoSDK {
       console.log(`   Price: ${agent.price_display} ${agent.token}`);
     }
 
-    // Step 2: Request transaction from platform (SDK3 - CP1: Phase 1)
+    // Step 2: Request unsigned transaction from platform
     // Platform validates input BEFORE payment_intent creation (fail fast!)
     if (this.config.debug) {
       console.log("   Requesting transaction from platform (with input validation)...");
@@ -404,7 +404,7 @@ export class TettoSDK {
         body: JSON.stringify({
           payer_wallet: wallet.publicKey.toBase58(),
           selected_token: options?.preferredToken,
-          input: input,  // SDK3 - CP1: Input validated at build-time!
+          input: input,  // Input validated at build-time (fail fast!)
         }),
       }
     );
@@ -435,7 +435,7 @@ export class TettoSDK {
 
     if (this.config.debug) console.log("   Transaction deserialized, requesting signature...");
 
-    // Step 4: Sign transaction (SDK3 - CP1: Phase 2)
+    // Step 4: Sign transaction (client-side signing)
     // SDK only signs, platform will submit to Solana
     if (this.config.debug) console.log("   Signing transaction...");
 
@@ -449,8 +449,8 @@ export class TettoSDK {
       throw error;
     }
 
-    // Step 5: Call platform API with signed transaction (SDK3 - CP1: Phase 3)
-    // SDK3: Only 2 fields - payment_intent_id + signed_transaction
+    // Step 5: Submit signed transaction to platform
+    // Simple submission: payment_intent_id + signed_transaction
     // All context (agent_id, input, caller_wallet, token) is in payment_intent
     if (this.config.debug) console.log("   Sending signed transaction to platform...");
 
