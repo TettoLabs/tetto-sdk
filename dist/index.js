@@ -52,6 +52,11 @@ class TettoSDK {
     constructor(config) {
         this.apiUrl = config.apiUrl.replace(/\/$/, ""); // Remove trailing slash
         this.config = config;
+        this.plugins = new Map(); // NEW: Initialize plugin registry
+        this.callingAgentId = config.agentId || process.env.TETTO_AGENT_ID || null; // NEW: Set agent identity
+        if (this.config.debug && this.callingAgentId) {
+            console.log(`🤖 SDK initialized with agent identity: ${this.callingAgentId}`);
+        }
     }
     /**
      * Validate UUID format
@@ -241,6 +246,7 @@ class TettoSDK {
                 payer_wallet: wallet.publicKey.toBase58(),
                 selected_token: options?.preferredToken,
                 input: input, // Input validated at build-time (fail fast!)
+                calling_agent_id: this.callingAgentId || undefined, // NEW: Include agent identity
             }),
         });
         const buildResult = await buildResponse.json();
@@ -336,6 +342,184 @@ class TettoSDK {
             throw new Error("Receipt data missing from response");
         }
         return result.receipt;
+    }
+    // ============================================================================
+    // PLUGIN SYSTEM (v2.0) - TETTO_WARM_UPGRADE CP2
+    // ============================================================================
+    /**
+     * Create restricted API for plugins (security boundary)
+     *
+     * This method creates a sandboxed interface that plugins receive.
+     * Plugins CANNOT access:
+     * - API keys (config.apiKey)
+     * - Private keys (wallet internals)
+     * - Other plugins (isolation)
+     * - Internal SDK state
+     *
+     * @returns Restricted PluginAPI interface
+     * @private
+     */
+    createPluginAPI() {
+        return {
+            // Proxy safe public methods (bind to preserve 'this')
+            callAgent: this.callAgent.bind(this),
+            getAgent: this.getAgent.bind(this),
+            listAgents: this.listAgents.bind(this),
+            // Return safe subset of config (no secrets!)
+            getConfig: () => ({
+                apiUrl: this.apiUrl,
+                network: this.config.network,
+                protocolWallet: this.config.protocolWallet,
+                debug: this.config.debug || false
+            }),
+            // Allow checking if plugin is loaded (boolean only, no access to instance)
+            hasPlugin: (pluginId) => this.plugins.has(pluginId)
+        };
+    }
+    /**
+     * Register a plugin with security boundary
+     *
+     * Plugins receive restricted PluginAPI (not full SDK) for security.
+     * All plugin methods must accept wallet parameter from caller.
+     *
+     * @param plugin - Plugin function
+     * @param options - Plugin-specific options
+     * @returns Plugin instance
+     *
+     * @example
+     * ```typescript
+     * import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
+     *
+     * tetto.use(WarmMemoryPlugin);
+     * await tetto.memory.set('key', 'value', wallet);  // Wallet required!
+     * ```
+     */
+    use(plugin, options) {
+        // Pass restricted API (NOT full SDK) - SECURITY BOUNDARY
+        const instance = plugin(this.createPluginAPI(), options);
+        const pluginId = instance.id || plugin.id || instance.name || 'unknown';
+        // Check for namespace collisions
+        if (instance.name && instance.name in this) {
+            throw new Error(`Plugin namespace collision: '${instance.name}' is already in use.\n\n` +
+                `Loaded plugins:\n` +
+                `${this.listPlugins().map(id => `  - ${id}`).join('\n')}\n\n` +
+                `Solutions:\n` +
+                `1. Load only one plugin at a time\n` +
+                `2. Use custom name: tetto.use(Plugin, { name: 'customName' })\n` +
+                `3. Access via plugins Map: tetto.getPlugin('${pluginId}')`);
+        }
+        // Store in registry
+        this.plugins.set(pluginId, instance);
+        // Auto-attach if safe (convenient access via tetto.pluginName)
+        if (instance.name) {
+            this[instance.name] = instance;
+            if (this.config.debug) {
+                console.log(`✅ Plugin '${instance.name}' attached to SDK (secure mode)`);
+            }
+        }
+        // Call lifecycle hook if available (don't await to prevent blocking)
+        if (instance.onInit && typeof instance.onInit === 'function') {
+            Promise.resolve(instance.onInit()).catch(err => {
+                console.error(`Plugin ${pluginId} initialization failed:`, err);
+                // Call onError if available
+                if (instance.onError && typeof instance.onError === 'function') {
+                    instance.onError(err, { operation: 'init' });
+                }
+            });
+        }
+        return instance;
+    }
+    /**
+     * Get plugin by ID (safe access)
+     *
+     * @param pluginId - Plugin identifier
+     * @returns Plugin instance or undefined
+     *
+     * @example
+     * ```typescript
+     * const memory = tetto.getPlugin('warmmemory');
+     * if (memory) {
+     *   await memory.set('key', 'value', wallet);
+     * }
+     * ```
+     */
+    getPlugin(pluginId) {
+        return this.plugins.get(pluginId);
+    }
+    /**
+     * List all loaded plugins
+     *
+     * @returns Array of plugin IDs
+     */
+    listPlugins() {
+        return Array.from(this.plugins.keys());
+    }
+    /**
+     * Destroy all plugins (cleanup)
+     *
+     * Calls onDestroy lifecycle hook for each plugin.
+     * Use when shutting down application.
+     *
+     * @example
+     * ```typescript
+     * // On application shutdown:
+     * await tetto.destroy();
+     * ```
+     */
+    async destroy() {
+        for (const [id, instance] of this.plugins.entries()) {
+            if (instance.onDestroy && typeof instance.onDestroy === 'function') {
+                try {
+                    await instance.onDestroy();
+                    if (this.config.debug) {
+                        console.log(`✅ Plugin ${id} destroyed`);
+                    }
+                }
+                catch (err) {
+                    console.error(`Plugin ${id} cleanup failed:`, err);
+                }
+            }
+        }
+        this.plugins.clear();
+    }
+    /**
+     * Create SDK from tetto_context (agent-to-agent calls)
+     *
+     * When agents receive tetto_context, they can use this method
+     * to create an SDK instance that preserves caller identity.
+     *
+     * @param context - TettoContext from request body
+     * @param overrides - Optional config overrides
+     * @returns SDK instance with caller identity preserved
+     *
+     * @example
+     * ```typescript
+     * export const POST = createAgentHandler({
+     *   async handler(input, context) {
+     *     // Create SDK from context (preserves calling_agent_id)
+     *     const tetto = TettoSDK.fromContext(context.tetto_context, {
+     *       network: 'mainnet'
+     *     });
+     *
+     *     // Calls to agents will include caller_agent_id automatically
+     *     await tetto.callAgent('warmmemory', { action: 'store' }, wallet);
+     *
+     *     return { success: true };
+     *   }
+     * });
+     * ```
+     */
+    static fromContext(context, overrides = {}) {
+        const network = overrides.network || 'mainnet';
+        const defaults = exports.NETWORK_DEFAULTS[network];
+        return new TettoSDK({
+            apiUrl: overrides.apiUrl || defaults.apiUrl,
+            network,
+            protocolWallet: overrides.protocolWallet || defaults.protocolWallet,
+            debug: overrides.debug || false,
+            apiKey: overrides.apiKey || process.env.TETTO_API_KEY,
+            agentId: context.caller_agent_id || undefined, // Preserve caller identity!
+        });
     }
 }
 exports.TettoSDK = TettoSDK;

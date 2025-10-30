@@ -27,12 +27,14 @@
  * ```
  */
 import { PublicKey, Transaction } from "@solana/web3.js";
+import type { Plugin, PluginInstance, TettoContext } from './types';
 export interface TettoConfig {
     apiUrl: string;
     network: 'mainnet' | 'devnet';
     protocolWallet: string;
     debug?: boolean;
     apiKey?: string;
+    agentId?: string;
 }
 export interface TettoWallet {
     publicKey: PublicKey;
@@ -170,6 +172,8 @@ export interface Receipt {
 export declare class TettoSDK {
     private apiUrl;
     private config;
+    private plugins;
+    private callingAgentId;
     constructor(config: TettoConfig);
     /**
      * Validate UUID format
@@ -278,7 +282,104 @@ export declare class TettoSDK {
      * ```
      */
     getReceipt(receiptId: string): Promise<Receipt>;
+    /**
+     * Create restricted API for plugins (security boundary)
+     *
+     * This method creates a sandboxed interface that plugins receive.
+     * Plugins CANNOT access:
+     * - API keys (config.apiKey)
+     * - Private keys (wallet internals)
+     * - Other plugins (isolation)
+     * - Internal SDK state
+     *
+     * @returns Restricted PluginAPI interface
+     * @private
+     */
+    private createPluginAPI;
+    /**
+     * Register a plugin with security boundary
+     *
+     * Plugins receive restricted PluginAPI (not full SDK) for security.
+     * All plugin methods must accept wallet parameter from caller.
+     *
+     * @param plugin - Plugin function
+     * @param options - Plugin-specific options
+     * @returns Plugin instance
+     *
+     * @example
+     * ```typescript
+     * import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
+     *
+     * tetto.use(WarmMemoryPlugin);
+     * await tetto.memory.set('key', 'value', wallet);  // Wallet required!
+     * ```
+     */
+    use(plugin: Plugin, options?: any): PluginInstance;
+    /**
+     * Get plugin by ID (safe access)
+     *
+     * @param pluginId - Plugin identifier
+     * @returns Plugin instance or undefined
+     *
+     * @example
+     * ```typescript
+     * const memory = tetto.getPlugin('warmmemory');
+     * if (memory) {
+     *   await memory.set('key', 'value', wallet);
+     * }
+     * ```
+     */
+    getPlugin(pluginId: string): PluginInstance | undefined;
+    /**
+     * List all loaded plugins
+     *
+     * @returns Array of plugin IDs
+     */
+    listPlugins(): string[];
+    /**
+     * Destroy all plugins (cleanup)
+     *
+     * Calls onDestroy lifecycle hook for each plugin.
+     * Use when shutting down application.
+     *
+     * @example
+     * ```typescript
+     * // On application shutdown:
+     * await tetto.destroy();
+     * ```
+     */
+    destroy(): Promise<void>;
+    /**
+     * Create SDK from tetto_context (agent-to-agent calls)
+     *
+     * When agents receive tetto_context, they can use this method
+     * to create an SDK instance that preserves caller identity.
+     *
+     * @param context - TettoContext from request body
+     * @param overrides - Optional config overrides
+     * @returns SDK instance with caller identity preserved
+     *
+     * @example
+     * ```typescript
+     * export const POST = createAgentHandler({
+     *   async handler(input, context) {
+     *     // Create SDK from context (preserves calling_agent_id)
+     *     const tetto = TettoSDK.fromContext(context.tetto_context, {
+     *       network: 'mainnet'
+     *     });
+     *
+     *     // Calls to agents will include caller_agent_id automatically
+     *     await tetto.callAgent('warmmemory', { action: 'store' }, wallet);
+     *
+     *     return { success: true };
+     *   }
+     * });
+     * ```
+     */
+    static fromContext(context: TettoContext, overrides?: Partial<TettoConfig>): TettoSDK;
 }
 export default TettoSDK;
 export { createWalletFromKeypair, createWalletFromAdapter } from "./wallet-helpers";
 export { getDefaultConfig, createConnection, getUSDCMint } from "./network-helpers";
+export type { PluginAPI } from './plugin-api';
+export type { Plugin, PluginInstance, TettoContext, ErrorContext, PluginOptions } from './types';

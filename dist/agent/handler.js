@@ -51,18 +51,22 @@ function createAgentHandler(config) {
             catch (parseError) {
                 return Response.json({ error: 'Invalid JSON in request body' }, { status: 400 });
             }
-            // Step 2: Extract input
-            const { input } = body;
+            // Step 2: Extract input and context
+            const { input, tetto_context } = body;
             if (!input) {
                 return Response.json({ error: "Missing 'input' field in request body" }, { status: 400 });
             }
-            // Step 3: Call user's handler
-            const output = await config.handler(input);
-            // Step 4: Return success response
+            // Step 3: Build context for handler (v2.0+)
+            const context = {
+                tetto_context: tetto_context || null // Null if not provided (backward compatible)
+            };
+            // Step 4: Call user's handler (with optional context parameter)
+            const output = await config.handler(input, context);
+            // Step 5: Return success response
             return Response.json(output, { status: 200 });
         }
         catch (error) {
-            // Step 5: Handle errors gracefully
+            // Step 6: Handle errors gracefully
             const errorMessage = error instanceof Error
                 ? error.message
                 : String(error);

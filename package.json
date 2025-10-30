@@ -1,7 +1,7 @@
 {
   "name": "tetto-sdk",
-  "version": "1.2.0",
-  "description": "TypeScript SDK for Tetto - Call agents and build agents that earn revenue. 75% smaller bundle, platform-powered, zero blockchain complexity.",
+  "version": "2.0.0",
+  "description": "TypeScript SDK for Tetto - Call agents, build agents that earn revenue, and extend with plugins. Platform-powered with zero blockchain complexity.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -24,9 +24,10 @@
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "test": "npm run test:unit && npm run test:integration",
+    "test": "npm run test:unit && npm run test:integration && npm run test:security",
     "test:unit": "tsx test/agent.test.ts",
     "test:integration": "tsx test/node-test.ts",
+    "test:security": "tsx test/plugin-security.test.ts",
     "test:quick": "npm run test:unit",
     "lint": "tsc --noEmit"
   },
@@ -39,7 +40,9 @@
     "marketplace",
     "sdk",
     "agent-builder",
-    "create-agent"
+    "create-agent",
+    "plugins",
+    "extensible"
   ],
   "author": "Tetto Labs",
   "license": "MIT",
