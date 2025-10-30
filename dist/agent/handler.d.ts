@@ -1,12 +1,47 @@
+import type { TettoContext } from '../types';
+/**
+ * Agent request context (v2.0+)
+ *
+ * Passed to agent handlers as second parameter.
+ * Contains metadata about who's calling the agent.
+ *
+ * @since 2.0.0
+ */
+export interface AgentRequestContext {
+    /**
+     * Tetto context from platform (caller identity, intent ID, etc.)
+     * Null if request doesn't include tetto_context (backward compatibility)
+     */
+    tetto_context: TettoContext | null;
+}
 /**
  * Configuration for agent handler
  */
 export interface AgentHandlerConfig {
     /**
      * Async function that processes agent input and returns output.
+     *
+     * v2.0: Handler can now accept optional second parameter (context)
+     * v1.x: Handler with single parameter still works (backward compatible)
+     *
      * Input validation and error handling are automatic.
+     *
+     * @example v2.0 (with context):
+     * ```typescript
+     * async handler(input: any, context: AgentRequestContext) {
+     *   console.log('Caller:', context.tetto_context?.caller_wallet);
+     *   return { result: '...' };
+     * }
+     * ```
+     *
+     * @example v1.x (backward compatible):
+     * ```typescript
+     * async handler(input: any) {
+     *   return { result: '...' };
+     * }
+     * ```
      */
-    handler: (input: any) => Promise<any>;
+    handler: (input: any, context?: AgentRequestContext) => Promise<any>;
 }
 /**
  * Create a Next.js API route handler with automatic error handling.
