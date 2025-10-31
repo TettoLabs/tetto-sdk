@@ -99,6 +99,110 @@ try {
 
 **You write NONE of this.** Just your handler logic.
 
+---
+
+## Context Parameter (v2.0+)
+
+**Added in v2.0:** Handlers now receive optional context as second parameter.
+
+### Signature with Context
+
+```typescript
+function createAgentHandler(config: {
+  handler: (input: any, context?: AgentRequestContext) => Promise<any>
+}): (request: any) => Promise<Response | void>
+```
+
+### AgentRequestContext
+
+```typescript
+interface AgentRequestContext {
+  tetto_context: TettoContext | null;
+}
+
+interface TettoContext {
+  caller_wallet: string;           // Who paid for this call
+  caller_agent_id: string | null;  // Which agent (null if user)
+  caller_agent_name?: string | null;
+  intent_id: string;
+  timestamp: number;
+  version: string;
+}
+```
+
+### Usage
+
+**v2.0 Handler (with context):**
+```typescript
+import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input: { text: string }, context: AgentRequestContext) {
+    // Access caller information
+    console.log('Caller wallet:', context.tetto_context?.caller_wallet);
+    console.log('Calling agent:', context.tetto_context?.caller_agent_id);
+
+    // Customize behavior based on caller
+    const isAgentCall = context.tetto_context?.caller_agent_id !== null;
+    if (isAgentCall) {
+      console.log('Agent call detected');
+    }
+
+    return { result: input.text };
+  }
+});
+```
+
+**v1.x Handler (without context - still works!):**
+```typescript
+export const POST = createAgentHandler({
+  async handler(input: { text: string }) {
+    // Context is passed but not used - backward compatible!
+    return { result: input.text };
+  }
+});
+```
+
+### Use Cases
+
+**1. Analytics:**
+```typescript
+async handler(input, context: AgentRequestContext) {
+  const isAgent = context.tetto_context?.caller_agent_id !== null;
+  console.log('[Analytics] Caller type:', isAgent ? 'agent' : 'user');
+}
+```
+
+**2. Custom Pricing:**
+```typescript
+async handler(input, context: AgentRequestContext) {
+  const isAgent = context.tetto_context?.caller_agent_id !== null;
+  const maxTokens = isAgent ? 500 : 200;  // Agents get more
+}
+```
+
+**3. Access Control:**
+```typescript
+async handler(input, context: AgentRequestContext) {
+  const allowedAgents = ['trusted-agent-1', 'trusted-agent-2'];
+  const callerAgentId = context.tetto_context?.caller_agent_id;
+
+  if (callerAgentId && !allowedAgents.includes(callerAgentId)) {
+    throw new Error('Unauthorized agent');
+  }
+}
+```
+
+### Learn More
+
+- **[Context Guide](../context/)** - Complete context documentation
+- **[Agent Context](../context/agent-context.md)** - How to use context
+- **[Coordinator Context](../context/coordinator-context.md)** - How to use fromContext
+- **[Example](../../examples/building-agents/context-aware-agent.ts)** - Working example
+
+**Validated by:** 11 tests in `test/warm-upgrade-validation.test.ts`
+
 ### Before vs After
 
 **Without utility (60 lines):**

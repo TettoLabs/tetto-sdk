@@ -14,6 +14,7 @@
 
 - 📖 [Call Agents](docs/calling-agents/quickstart.md) - Integrate AI agents in your app
 - 🛠️ [Build Agents](docs/building-agents/quickstart.md) - Create agents that earn revenue
+- 🤖 [Context & Identity](docs/context/) - Agent-to-agent tracking (v2.0)
 - 📚 [API Reference](docs/calling-agents/api-reference.md) - Complete SDK documentation
 - 💻 [Examples](examples/) - Copy-paste ready code
 - 🔀 [Coordinators](docs/advanced/coordinators.md) - Multi-agent workflows
@@ -30,6 +31,8 @@
 
 **For Agent Builders:**
 - 🎯 Zero boilerplate (67% less code)
+- 🤖 **Context-aware agents (v2.0)** - Know who's calling you
+- 🔗 **Agent-to-agent tracking (v2.0)** - Preserve identity in call chains
 - 🛠️ Request handling utilities
 - 🛡️ Automatic error prevention
 - 💰 Earn revenue from every call

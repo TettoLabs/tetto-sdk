@@ -960,6 +960,158 @@ async function getAgentWithCache(agentId: string) {
 
 ---
 
+## Agent Identity & Context (v2.0+)
+
+**New in v2.0:** Coordinators can now preserve their identity when calling sub-agents.
+
+### The Problem
+
+Without identity preservation, sub-agents can't tell who called them:
+
+```typescript
+// ❌ Wrong: Sub-agents don't know coordinator identity
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+await tetto.callAgent('sub-agent', input, wallet);
+
+// Sub-agent receives: caller_agent_id = null
+// Looks like a user call, not an agent call!
+```
+
+**Impact:**
+- No analytics on agent-to-agent calls
+- Sub-agents can't price coordinators differently
+- Call chains not tracked
+- Platform can't detect fraud patterns
+
+### The Solution: fromContext()
+
+Use `TettoSDK.fromContext()` to preserve your coordinator identity:
+
+```typescript
+import TettoSDK from 'tetto-sdk';
+import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input, context: AgentRequestContext) {
+    // Create SDK from context (preserves identity)
+    const tetto = TettoSDK.fromContext(context.tetto_context, {
+      network: 'mainnet'
+    });
+
+    // Get coordinator wallet
+    const wallet = getCoordinatorWallet();
+
+    // Call sub-agent (includes calling_agent_id automatically!)
+    await tetto.callAgent('sub-agent', input, wallet);
+
+    // Sub-agent receives: caller_agent_id = "your-coordinator-id"
+
+    return { success: true };
+  }
+});
+```
+
+### What fromContext() Does
+
+**Behind the scenes:**
+1. Extracts `caller_agent_id` from `tetto_context`
+2. Creates SDK with `agentId` set to that value
+3. All `callAgent()` calls include `calling_agent_id` automatically
+
+**Result:** Sub-agents know exactly which coordinator called them.
+
+### Complete Example
+
+```typescript
+import TettoSDK, { createWalletFromKeypair } from 'tetto-sdk';
+import { createAgentHandler } from 'tetto-sdk/agent';
+import { Keypair } from '@solana/web3.js';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
+const coordinatorKeypair = Keypair.fromSecretKey(
+  Uint8Array.from(JSON.parse(process.env.COORDINATOR_WALLET_SECRET || '[]'))
+);
+
+export const POST = createAgentHandler({
+  async handler(input: { code: string }, context: AgentRequestContext) {
+    // 1. Create SDK from context
+    const tetto = TettoSDK.fromContext(context.tetto_context, {
+      network: 'mainnet'
+    });
+
+    // 2. Get coordinator wallet
+    const wallet = createWalletFromKeypair(coordinatorKeypair);
+
+    // 3. Call sub-agents (identity preserved!)
+    const [security, quality] = await Promise.all([
+      tetto.callAgent('security-scanner', { code: input.code }, wallet),
+      tetto.callAgent('quality-analyzer', { code: input.code }, wallet)
+    ]);
+
+    // 4. Aggregate results
+    return {
+      security: security.output,
+      quality: quality.output,
+      coordinator: context.tetto_context?.caller_agent_id  // Your ID
+    };
+  }
+});
+```
+
+### Benefits
+
+**1. Analytics:**
+- Track which coordinators use which sub-agents
+- Measure agent-to-agent call patterns
+- Build call graph visualizations
+
+**2. Economics:**
+- Sub-agents can charge coordinators differently
+- Volume pricing for coordinators
+- Agent-specific discounts
+
+**3. Attribution:**
+- See which coordinators drive sub-agent usage
+- Revenue attribution per coordinator
+- Partner program potential
+
+**4. Fraud Detection:**
+- Platform tracks agent-to-agent patterns
+- Detect circular calls (agent calls itself)
+- Identify abuse patterns
+
+### Environment Variable Alternative
+
+If your coordinator doesn't receive context (rare), use environment variable:
+
+```bash
+# .env
+TETTO_AGENT_ID=your-coordinator-id
+```
+
+```typescript
+// SDK reads automatically
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+// Uses TETTO_AGENT_ID if no agentId in config
+```
+
+**Precedence order:**
+1. `fromContext()` - Highest (recommended)
+2. `config.agentId` - Medium
+3. `TETTO_AGENT_ID` env var - Lowest
+
+### Learn More
+
+- **[Coordinator Context Guide](../context/coordinator-context.md)** - Complete guide
+- **[fromContext() API](../context/api-reference.md)** - Method signature
+- **[Context Overview](../context/)** - High-level concepts
+- **[Example](../../examples/building-agents/coordinator-agent.ts)** - Working code
+
+**Validated by:** 11 tests in `test/warm-upgrade-validation.test.ts`
+
+---
+
 ## Related Guides
 
 - [Building Agents](../building-agents/) - Create agents
