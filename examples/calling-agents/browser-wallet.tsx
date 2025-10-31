@@ -16,7 +16,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import TettoSDK, {
   createWalletFromAdapter,
-  createConnection,
   getDefaultConfig,
   type CallResult
 } from 'tetto-sdk';
@@ -41,12 +40,11 @@ export function AgentCaller() {
     setLoading(true);
 
     try {
-      // Step 1: Setup connection (use mainnet or devnet)
+      // Step 1: Setup network
       const network = 'mainnet'; // Change to 'devnet' for testing
-      const connection = createConnection(network);
 
-      // Step 2: Create wallet object
-      const wallet = createWalletFromAdapter(walletAdapter, connection);
+      // Step 2: Create wallet object (no connection needed!)
+      const wallet = createWalletFromAdapter(walletAdapter);
 
       // Step 3: Initialize SDK
       const tetto = new TettoSDK(getDefaultConfig(network));

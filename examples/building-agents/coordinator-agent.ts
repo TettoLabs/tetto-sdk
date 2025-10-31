@@ -1,40 +1,59 @@
 /**
- * Coordinator Agent Example
+ * Coordinator Agent Example (v2.0)
  *
  * This example shows how to build an agent that calls multiple other agents
  * to accomplish a complex task. The coordinator handles payments to sub-agents
  * autonomously.
+ *
+ * v2.0 Features:
+ * - Uses fromContext() to preserve coordinator identity
+ * - Context-aware handler (knows who called it)
+ * - No createConnection (platform handles it)
+ * - Sub-agents receive calling_agent_id automatically
  *
  * Use case: Code audit that combines security scanning + quality analysis
  *
  * Requirements:
  * - Coordinator must have its own funded wallet
  * - COORDINATOR_WALLET_SECRET in .env
+ * - NETWORK in .env (mainnet or devnet)
  */
 
-import { createAgentHandler, getTokenMint } from 'tetto-sdk/agent';
+import { createAgentHandler } from 'tetto-sdk/agent';
 import TettoSDK, {
   getDefaultConfig,
-  createWalletFromKeypair,
-  createConnection
+  createWalletFromKeypair
 } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
-// Load coordinator's wallet
+// Load coordinator's keypair (only needs secret key, not wallet object)
 const coordinatorSecret = JSON.parse(process.env.COORDINATOR_WALLET_SECRET || '[]');
 const coordinatorKeypair = Keypair.fromSecretKey(Uint8Array.from(coordinatorSecret));
 
-// Setup SDK for calling sub-agents
-const network = (process.env.NETWORK as 'mainnet' | 'devnet') || 'mainnet';
-const connection = createConnection(network);
-const coordinatorWallet = createWalletFromKeypair(coordinatorKeypair, connection);
-const tetto = new TettoSDK(getDefaultConfig(network));
-
 export const POST = createAgentHandler({
-  async handler(input: { code: string; language: string }) {
+  async handler(
+    input: { code: string; language: string },
+    context: AgentRequestContext
+  ) {
     console.log('🎯 Coordinator: Starting code audit...');
+    console.log('📍 Context:', {
+      caller: context.tetto_context?.caller_wallet,
+      intent: context.tetto_context?.intent_id
+    });
 
-    // Step 1: Find sub-agents dynamically
+    // Step 1: Create SDK from context (preserves coordinator identity)
+    const network = (process.env.NETWORK as 'mainnet' | 'devnet') || 'mainnet';
+    const tetto = TettoSDK.fromContext(context.tetto_context, {
+      network,
+      debug: Boolean(process.env.DEBUG)
+    });
+
+    // Step 2: Create coordinator wallet (no connection needed!)
+    const coordinatorWallet = createWalletFromKeypair(coordinatorKeypair);
+
+    // Step 3: Find sub-agents dynamically
+    console.log('🔍 Finding sub-agents in marketplace...');
     const agents = await tetto.listAgents();
 
     const securityScanner = agents.find(a => a.name === 'SecurityScanner');
@@ -47,7 +66,7 @@ export const POST = createAgentHandler({
     console.log(`✅ Found SecurityScanner: $${securityScanner.price_display}`);
     console.log(`✅ Found QualityAnalyzer: $${qualityAnalyzer.price_display}`);
 
-    // Step 2: Call SecurityScanner (autonomous payment)
+    // Step 4: Call SecurityScanner (includes calling_agent_id automatically!)
     console.log('🔒 Calling SecurityScanner...');
     const securityResult = await tetto.callAgent(
       securityScanner.id,
@@ -60,7 +79,7 @@ export const POST = createAgentHandler({
 
     console.log(`✅ Security scan complete: ${securityResult.output.score}/100`);
 
-    // Step 3: Call QualityAnalyzer (autonomous payment)
+    // Step 5: Call QualityAnalyzer (includes calling_agent_id automatically!)
     console.log('📊 Calling QualityAnalyzer...');
     const qualityResult = await tetto.callAgent(
       qualityAnalyzer.id,
@@ -73,7 +92,7 @@ export const POST = createAgentHandler({
 
     console.log(`✅ Quality analysis complete: ${qualityResult.output.score}/100`);
 
-    // Step 4: Aggregate results
+    // Step 6: Aggregate results
     const overallScore = Math.round(
       (securityResult.output.score + qualityResult.output.score) / 2
     );
@@ -83,7 +102,7 @@ export const POST = createAgentHandler({
                   overallScore >= 70 ? 'C' :
                   overallScore >= 60 ? 'D' : 'F';
 
-    // Step 5: Return comprehensive report
+    // Step 7: Return comprehensive report
     return {
       overall_score: overallScore,
       grade: grade,
@@ -101,10 +120,28 @@ export const POST = createAgentHandler({
       total_cost: (
         securityResult.agentReceived + securityResult.protocolFee +
         qualityResult.agentReceived + qualityResult.protocolFee
-      ) / 1e6
+      ) / 1e6,
+      coordinator_id: context.tetto_context?.caller_agent_id  // Your identity
     };
   }
 });
+
+/**
+ * v2.0 Changes:
+ *
+ * ✅ No createConnection (platform handles it)
+ * ✅ SDK/wallet created inside handler (not global)
+ * ✅ fromContext() preserves coordinator identity
+ * ✅ Handler accepts context parameter
+ * ✅ Sub-agents receive calling_agent_id automatically
+ * ✅ Return includes coordinator_id
+ *
+ * Benefits:
+ * - Sub-agents know which coordinator called them
+ * - Platform tracks agent-to-agent relationships
+ * - Sub-agents can price coordinators differently
+ * - Better analytics and fraud detection
+ */
 
 /**
  * Coordinator Economics:
@@ -138,4 +175,8 @@ export const POST = createAgentHandler({
  *
  * 5. Monitor balance:
  *    solana balance YOUR_COORDINATOR_ADDRESS
+ *
+ * Learn more:
+ * - Context: https://github.com/TettoLabs/tetto-sdk/blob/main/docs/context/
+ * - Coordinators: https://github.com/TettoLabs/tetto-sdk/blob/main/docs/advanced/coordinators.md
  */
