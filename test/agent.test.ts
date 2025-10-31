@@ -223,7 +223,16 @@ try {
     });
 
     const mockRequest = {
-      json: async () => ({ input: { text: 'hello' } })
+      json: async () => ({
+        input: { text: 'hello' },
+        tetto_context: {
+          caller_wallet: 'Test',
+          caller_agent_id: null,
+          intent_id: 'test',
+          timestamp: Date.now(),
+          version: '1.0.0'
+        }
+      })
     };
 
     const response = await handler(mockRequest);
@@ -306,7 +315,16 @@ try {
     });
 
     const mockRequest = {
-      json: async () => ({ input: { text: 'test' } })
+      json: async () => ({
+        input: { text: 'test' },
+        tetto_context: {
+          caller_wallet: 'Test',
+          caller_agent_id: null,
+          intent_id: 'test',
+          timestamp: Date.now(),
+          version: '1.0.0'
+        }
+      })
     };
 
     const response = await handler(mockRequest);
@@ -333,7 +351,16 @@ try {
     });
 
     const mockRequest = {
-      json: async () => ({ input: { text: 'test' } })
+      json: async () => ({
+        input: { text: 'test' },
+        tetto_context: {
+          caller_wallet: 'Test',
+          caller_agent_id: null,
+          intent_id: 'test',
+          timestamp: Date.now(),
+          version: '1.0.0'
+        }
+      })
     };
 
     const response = await handler(mockRequest);

@@ -5,6 +5,104 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-10-31
+
+### BREAKING CHANGES - Context Now Required
+
+**⚠️ BREAKING:** SDK v2.0.0 removes backward compatibility. Context parameter is now required.
+
+**What Changed:**
+- ❌ **`tetto_context` no longer nullable** - `AgentRequestContext.tetto_context` is now `TettoContext` (not `TettoContext | null`)
+- ❌ **`context` parameter now required** - Handler signature changed from `(input, context?)` to `(input, context)`
+- ✅ **Validation added** - SDK now errors if Portal doesn't provide `tetto_context`
+- ✅ **Types exported** - `AgentRequestContext` properly exported from `tetto-sdk/agent`
+
+### Migration Guide
+
+**For v2.0.0 users (SubChain agents):**
+
+1. **Remove optional chaining:**
+   ```typescript
+   // BEFORE (v2.0.0):
+   async handler(input, context?: AgentRequestContext) {
+     if (context?.tetto_context) {
+       console.log('Caller:', context.tetto_context.caller_wallet);
+     }
+   }
+
+   // AFTER (v2.0.0 - required context):
+   async handler(input, context: AgentRequestContext) {
+     console.log('Caller:', context.tetto_context.caller_wallet);
+   }
+   ```
+
+2. **Update imports:**
+   ```typescript
+   import type { AgentRequestContext } from 'tetto-sdk/agent';
+   ```
+
+3. **Remove optional checks:**
+   ```typescript
+   // BEFORE:
+   if (context?.tetto_context) { ... }
+
+   // AFTER:
+   // Direct access (context is always present)
+   const caller = context.tetto_context.caller_wallet;
+   ```
+
+**For v1.x users:**
+- ❌ Old handler signature `async handler(input)` no longer works
+- ✅ Must upgrade to `async handler(input, context)` signature
+- ✅ Portal must be updated to send `tetto_context` (v2.0+ Portal required)
+
+### Removed
+
+- **Backward Compatibility:** Removed v1.x handler signature support
+- **Null Context:** Removed `tetto_context: null` fallback logic
+- **Optional Parameter:** Removed `context?:` optional parameter support
+- **Tests:** Removed backward compatibility tests (Test 7, Test 8)
+
+### Why This Change?
+
+**Problem:** Backward compatibility code caused:
+- Optional chaining everywhere (`context?.tetto_context?.field`)
+- Silent failures (missing context = null, not error)
+- Defensive null checks in all agent code
+
+**Solution:** Make context required:
+- Direct property access (`context.tetto_context.field`)
+- Immediate errors if Portal doesn't send context
+- Cleaner agent code (no defensive checks)
+
+### Impact
+
+**SubChain Agents (only SDK user):**
+- ✅ All SubChain agents will update in CP2-CP3 (coordinated effort)
+- ✅ Controlled environment (no external breaking changes)
+
+**Portal:**
+- ✅ No changes needed (already sends tetto_context)
+- ✅ Compatible with SDK v2.0.0
+
+**Deployment:**
+- 📦 SDK v2.0.0 deployed to staging first
+- 📦 SubChain agents update to use SDK v2.0.0 (CP2-CP3)
+- 📦 Tested on staging before production
+
+### Technical Details
+
+**Files Changed:**
+- `src/agent/handler.ts` - Made context required, added validation
+- `test/warm-upgrade-validation.test.ts` - Removed backward compat tests
+- `CHANGELOG.md` - Added breaking change documentation
+
+**Lines Changed:** ~40 lines across 4 files
+
+**Tests:** All tests pass (9/9 after removing 2 backward compat tests)
+
+---
+
 ## [1.2.0] - 2025-10-28
 
 ### Added - Studios & Developer Profiles

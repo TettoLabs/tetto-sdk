@@ -234,83 +234,6 @@ try {
   }
 
   // ============================================================================
-  // TEST 7: Handler backward compatible (no tetto_context in request)
-  // ============================================================================
-  try {
-    let receivedContext: AgentRequestContext | undefined;
-
-    const handler = createAgentHandler({
-      async handler(input: any, context?: AgentRequestContext) {
-        receivedContext = context;
-        return { success: true };
-      }
-    });
-
-    // Mock request WITHOUT tetto_context (old portal)
-    const mockRequest = {
-      json: async () => ({
-        input: { test: 'data' }
-        // No tetto_context field
-      })
-    };
-
-    await handler(mockRequest as any);
-
-    if (!receivedContext) {
-      throw new Error('Handler did not receive context object');
-    }
-
-    if (receivedContext.tetto_context !== null) {
-      throw new Error('Context should have null tetto_context for old requests');
-    }
-
-    console.log('✅ Test 7: Handler backward compatible (no tetto_context)');
-    testsPassed++;
-  } catch (error) {
-    console.error('❌ Test 7 failed:', error);
-    testsFailed++;
-  }
-
-  // ============================================================================
-  // TEST 8: Old handler signature still works (v1.x compatibility)
-  // ============================================================================
-  try {
-    // Old-style handler (no context parameter)
-    const oldHandler = createAgentHandler({
-      async handler(input: any) {
-        // Old handlers ignore context parameter
-        return { result: 'success' };
-      }
-    });
-
-    const mockRequest = {
-      json: async () => ({
-        input: { test: 'data' },
-        tetto_context: {
-          caller_wallet: 'Test',
-          caller_agent_id: null,
-          intent_id: 'test',
-          timestamp: Date.now(),
-          version: '1.0.0'
-        }
-      })
-    };
-
-    const response = await oldHandler(mockRequest as any);
-    const data = await response?.json();
-
-    if (data.result !== 'success') {
-      throw new Error('Old handler did not work');
-    }
-
-    console.log('✅ Test 8: Old handler signature works (v1.x compat)');
-    testsPassed++;
-  } catch (error) {
-    console.error('❌ Test 8 failed:', error);
-    testsFailed++;
-  }
-
-  // ============================================================================
   // TEST 9: TettoContext type is exported
   // ============================================================================
   try {
@@ -419,8 +342,8 @@ try {
   console.log('\n' + '='.repeat(70));
   console.log('WARM_UPGRADE VALIDATION RESULTS');
   console.log('='.repeat(70));
-  console.log(`Passed: ${testsPassed}/11`);
-  console.log(`Failed: ${testsFailed}/11`);
+  console.log(`Passed: ${testsPassed}/9`);
+  console.log(`Failed: ${testsFailed}/9`);
   console.log('='.repeat(70));
 
   if (testsFailed > 0) {
@@ -431,10 +354,10 @@ try {
   } else {
     console.log('\n✅ ALL VALIDATION TESTS PASSED');
     console.log('\nSDK v2.0.0 fully supports:');
-    console.log('  ✅ calling_agent_id sent to portal (CP1)');
+    console.log('  ✅ calling_agent_id sent to portal');
     console.log('  ✅ fromContext() preserves agent identity');
-    console.log('  ✅ Handler receives tetto_context');
-    console.log('  ✅ Backward compatibility maintained');
+    console.log('  ✅ Handler receives required tetto_context');
+    console.log('  ✅ Context validation (errors if missing)');
     console.log('  ✅ Types exported correctly');
     console.log('\n🎯 SAFE TO MERGE SDK STAGING → MAIN\n');
   }

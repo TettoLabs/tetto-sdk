@@ -12,9 +12,9 @@ import type { TettoContext } from '../types';
 export interface AgentRequestContext {
   /**
    * Tetto context from platform (caller identity, intent ID, etc.)
-   * Null if request doesn't include tetto_context (backward compatibility)
+   * Always present in v2.0+ (Portal provides context for all requests)
    */
-  tetto_context: TettoContext | null;
+  tetto_context: TettoContext;
 }
 
 /**
@@ -24,27 +24,20 @@ export interface AgentHandlerConfig {
   /**
    * Async function that processes agent input and returns output.
    *
-   * v2.0: Handler can now accept optional second parameter (context)
-   * v1.x: Handler with single parameter still works (backward compatible)
+   * v2.0: Handler receives required context parameter with tetto_context
    *
    * Input validation and error handling are automatic.
    *
-   * @example v2.0 (with context):
+   * @example
    * ```typescript
    * async handler(input: any, context: AgentRequestContext) {
-   *   console.log('Caller:', context.tetto_context?.caller_wallet);
-   *   return { result: '...' };
-   * }
-   * ```
-   *
-   * @example v1.x (backward compatible):
-   * ```typescript
-   * async handler(input: any) {
+   *   console.log('Caller:', context.tetto_context.caller_wallet);
+   *   console.log('Intent:', context.tetto_context.intent_id);
    *   return { result: '...' };
    * }
    * ```
    */
-  handler: (input: any, context?: AgentRequestContext) => Promise<any>;
+  handler: (input: any, context: AgentRequestContext) => Promise<any>;
 }
 
 /**
@@ -110,19 +103,30 @@ export function createAgentHandler(config: AgentHandlerConfig) {
         );
       }
 
-      // Step 3: Build context for handler (v2.0+)
+      // Step 3: Validate tetto_context is present (v2.0+)
+      if (!tetto_context) {
+        return Response.json(
+          {
+            error: "Missing 'tetto_context' field in request body",
+            hint: "Portal must provide tetto_context for all agent calls. Update to latest Portal version."
+          },
+          { status: 400 }
+        );
+      }
+
+      // Step 4: Build context for handler (v2.0+)
       const context: AgentRequestContext = {
-        tetto_context: tetto_context || null  // Null if not provided (backward compatible)
+        tetto_context: tetto_context  // Always present (validated above)
       };
 
-      // Step 4: Call user's handler (with optional context parameter)
+      // Step 5: Call user's handler (with required context parameter)
       const output = await config.handler(input, context);
 
-      // Step 5: Return success response
+      // Step 6: Return success response
       return Response.json(output, { status: 200 });
 
     } catch (error: unknown) {
-      // Step 6: Handle errors gracefully
+      // Step 7: Handle errors gracefully
       const errorMessage = error instanceof Error
         ? error.message
         : String(error);
