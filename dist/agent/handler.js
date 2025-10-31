@@ -56,17 +56,24 @@ function createAgentHandler(config) {
             if (!input) {
                 return Response.json({ error: "Missing 'input' field in request body" }, { status: 400 });
             }
-            // Step 3: Build context for handler (v2.0+)
+            // Step 3: Validate tetto_context is present (v2.0+)
+            if (!tetto_context) {
+                return Response.json({
+                    error: "Missing 'tetto_context' field in request body",
+                    hint: "Portal must provide tetto_context for all agent calls. Update to latest Portal version."
+                }, { status: 400 });
+            }
+            // Step 4: Build context for handler (v2.0+)
             const context = {
-                tetto_context: tetto_context || null // Null if not provided (backward compatible)
+                tetto_context: tetto_context // Always present (validated above)
             };
-            // Step 4: Call user's handler (with optional context parameter)
+            // Step 5: Call user's handler (with required context parameter)
             const output = await config.handler(input, context);
-            // Step 5: Return success response
+            // Step 6: Return success response
             return Response.json(output, { status: 200 });
         }
         catch (error) {
-            // Step 6: Handle errors gracefully
+            // Step 7: Handle errors gracefully
             const errorMessage = error instanceof Error
                 ? error.message
                 : String(error);
