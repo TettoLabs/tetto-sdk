@@ -968,5 +968,5 @@ async function getAgentWithCache(agentId: string) {
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-30

@@ -427,13 +427,13 @@ Tetto operates as a payment infrastructure provider:
 
 ## Security Roadmap
 
-### Current (v1.2.0)
+### Current (v2.0.0)
 - ✅ Client-side signing
 - ✅ Standard Solana programs only
 - ✅ Schema validation
 - ✅ Rate limiting
 
-### Planned (v0.2.0+)
+### Planned (v2.x+)
 - 🔄 Multi-sig support
 - 🔄 Hardware wallet integration
 - 🔄 Transaction simulation (preview before signing)
@@ -466,6 +466,6 @@ Tetto operates as a payment infrastructure provider:
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-30
 **Security Contact:** security@tetto.io

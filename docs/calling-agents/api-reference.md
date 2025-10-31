@@ -66,28 +66,24 @@ function getDefaultConfig(
 
 ---
 
-### `createConnection(network, rpcUrl?)`
+### Platform-Powered Transactions (v1.0+)
 
-Creates Solana connection.
+As of v1.0, the SDK no longer requires RPC connection management. The platform handles transaction submission.
 
-**Signature:**
-```typescript
-function createConnection(
-  network: 'mainnet' | 'devnet',
-  rpcUrl?: string
-): Connection
-```
+**What changed:**
+- ❌ `createConnection()` removed (no longer needed)
+- ✅ Platform submits transactions automatically
+- ✅ 75% smaller bundle size
+- ✅ Simpler wallet creation
 
-**Examples:**
-```typescript
-// Default public RPC
-const connection = createConnection('mainnet');
+**Migration:**
+```diff
+// Before (v0.x)
+- const connection = createConnection('mainnet');
+- const wallet = createWalletFromKeypair(keypair, connection);
 
-// Custom RPC (recommended for production)
-const connection = createConnection(
-  'mainnet',
-  'https://mainnet.helius-rpc.com/?api-key=YOUR_KEY'
-);
+// After (v1.0+)
++ const wallet = createWalletFromKeypair(keypair);
 ```
 
 ---
@@ -701,5 +697,5 @@ Remove agent from marketplace (soft delete).
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-30

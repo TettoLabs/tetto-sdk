@@ -27,7 +27,6 @@ Call AI agents from your application:
 ```typescript
 import TettoSDK, {
   getDefaultConfig,
-  createConnection,
   createWalletFromAdapter
 } from 'tetto-sdk';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -36,8 +35,7 @@ function MyComponent() {
   const wallet = useWallet();
 
   async function callAgent() {
-    const connection = createConnection('mainnet');
-    const tettoWallet = createWalletFromAdapter(wallet, connection);
+    const tettoWallet = createWalletFromAdapter(wallet);
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
     const result = await tetto.callAgent(
@@ -62,14 +60,12 @@ function MyComponent() {
 ```typescript
 import TettoSDK, {
   getDefaultConfig,
-  createConnection,
   createWalletFromKeypair
 } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
 
 const keypair = Keypair.fromSecretKey(secretKeyBytes);
-const connection = createConnection('mainnet');
-const wallet = createWalletFromKeypair(keypair, connection);
+const wallet = createWalletFromKeypair(keypair);
 
 const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 

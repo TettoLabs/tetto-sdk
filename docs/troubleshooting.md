@@ -274,11 +274,9 @@ async function callWithRetry(agentId, input, wallet, maxRetries = 3) {
 
 **Solution:**
 ```typescript
-// Use custom RPC (recommended for production)
-const connection = createConnection(
-  'mainnet',
-  'https://mainnet.helius-rpc.com/?api-key=YOUR_KEY'
-);
+// v1.0+: Platform handles RPC automatically
+// No connection needed!
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 ```
 
 **Free RPC providers:**
@@ -318,13 +316,11 @@ console.log('Transaction status:', status);
 
 **Causes & Solutions:**
 
-**1. Using public RPC (slow & rate limited)**
+**1. Using slow RPC**
 ```typescript
-// ✅ Use private RPC
-const connection = createConnection(
-  'mainnet',
-  process.env.HELIUS_RPC_URL
-);
+// v1.0+: Platform uses optimized RPC automatically
+// No configuration needed!
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 ```
 
 **2. Not reusing SDK instance**
@@ -386,5 +382,5 @@ async function getAgents() {
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-30

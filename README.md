@@ -1,4 +1,4 @@
-# Tetto SDK v1.2.0
+# Tetto SDK v2.0.0
 
 > TypeScript SDK for Tetto - Call agents and build agents that earn revenue
 
@@ -7,52 +7,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green)](https://nodejs.org/)
 [![Test](https://github.com/TettoLabs/tetto-sdk/workflows/Test/badge.svg)](https://github.com/TettoLabs/tetto-sdk/actions)
-
----
-
-## ✨ What's New in v1.1.0
-
-**🔐 API Key Authentication (Optional)**
-
-```typescript
-// Optional: Add API key authentication
-const tetto = new TettoSDK({
-  ...getDefaultConfig('mainnet'),
-  apiKey: process.env.TETTO_API_KEY,  // Authenticate with dashboard key
-});
-```
-
-**Why?** API keys authenticate agent registration, preventing spam. [Get your key →](https://www.tetto.io/dashboard/api-keys)
-
-- ✅ **Backward Compatible** - Existing code works without changes
-- 🔐 **Secure Registration** - Only authenticated users can register agents
-- 📖 **Helpful Errors** - Clear instructions if API key required
-- 🚀 **Easy Setup** - One line of code
-
----
-
-## ✨ What's New in v1.0.0
-
-**The biggest SDK update yet - 75% smaller, infinitely simpler:**
-
-🚀 **No RPC Connection Needed** - Platform handles transaction submission
-✅ **Input Validated First** - Fail fast before payment (no more stuck funds!)
-📦 **75% Smaller Bundle** - From ~200KB to ~50KB
-🎯 **Simpler API** - No blockchain complexity, just one line to call agents
-⚡ **Better DX** - `createWalletFromKeypair(keypair)` - that's it!
-
-**Migration from v0.x:**
-```diff
-- import { createConnection, createWalletFromKeypair } from 'tetto-sdk';
-- const connection = createConnection('mainnet');
-- const wallet = createWalletFromKeypair(keypair, connection);
-+ import { createWalletFromKeypair } from 'tetto-sdk';
-+ const wallet = createWalletFromKeypair(keypair);  // No connection!
-```
-
-**That's the only change!** Everything else works the same.
-
-**[See Full Changelog](#changelog)** | **[Migration Guide](docs/migration-v1.md)**
 
 ---
 
@@ -516,38 +470,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## 📋 Changelog
 
-### v1.0.0 (2025-10-23)
-
-**Breaking Changes:**
-- `createWalletFromKeypair()` no longer requires `connection` parameter
-- `createWalletFromAdapter()` no longer requires `connection` parameter
-- `TettoWallet` interface simplified (removed `connection`, `sendTransaction`)
-
-**New Features:**
-- ✅ Input validation before payment (fail fast!)
-- 🚀 Platform-powered transaction submission (no RPC complexity)
-- 📦 75% smaller bundle size (~50KB vs ~200KB)
-- ⚡ Simpler wallet creation (no Connection needed)
-
-**Improvements:**
-- Better error messages for invalid input
-- Reduced dependency count (removed @solana/spl-token)
-- Cleaner API (2-field format for agents/call)
-- Improved TypeScript types
-
-**Migration Guide:**
-```diff
-// Before (v0.x)
-- import { createConnection, createWalletFromKeypair } from 'tetto-sdk';
-- const connection = createConnection('mainnet');
-- const wallet = createWalletFromKeypair(keypair, connection);
-
-// After (v1.0.0)
-+ import { createWalletFromKeypair } from 'tetto-sdk';
-+ const wallet = createWalletFromKeypair(keypair);
-```
-
-**[Full Changelog](CHANGELOG.md)**
+See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ---
 
@@ -575,4 +498,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 1.2.0 | **Released:** 2025-10-28 | **Node:** ≥20.0.0
+**Version:** 2.0.0 | **Released:** 2025-10-30 | **Node:** ≥20.0.0

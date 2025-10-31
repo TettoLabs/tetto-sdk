@@ -5,6 +5,119 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-10-30
+
+### Added - Plugin System & Context Passing
+
+**Major Features:**
+- Plugin system with PluginAPI security boundary
+- Context passing for agent-to-agent calls
+- fromContext() preserves agent identity
+- Handler receives tetto_context parameter
+- SDK sends calling_agent_id to portal
+
+### Added
+
+- **Plugin System** (`src/index.ts`):
+  - `use(plugin, options)` - Load plugins
+  - `getPlugin(pluginId)` - Get plugin instance
+  - `listPlugins()` - List loaded plugins
+  - `destroy()` - Cleanup all plugins
+  - PluginAPI security boundary (prevents API key theft, cross-plugin access)
+  - Lifecycle hooks (onInit, onDestroy, onError)
+
+- **Context Passing** (`src/index.ts`, `src/agent/handler.ts`):
+  - `TettoSDK.fromContext(context, overrides)` - Create SDK from context
+  - Handler receives optional `context: AgentRequestContext` parameter
+  - SDK sends `calling_agent_id` to portal automatically
+  - TettoContext interface (caller_wallet, caller_agent_id, intent_id, timestamp, version)
+
+- **New Types** (`src/types.ts`):
+  - `TettoContext` - Request metadata passed to agents
+  - `AgentRequestContext` - Context wrapper for handlers
+  - `PluginInstance` - Plugin interface with lifecycle hooks
+  - `ErrorContext` - Error metadata for plugins
+
+- **Tests**:
+  - 16 plugin security tests (`test/plugin-security.test.ts`)
+  - 11 WARM_UPGRADE validation tests (`test/warm-upgrade-validation.test.ts`)
+  - 100% backward compatibility validation
+
+### Changed
+
+- `TettoConfig` interface: Added optional `agentId` field
+- SDK constructor: Reads `TETTO_AGENT_ID` from environment
+- `callAgent()`: Automatically includes `calling_agent_id` in requests
+- `createAgentHandler()`: Passes context to handler as second parameter
+
+### Backward Compatibility
+
+- ✅ All v1.x code works unchanged
+- ✅ Context parameter is optional
+- ✅ Handlers without context parameter still work
+- ✅ Zero breaking changes
+
+### Migration Guide
+
+**No migration needed!** v2.0 is fully backward compatible.
+
+**To use new features:**
+
+**1. Context in agents:**
+```typescript
+import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input, context: AgentRequestContext) {
+    // Access caller information
+    console.log('Caller:', context.tetto_context.caller_wallet);
+    console.log('Calling agent:', context.tetto_context.caller_agent_id);
+
+    return { result: '...' };
+  }
+});
+```
+
+**2. fromContext in coordinators:**
+```typescript
+import TettoSDK from 'tetto-sdk';
+import { createAgentHandler } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input, context: AgentRequestContext) {
+    // Preserve identity when calling sub-agents
+    const tetto = TettoSDK.fromContext(context.tetto_context, {
+      network: 'mainnet'
+    });
+
+    // Automatically includes calling_agent_id
+    await tetto.callAgent('sub-agent-id', input, wallet);
+
+    return { result: '...' };
+  }
+});
+```
+
+**3. Plugins (future):**
+```typescript
+import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
+
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+tetto.use(WarmMemoryPlugin);
+
+// Use plugin methods
+await tetto.memory.set('key', 'value', wallet);
+```
+
+### Related Links
+
+- [Plugin Security Tests](test/plugin-security.test.ts) - 16 tests validating security boundary
+- [WARM_UPGRADE Validation Tests](test/warm-upgrade-validation.test.ts) - 11 tests proving v2.0 patterns work
+- [TETTO_WARM_UPGRADE Docs](../DOCS/OCT27/TETTO_WARM_UPGRADE/) - Full upgrade documentation
+
+---
+
 ## [1.2.0] - 2025-10-28
 
 ### Added - Studios & Developer Profiles
@@ -332,6 +445,6 @@ First production-ready release of Tetto SDK with complete functionality for both
 
 ---
 
-**Current Version:** 1.2.0
-**Latest Release:** 2025-10-28
+**Current Version:** 2.0.0
+**Latest Release:** 2025-10-30
 **License:** MIT
