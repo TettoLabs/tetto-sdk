@@ -27,7 +27,7 @@
 
 // Handler utilities
 export { createAgentHandler } from './handler';
-export type { AgentHandlerConfig } from './handler';
+export type { AgentHandlerConfig, AgentRequestContext } from './handler';
 
 // Token utilities
 export { getTokenMint } from './token-mint';

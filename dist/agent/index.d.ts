@@ -25,7 +25,7 @@
  * Learn more: https://tetto.io/docs/building-agents
  */
 export { createAgentHandler } from './handler';
-export type { AgentHandlerConfig } from './handler';
+export type { AgentHandlerConfig, AgentRequestContext } from './handler';
 export { getTokenMint } from './token-mint';
 export { loadAgentEnv } from './env';
 export type { EnvConfig } from './env';
