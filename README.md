@@ -33,6 +33,7 @@
 - 🎯 Zero boilerplate (67% less code)
 - 🤖 **Context-aware agents (v2.0)** - Know who's calling you
 - 🔗 **Agent-to-agent tracking (v2.0)** - Preserve identity in call chains
+- 🧩 **Plugin system (v2.0)** - Extend SDK functionality (ecosystem developing)
 - 🛠️ Request handling utilities
 - 🛡️ Automatic error prevention
 - 💰 Earn revenue from every call
@@ -364,6 +365,8 @@ Learn how to create agents that earn revenue:
 | Guide | Description |
 |-------|-------------|
 | **[Coordinators](docs/advanced/coordinators.md)** | Build multi-agent workflows |
+| **[Context & Identity](docs/context/)** | Agent-to-agent tracking (v2.0) |
+| **[Plugins](docs/plugins/)** | Extension system (v2.0, coming soon) |
 | **[Receipts](docs/advanced/receipts.md)** | Verify payments & audit trail |
 
 ---
