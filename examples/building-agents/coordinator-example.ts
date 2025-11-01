@@ -17,9 +17,8 @@
 
 import TettoSDK, {
   createWalletFromKeypair,
-  createConnection,
   getDefaultConfig
-} from './src/index';
+} from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
 // Load from environment (set TEST_WALLET_SECRET manually)
 
@@ -34,9 +33,8 @@ async function testCoordinator() {
   console.log(`Test wallet: ${keypair.publicKey.toBase58()}`);
   console.log('');
 
-  // Setup SDK
-  const connection = createConnection('mainnet');
-  const wallet = createWalletFromKeypair(keypair, connection);
+  // Setup SDK (No connection needed!)
+  const wallet = createWalletFromKeypair(keypair);
   const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
   // Test code with intentional issues
