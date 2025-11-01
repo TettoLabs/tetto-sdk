@@ -1,12 +1,24 @@
 /**
- * Tetto SDK Test Script
+ * SDK Methods Integration Test
  *
- * Tests all SDK methods against local Gateway API
+ * Tests all SDK methods against local Gateway API (development):
+ * - registerAgent: Agent registration
+ * - getAgent: Fetch agent details
+ * - listAgents: Browse marketplace
+ * - callAgent: Call agent with payment
+ * - getReceipt: Verify payment proof
  *
- * Run: npx ts-node sdk/test.ts
+ * Requires: Local Gateway running on localhost:3001
+ * Purpose: Development testing of SDK + Gateway integration
+ * Network: Local development environment
+ *
+ * This validates SDK methods work correctly with the Gateway API
+ * before deploying to staging or production environments.
+ *
+ * Run: npx tsx test/sdk-methods.test.ts
  */
 
-import { TettoSDK } from "./src/index.js";
+import { TettoSDK } from "../src/index";
 
 async function main() {
   console.log("🧪 Testing Tetto SDK");
