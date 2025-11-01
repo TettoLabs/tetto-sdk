@@ -12,6 +12,7 @@ The CLI generates Anthropic by default, but you can use any AI service.
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -19,7 +20,7 @@ const openai = new OpenAI({
 });
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
@@ -45,6 +46,7 @@ OPENAI_API_KEY=sk-xxxxx
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 import Groq from 'groq-sdk';
 
 const groq = new Groq({
@@ -52,7 +54,7 @@ const groq = new Groq({
 });
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const completion = await groq.chat.completions.create({
       model: "llama-3.1-70b-versatile",
       messages: [
@@ -75,6 +77,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 import { Ollama } from 'ollama';
 
 const ollama = new Ollama({
@@ -82,7 +85,7 @@ const ollama = new Ollama({
 });
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const response = await ollama.generate({
       model: 'llama2',
       prompt: input.text
@@ -129,7 +132,7 @@ Edit `tetto.config.json`:
 **Use in handler:**
 
 ```typescript
-async handler(input: { text: string; language: string }) {
+async handler(input: { text: string; language: string }, context: AgentRequestContext) {
   const prompt = `Translate to ${input.language}: ${input.text}`;
   // ... rest of logic
 }
@@ -182,10 +185,11 @@ return {
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 import axios from 'axios';
 
 export const POST = createAgentHandler({
-  async handler(input: { symbol: string }) {
+  async handler(input: { symbol: string }, context: AgentRequestContext) {
     // Call external API
     const response = await axios.get(
       `https://api.coingecko.com/api/v3/simple/price`,
@@ -217,6 +221,7 @@ npm install axios
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -225,7 +230,7 @@ const supabase = createClient(
 );
 
 export const POST = createAgentHandler({
-  async handler(input: { query: string }) {
+  async handler(input: { query: string }, context: AgentRequestContext) {
     const { data, error } = await supabase
       .from('items')
       .select('*')
@@ -250,7 +255,7 @@ export const POST = createAgentHandler({
 ```typescript
 // Not yet supported, but planned:
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     // Stream tokens as they arrive
     const stream = await anthropic.messages.stream({...});
 
@@ -263,11 +268,12 @@ export const POST = createAgentHandler({
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 const cache = new Map<string, any>();
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     // Check cache first
     const cached = cache.get(input.text);
     if (cached) {
@@ -290,13 +296,14 @@ export const POST = createAgentHandler({
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 const callCounts = new Map<string, number>();
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
-    // Get caller from request (passed by Tetto)
-    const caller = input._caller || 'unknown';
+  async handler(input: { text: string }, context: AgentRequestContext) {
+    // Get caller from context (reliable source)
+    const caller = context.tetto_context.caller_wallet;
 
     // Check rate limit
     const count = callCounts.get(caller) || 0;
@@ -455,5 +462,5 @@ const env = loadAgentEnv({
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-31
