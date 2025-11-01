@@ -4,7 +4,6 @@
  * Types used across SDK core, plugins, and agent utilities.
  *
  * Created: 2025-10-28
- * Part of: TETTO_WARM_UPGRADE CP2
  */
 /**
  * Tetto Context - Metadata passed to agents about request origin
