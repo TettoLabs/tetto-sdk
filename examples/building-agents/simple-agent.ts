@@ -14,13 +14,14 @@
  */
 
 import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 // Initialize Anthropic client (loads ANTHROPIC_API_KEY from env)
 const anthropic = createAnthropic();
 
 // Create agent handler with automatic error handling
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     // Input is automatically validated and parsed by createAgentHandler
 
     // Call Claude API
