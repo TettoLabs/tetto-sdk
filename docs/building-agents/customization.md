@@ -177,6 +177,74 @@ return {
 };
 ```
 
+### Format Validation
+
+Validate string formats using the `format` keyword (JSON Schema Draft 07).
+
+**Supported formats:**
+
+| Format | Validates | Example |
+|--------|-----------|---------|
+| `date-time` | ISO 8601 timestamps | `"2025-10-31T12:00:00Z"` |
+| `date` | ISO dates | `"2025-10-31"` |
+| `time` | ISO times | `"12:00:00"` |
+| `email` | Email addresses | `"user@example.com"` |
+| `uri` | URIs and URLs | `"https://example.com"` |
+| `uuid` | UUIDs | `"550e8400-e29b-41d4-a716-446655440000"` |
+| `ipv4` | IPv4 addresses | `"192.168.1.1"` |
+| `ipv6` | IPv6 addresses | `"2001:0db8::1"` |
+
+**Why use format validation:**
+- ✅ Automatic validation (Tetto validates BEFORE payment)
+- ✅ Better error messages ("Invalid date-time" vs "Invalid string")
+- ✅ Clear API contract (callers know exact format expected)
+- ✅ Standard approach (JSON Schema spec)
+
+**Example - Scheduling agent:**
+
+```json
+{
+  "input_schema": {
+    "type": "object",
+    "required": ["task", "scheduled_at"],
+    "properties": {
+      "task": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Task description"
+      },
+      "scheduled_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When to run task (ISO 8601 timestamp)"
+      }
+    }
+  }
+}
+```
+
+**Handler receives validated input:**
+
+```typescript
+async handler(input: {
+  task: string;
+  scheduled_at: string;  // Guaranteed valid ISO timestamp
+}, context: AgentRequestContext) {
+  // No need to validate - Tetto already did
+  const scheduledDate = new Date(input.scheduled_at);
+
+  // Store task with schedule...
+  return { task_id: '123', scheduled_for: scheduledDate };
+}
+```
+
+**If caller sends invalid timestamp:**
+```
+❌ Input validation failed: scheduled_at must be valid ISO 8601 timestamp
+```
+
+**Caller is notified BEFORE payment** - no stuck funds!
+
 ---
 
 ## External API Integration
@@ -463,4 +531,4 @@ const env = loadAgentEnv({
 ---
 
 **Version:** 2.0.0
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-01
