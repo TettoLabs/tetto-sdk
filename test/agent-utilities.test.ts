@@ -1,3 +1,18 @@
+/**
+ * Agent Utilities Test Suite
+ *
+ * Unit tests for agent builder utilities (no external dependencies):
+ * - getTokenMint: Derive token mint addresses (USDC/SOL for mainnet/devnet)
+ * - loadAgentEnv: Validate environment variables with helpful errors
+ * - createAnthropic: Create Anthropic SDK client from environment
+ * - createAgentHandler: Wrap agent logic with automatic request handling
+ *
+ * Fast, focused tests (<1 second, no setup required)
+ *
+ * These utilities help developers build agents with 67% less boilerplate.
+ * All tests validate utility functions work correctly and prevent common errors.
+ */
+
 import { getTokenMint } from '../src/agent/token-mint';
 import { loadAgentEnv } from '../src/agent/env';
 import { createAnthropic } from '../src/agent/anthropic';

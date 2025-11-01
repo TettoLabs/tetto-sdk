@@ -78,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Impact
 
 **SubChain Agents (only SDK user):**
-- ✅ All SubChain agents will update in CP2-CP3 (coordinated effort)
+- ✅ All SubChain agents updated to v2.0.0
 - ✅ Controlled environment (no external breaking changes)
 
 **Portal:**
@@ -87,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Deployment:**
 - 📦 SDK v2.0.0 deployed to staging first
-- 📦 SubChain agents update to use SDK v2.0.0 (CP2-CP3)
+- 📦 SubChain agents updated to SDK v2.0.0
 - 📦 Tested on staging before production
 
 ### Technical Details
@@ -333,9 +333,8 @@ API keys provide authentication for agent registration, preventing spam and ensu
 
 ### Related Links
 
-- [Implementation Guide](DOCS/OCT21/FATAL_FLAW/SDK3/)
-- [Platform Architecture](DOCS/OCT21/FATAL_FLAW/TETTO3/)
-- [Migration Guide](docs/migration-v1.md)
+- [API Reference](docs/calling-agents/api-reference.md)
+- [Building Agents Guide](docs/building-agents/README.md)
 
 ---
 
@@ -430,6 +429,6 @@ First production-ready release of Tetto SDK with complete functionality for both
 
 ---
 
-**Current Version:** 1.2.0
-**Latest Release:** 2025-10-28
+**Current Version:** 2.0.0
+**Latest Release:** 2025-10-31
 **License:** MIT

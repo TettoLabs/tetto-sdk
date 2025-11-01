@@ -1,8 +1,18 @@
 /**
- * Test SDK v1.2.0 with Node.js Keypair
+ * End-to-End Integration Test
+ *
+ * Tests complete SDK workflow against live Tetto platform:
+ * - Wallet loading and configuration
+ * - Agent discovery (listAgents)
+ * - Agent calling with payment
+ * - Result verification
  *
  * No RPC connection needed! Platform handles transaction submission.
- * This tests the simplified signing flow on devnet (default) or mainnet.
+ *
+ * Requires: Funded wallet (devnet or mainnet), TEST_WALLET_SECRET in .env
+ * Network: Devnet (default, free) or Mainnet (costs real money)
+ *
+ * This validates the complete developer experience from setup to earning revenue.
  */
 
 import { Keypair } from '@solana/web3.js';
@@ -16,7 +26,7 @@ import TettoSDK, {
 dotenv.config();
 
 async function testSDK() {
-  console.log('🧪 Testing Tetto SDK v1.2.0 (Node.js + Keypair)\n');
+  console.log('🧪 Testing Tetto SDK v2.0.0 (Node.js + Keypair)\n');
   console.log('='.repeat(60));
 
   // Step 1: Load test wallet from local .env
@@ -94,11 +104,11 @@ async function testSDK() {
 
   // Step 6: Call agent with test input
   console.log('\n6. Calling agent (input validated before payment!)...');
-  console.log('   Input: "Tetto SDK v1.0.0 - platform-powered, 75% smaller"');
+  console.log('   Input: "Tetto SDK v2.0.0 - context passing and coordinator patterns"');
 
   const result = await tetto.callAgent(
     titleGen.id,
-    { text: 'Tetto SDK v1.2.0 enables autonomous AI agent payments with platform-powered transactions and zero blockchain complexity' },
+    { text: 'Tetto SDK v2.0.0 enables autonomous AI agent payments with required context parameter, plugin system, and proven coordinator patterns for multi-agent workflows' },
     wallet
   );
 
@@ -112,7 +122,7 @@ async function testSDK() {
   console.log(`   Agent Received: $${result.agentReceived}`);
   console.log(`   Protocol Fee: $${result.protocolFee}`);
   console.log('\n' + '='.repeat(60));
-  console.log('\n🎉 SDK v0.1.0 is working! External developers can now use Tetto!\n');
+  console.log('\n🎉 SDK v2.0.0 is working! Complete workflow validated end-to-end!\n');
 }
 
 // Run test
