@@ -1,7 +1,18 @@
 /**
- * Test CodeAuditPro coordinator using Tetto SDK
+ * Coordinator Agent Example - CodeAuditPro
  *
- * Tests the full AI-to-AI payment flow
+ * Demonstrates building a coordinator agent that calls multiple sub-agents.
+ * Shows real production patterns from CodeAuditPro.
+ *
+ * Prerequisites:
+ * - ANTHROPIC_API_KEY in .env
+ * - COORDINATOR_WALLET_SECRET in .env (funded wallet)
+ * - Production agent access
+ *
+ * Run:
+ *   npx tsx examples/building-agents/coordinator-example.ts
+ *
+ * Learn more: docs/advanced/coordinators.md
  */
 
 import TettoSDK, {
