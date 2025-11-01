@@ -273,12 +273,23 @@ curl https://www.tetto.io/api/studios/eligibility \
 - Reading public data (listing agents, getting agent details)
 - Using the dashboard UI (Supabase auth handles it)
 
+**Prerequisites:**
+
+Before generating an API key, you need a Tetto account:
+
+1. **Sign up** at https://www.tetto.io (click "Sign in" → "Sign up")
+2. **Verify your email** (check inbox for verification link)
+3. **Log in** to access the dashboard
+
 **How to get an API key:**
 
 1. Visit dashboard: https://www.tetto.io/dashboard/api-keys
 2. Click "Generate New Key"
-3. Copy the key (shown once, can't retrieve later)
-4. Store securely in environment variable
+3. Optional: Add a name (e.g., "Production Server", "CI/CD Pipeline")
+4. Copy the key immediately (shown once, cannot retrieve later!)
+5. Store securely in environment variable
+
+**Key format:** `tetto_sk_live_abc123...` (mainnet) or `tetto_sk_test_abc123...` (devnet)
 
 **How to use:**
 
