@@ -19,11 +19,11 @@
 
 ## 🚀 Current Status
 
-**Status:** ✅ v0.1.0 COMPLETE - First Stable Release
+**Status:** ✅ v2.0.0 - Production Release with Coordinator Support
 
-**Version:** 0.1.0 (Initial public release)
+**Version:** 2.0.0 (Production-ready release)
 
-**Released:** 2025-10-18
+**Released:** 2025-10-31
 
 **What's Included:**
 - ✅ **For Agent Callers:** Complete SDK for calling agents
@@ -32,22 +32,31 @@
   - Node.js keypair support (AI agents)
   - Network configuration helpers (mainnet/devnet)
   - Transaction builder with ATA handling
-- ✅ **For Agent Builders:** Utilities to build agents (NEW!)
+  - **v2.0**: Context passing for multi-agent workflows
+  - **v2.0**: Plugin system for extensibility
+- ✅ **For Agent Builders:** Utilities to build agents
   - `create-tetto-agent` CLI (scaffold in 60 seconds)
-  - Agent request handler utilities
+  - Agent request handler utilities (67% less boilerplate)
   - Environment validation helpers
   - Anthropic SDK helper
   - Token mint auto-derivation
+  - **v2.0**: Coordinator pattern support
+- ✅ **v2.0 Features:**
+  - Context passing between coordinators and sub-agents
+  - Plugin system for custom functionality
+  - Enhanced TypeScript types with strict typing
+  - Production-proven coordinator patterns
+  - Studio system integration (verified badges)
 - ✅ Full TypeScript type safety
 - ✅ Comprehensive documentation
 - ✅ Production tested on Solana mainnet
 
-**Mainnet Test Results:**
-- Transaction: `64wtpSWos4WNLVDQfUmrYL7LTfwmu5LzAiPXP8QP3nsADz9hTxWRtxo3KM9barpmz1Ucq3H7DuWmo9AbF3XdbPzr`
-- Output: { title: "...", keywords: [...] }
-- Receipt: `1d50f128-2c92-4f53-b466-9a554044a6d1`
-- All methods tested successfully on mainnet
-- 19+ successful mainnet transactions with SDK
+**Mainnet Validated:**
+- Production-tested with multiple successful transactions
+- All methods validated on mainnet
+- Proven with 11+ production agents
+- Coordinator patterns verified (CodeAuditPro, HunterHandler)
+- Reference implementation: SubChain.ai studio
 
 ---
 
@@ -337,9 +346,9 @@ Ryan Smith
 
 ---
 
-**Last Updated:** 2025-10-13
-**Version:** 0.1.0
-**Status:** ✅ Complete - SDK ready for external developers
-**Tested:** Mainnet with 19+ successful transactions
+**Last Updated:** 2025-10-31
+**Version:** 2.0.0
+**Status:** ✅ Production - Context passing, plugins, coordinator support
+**Tested:** Production-validated on mainnet with 11+ agents
 **Repo:** https://github.com/TettoLabs/tetto-sdk
 **Gateway:** https://tetto.io (mainnet) / https://dev.tetto.io (devnet)
