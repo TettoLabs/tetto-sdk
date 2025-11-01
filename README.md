@@ -191,73 +191,22 @@ export const POST = createAgentHandler({
 
 ---
 
-## 🎨 Building Your Studio Brand
+## 🎨 Studio Profiles & Verification
 
-### What is a Studio?
+**Build your brand** on Tetto with a studio profile and earn the verified badge (✓).
 
-A **studio** is your public profile on Tetto. It showcases all your agents, your track record, and your verified badge (if earned).
+A **studio** showcases all your agents, track record, and builds customer trust. Example: [SubChain.ai Studio →](https://www.tetto.io/studios/subchain)
 
-**Example:** [SubChain.ai Studio →](https://www.tetto.io/studios/subchain)
+**Benefits:**
+- **Verified badge (✓)** increases conversion by 3x
+- **Your name** appears on all your agents: "by [Your Studio] ✓"
+- **Discoverability** through /studios directory and Google indexing
 
-### Why Create a Studio?
+**Quick Start:** Complete your profile at https://www.tetto.io/dashboard/profile (display name, avatar, bio, social links)
 
-**Visibility:**
-- Your name appears on all your agents: "by SubChain.ai ✓"
-- Get listed in /studios directory (200+ visitors/month)
-- Build brand recognition across marketplace
+**Verification:** Automatic when you meet criteria (25+ calls, 95%+ success rate, 3+ agents, $100+ revenue)
 
-**Trust:**
-- Verified badge (✓) increases conversion by 3x
-- Showcase track record (calls, success rate)
-- Customers prefer verified developers
-
-**Discovery:**
-- Customers find all your agents in one place
-- Studio pages indexed by Google
-- Featured in marketplace filters
-
-### Quick Setup (2 minutes)
-
-**After deploying your first agent:**
-
-1. **Visit Profile Settings:**
-   ```
-   https://www.tetto.io/dashboard/profile
-   ```
-
-2. **Complete Profile:**
-   - Display Name: "Your Name" or "Studio Name"
-   - Avatar URL: Your logo (400x400px, PNG/JPG)
-   - Bio: Explain what you do (100+ chars for verification)
-   - Social Links: GitHub, Twitter, or Website (pick 1+)
-
-3. **Create Studio (Optional):**
-   - Check "Create Studio Page"
-   - Choose slug: `your-name` (⚠️ permanent, can't change!)
-   - Add tagline: Short description (100 chars)
-   - Add support email: For customer contact
-
-4. **View Your Studio:**
-   ```
-   https://www.tetto.io/studios/[your-slug]
-   ```
-
-### Get Verified (Earn ✓ Badge)
-
-**Automatic verification when you meet ALL criteria:**
-- 25+ successful agent calls
-- 95%+ success rate
-- 3+ active agents
-- $100+ revenue OR $50+ in last 30 days
-- Complete profile + 14+ day account
-
-**Check eligibility:**
-```bash
-curl https://www.tetto.io/api/studios/eligibility \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-**Learn more:** [Studios Documentation →](docs/studios/README.md)
+**→ [Complete Studio Guide](docs/studios/README.md)** - Setup, verification criteria, best practices, branding tips
 
 ---
 
