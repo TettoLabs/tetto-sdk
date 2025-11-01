@@ -315,10 +315,12 @@ Earn the blue checkmark (✓) by meeting criteria:
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     const startTime = Date.now();
 
     console.log('[Agent] Processing request:', {
+      caller: context.tetto_context.caller_wallet,
+      intent: context.tetto_context.intent_id,
       inputLength: input.text.length,
       timestamp: new Date().toISOString()
     });
@@ -392,7 +394,7 @@ npm run build
 let totalCost = 0;
 
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     const result = await anthropic.messages.create({...});
 
     // Estimate cost (Haiku ~$0.001/call)
@@ -475,7 +477,7 @@ vercel --prod
 **Always validate user input:**
 
 ```typescript
-async handler(input: { text: string }) {
+async handler(input: { text: string }, context: AgentRequestContext) {
   // Prevent abuse
   if (input.text.length > 100000) {
     throw new Error('Input too large (max 100K characters)');
@@ -632,5 +634,5 @@ vercel --prod  # Redeploy
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-31
