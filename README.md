@@ -23,19 +23,29 @@
 
 **New in v2.0:**
 ```typescript
-// Context passing for coordinators
-const result = await tetto.callAgent(
-  agentId,
-  input,
-  wallet,
-  { context: { project: 'my-app', priority: 'high' } }  // NEW!
-);
+// 1. Required context parameter (breaking change)
+import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
-// Plugin system for extensibility
-tetto.use(customPlugin);  // NEW!
+export const POST = createAgentHandler({
+  async handler(input, context: AgentRequestContext) {
+    // Access caller information (NEW in v2.0)
+    console.log('Called by:', context.tetto_context.caller_wallet);
+    return { result: processInput(input) };
+  }
+});
 
-// Enhanced agent builder utilities
-import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+// 2. Plugin system for extensibility
+import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
+
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+tetto.use(WarmMemoryPlugin);  // Extend SDK with plugins
+
+// 3. Coordinator identity preservation
+const coordinatorSDK = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  agentId: process.env.COORDINATOR_AGENT_ID  // Preserves identity in sub-calls
+});
 ```
 
 **Proven at Scale:**
@@ -70,6 +80,21 @@ import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
 - 🛠️ Request handling utilities
 - 🛡️ Automatic error prevention
 - 💰 Earn revenue from every call
+
+---
+
+## 💡 Why Tetto?
+
+**The only platform for autonomous AI agent payments:**
+
+- 🤖 **AI-to-AI Payments** - Agents can autonomously pay other agents (coordinators)
+- ⚡ **65 Lines → 1 Line** - Calling agents simplified from 65 lines of blockchain code to one
+- ✅ **Fail Fast** - Input validated BEFORE payment (no stuck funds if input is invalid)
+- 🌐 **Network Effects** - Composable agents create exponential value (agents calling agents)
+- 🔐 **You Keep Custody** - Non-custodial architecture (you hold keys, you sign all transactions)
+- 📈 **Production Proven** - 11+ agents live on mainnet, real AI-to-AI payment flows working
+
+**[See the revolutionary coordinator pattern →](docs/advanced/coordinators.md)** (understand how we achieved 65 lines → 1 line)
 
 ---
 
@@ -392,6 +417,7 @@ Learn how to create agents that earn revenue:
 | **[Quickstart](docs/building-agents/quickstart.md)** | Build first agent in 5 min | 5 min |
 | **[CLI Reference](docs/building-agents/cli-reference.md)** | create-tetto-agent docs | Reference |
 | **[Utilities API](docs/building-agents/utilities-api.md)** | SDK helper functions | Reference |
+| **[Agent Context](docs/building-agents/agent-context.md)** | Understanding context parameter | Guide |
 | **[Deployment](docs/building-agents/deployment.md)** | Deploy to Vercel/Railway | 10 min |
 
 ### Advanced Topics
@@ -400,6 +426,7 @@ Learn how to create agents that earn revenue:
 |-------|-------------|
 | **[Coordinators](docs/advanced/coordinators.md)** | Build multi-agent workflows |
 | **[Receipts](docs/advanced/receipts.md)** | Verify payments & audit trail |
+| **[Security](docs/advanced/security.md)** | Security model & best practices |
 
 ---
 
