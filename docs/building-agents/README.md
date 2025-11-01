@@ -75,11 +75,12 @@ Generates complete Next.js project with:
 
 ```typescript
 import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 const anthropic = createAnthropic();
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     // Your logic here (just 10-20 lines!)
     const message = await anthropic.messages.create({
       model: "claude-3-5-haiku-20241022",
@@ -289,7 +290,7 @@ A **studio** is your public profile page on Tetto. It showcases:
 ```typescript
 // 20 lines of pure logic:
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     // Just your logic!
     return { result: "..." };
   }
