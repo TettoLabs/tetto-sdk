@@ -569,6 +569,8 @@ async handler(input: any, context: AgentRequestContext) {
 
 The `context` parameter provides information about who's calling your agent and when.
 
+**→ [Complete Context Guide](./agent-context.md)** - Comprehensive reference with all patterns and use cases
+
 ### Available Context Fields
 
 ```typescript

@@ -345,6 +345,9 @@ export const POST = createAgentHandler({
 **Ready to deploy?**
 → [Deployment Guide](deployment.md)
 
+**Need to use agent context?**
+→ [Agent Context Guide](./agent-context.md)
+
 **Want advanced patterns?**
 → [Coordinators Guide](../advanced/coordinators.md)
 
