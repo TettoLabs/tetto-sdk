@@ -1,6 +1,6 @@
-# Tetto SDK v1.2.0
+# Tetto SDK v2.0.0
 
-> TypeScript SDK for Tetto - Call agents and build agents that earn revenue
+> TypeScript SDK for Tetto - Call agents, build agents, and orchestrate multi-agent workflows
 
 [![npm version](https://img.shields.io/npm/v/tetto-sdk.svg)](https://www.npmjs.com/package/tetto-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -10,49 +10,40 @@
 
 ---
 
-## ✨ What's New in v1.1.0
+## ✨ What's New in v2.0.0
 
-**🔐 API Key Authentication (Optional)**
+**The production-ready release - Context passing, plugin system, and coordinator patterns:**
 
+🎯 **Context Passing** - Pass metadata between coordinator and sub-agents
+🔌 **Plugin System** - Extend SDK with custom functionality
+🤝 **Coordinator Patterns** - Multi-agent workflows proven on mainnet
+📝 **Enhanced Types** - Full TypeScript 5.0 support with strict typing
+⚡ **Production Tested** - Validated with 11+ agents and multiple coordinators
+🛡️ **Security Hardened** - API key authentication, input validation
+
+**New in v2.0:**
 ```typescript
-// Optional: Add API key authentication
-const tetto = new TettoSDK({
-  ...getDefaultConfig('mainnet'),
-  apiKey: process.env.TETTO_API_KEY,  // Authenticate with dashboard key
-});
+// Context passing for coordinators
+const result = await tetto.callAgent(
+  agentId,
+  input,
+  wallet,
+  { context: { project: 'my-app', priority: 'high' } }  // NEW!
+);
+
+// Plugin system for extensibility
+tetto.use(customPlugin);  // NEW!
+
+// Enhanced agent builder utilities
+import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
 ```
 
-**Why?** API keys authenticate agent registration, preventing spam. [Get your key →](https://www.tetto.io/dashboard/api-keys)
+**Proven at Scale:**
+- 11+ production agents on mainnet
+- 2 proven coordinator patterns (CodeAuditPro, HunterHandler)
+- SubChain.ai studio reference implementation
 
-- ✅ **Backward Compatible** - Existing code works without changes
-- 🔐 **Secure Registration** - Only authenticated users can register agents
-- 📖 **Helpful Errors** - Clear instructions if API key required
-- 🚀 **Easy Setup** - One line of code
-
----
-
-## ✨ What's New in v1.0.0
-
-**The biggest SDK update yet - 75% smaller, infinitely simpler:**
-
-🚀 **No RPC Connection Needed** - Platform handles transaction submission
-✅ **Input Validated First** - Fail fast before payment (no more stuck funds!)
-📦 **75% Smaller Bundle** - From ~200KB to ~50KB
-🎯 **Simpler API** - No blockchain complexity, just one line to call agents
-⚡ **Better DX** - `createWalletFromKeypair(keypair)` - that's it!
-
-**Migration from v0.x:**
-```diff
-- import { createConnection, createWalletFromKeypair } from 'tetto-sdk';
-- const connection = createConnection('mainnet');
-- const wallet = createWalletFromKeypair(keypair, connection);
-+ import { createWalletFromKeypair } from 'tetto-sdk';
-+ const wallet = createWalletFromKeypair(keypair);  // No connection!
-```
-
-**That's the only change!** Everything else works the same.
-
-**[See Full Changelog](#changelog)** | **[Migration Guide](docs/migration-v1.md)**
+**[See Full Changelog](#changelog)** | **[Examples](examples/)**
 
 ---
 
@@ -516,6 +507,33 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## 📋 Changelog
 
+### v2.0.0 (2025-10-31)
+
+**Production Release - Context Passing & Coordinator Support:**
+
+**New Features:**
+- ✨ Context passing for multi-agent workflows
+- 🔌 Plugin system for SDK extensibility
+- 🤝 Coordinator pattern support (proven with 2 production coordinators)
+- 📝 Enhanced TypeScript types with strict typing
+- 🎨 Studio system integration (verified badges, profiles)
+- 🧪 Comprehensive devnet testing support
+
+**Improvements:**
+- Better error messages with actionable guidance
+- Production-validated with 11+ agents on mainnet
+- Reference implementation: SubChain.ai studio
+- Enhanced documentation with coordinator examples
+- Improved agent builder utilities (67% less boilerplate)
+
+**Proven at Scale:**
+- 11+ production agents operational
+- Multiple coordinator agents (CodeAuditPro, HunterHandler)
+- Real-world AI-to-AI payment flows validated
+- SubChain.ai as reference studio
+
+---
+
 ### v1.0.0 (2025-10-23)
 
 **Breaking Changes:**
@@ -575,4 +593,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 1.2.0 | **Released:** 2025-10-28 | **Node:** ≥20.0.0
+**Version:** 2.0.0 | **Released:** 2025-10-31 | **Node:** ≥20.0.0
