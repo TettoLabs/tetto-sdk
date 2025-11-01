@@ -304,9 +304,13 @@ If running autonomous agents with significant funds, use:
 **1. Validate All Inputs**
 ```typescript
 // ✅ Good: Use createAgentHandler
+import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     // Input automatically validated
+    // Context provides caller info for security logging
   }
 });
 ```
@@ -466,6 +470,6 @@ Tetto operates as a payment infrastructure provider:
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-31
 **Security Contact:** security@tetto.io

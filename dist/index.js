@@ -344,7 +344,7 @@ class TettoSDK {
         return result.receipt;
     }
     // ============================================================================
-    // PLUGIN SYSTEM (v2.0) - TETTO_WARM_UPGRADE CP2
+    // PLUGIN SYSTEM (v2.0)
     // ============================================================================
     /**
      * Create restricted API for plugins (security boundary)

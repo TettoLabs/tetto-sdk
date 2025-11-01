@@ -13,6 +13,7 @@ import {
   loadAgentEnv,
   createAnthropic
 } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 ```
 
 ---
@@ -25,7 +26,7 @@ Wraps your agent logic with automatic request handling, input validation, and er
 
 ```typescript
 function createAgentHandler(config: {
-  handler: (input: any) => Promise<any>
+  handler: (input: any, context: AgentRequestContext) => Promise<any>
 }): (request: any) => Promise<Response | void>
 ```
 
@@ -33,6 +34,7 @@ function createAgentHandler(config: {
 
 **`config.handler`** - Your async function that processes input and returns output
 - Input: Automatically extracted from request body
+- Context: Agent request context (caller information, intent ID, timestamp)
 - Output: Automatically formatted as JSON response
 - Errors: Automatically caught and returned as 500 errors
 
@@ -44,10 +46,11 @@ Next.js compatible POST handler function
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 // Option 1: Direct export (recommended for simple cases)
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const processed = input.text.toUpperCase();
     return { result: processed };
   }
@@ -55,7 +58,7 @@ export const POST = createAgentHandler({
 
 // Option 2: Store then export (useful for testing/reuse)
 const handler = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const processed = input.text.toUpperCase();
     return { result: processed };
   }
@@ -141,7 +144,7 @@ export async function POST(request: NextRequest) {
 **With utility (20 lines):**
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     // Just your logic!
     const result = processInput(input.text);
     return { result };
@@ -158,11 +161,12 @@ Here's a full Next.js route file using the utility:
 ```typescript
 // app/api/my-agent/route.ts
 import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 const anthropic = createAnthropic();
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     // Validate your specific requirements
     if (input.text.length < 10) {
       throw new Error("Text must be at least 10 characters");
@@ -416,12 +420,13 @@ Error: apiKey is required
 
 ```typescript
 import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 // Initialize once (reused across requests)
 const anthropic = createAnthropic();
 
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     // Use anthropic here (already initialized)
     const message = await anthropic.messages.create({...});
   }
@@ -442,6 +447,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 import { createAgentHandler, createAnthropic, loadAgentEnv } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 // Validate environment at startup
 const env = loadAgentEnv({
@@ -454,7 +460,7 @@ const anthropic = createAnthropic();
 
 // Create handler with automatic error handling
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const message = await anthropic.messages.create({
       model: env.CLAUDE_MODEL || "claude-3-5-haiku-20241022",
       max_tokens: 200,
@@ -503,7 +509,7 @@ import type {
 const anthropic = createAnthropic();  // Once
 
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     await anthropic.messages.create({...});  // Reuse
   }
 });
@@ -512,7 +518,7 @@ export const POST = createAgentHandler({
 **❌ Bad:**
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     const anthropic = createAnthropic();  // Every request!
     await anthropic.messages.create({...});
   }
@@ -526,7 +532,7 @@ export const POST = createAgentHandler({
 const env = loadAgentEnv({...});  // At top of file
 
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     // Use env here
   }
 });
@@ -535,7 +541,7 @@ export const POST = createAgentHandler({
 **❌ Bad:**
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input) {
+  async handler(input, context: AgentRequestContext) {
     const env = loadAgentEnv({...});  // Every request!
   }
 });
@@ -545,17 +551,128 @@ export const POST = createAgentHandler({
 
 **✅ Good:**
 ```typescript
-async handler(input: { text: string; language?: string }) {
+async handler(input: { text: string; language?: string }, context: AgentRequestContext) {
   // TypeScript knows input structure
 }
 ```
 
 **❌ Bad:**
 ```typescript
-async handler(input: any) {
+async handler(input: any, context: AgentRequestContext) {
   // No type safety
 }
 ```
+
+---
+
+## Using Agent Context
+
+The `context` parameter provides information about who's calling your agent and when.
+
+**→ [Complete Context Guide](./agent-context.md)** - Comprehensive reference with all patterns and use cases
+
+### Available Context Fields
+
+```typescript
+interface AgentRequestContext {
+  tetto_context: {
+    caller_wallet: string;              // Wallet address of caller
+    caller_agent_id: string | null;     // Agent ID if caller is an agent
+    caller_agent_name?: string | null;  // Human-readable agent name
+    intent_id: string;                  // Unique ID for this call (debugging)
+    timestamp: number;                  // Unix timestamp (milliseconds)
+    version: string;                    // Context version (future compatibility)
+  }
+}
+```
+
+### Pattern 1: Logging Caller Information
+
+```typescript
+import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input: { text: string }, context: AgentRequestContext) {
+    // Log every call for analytics/debugging
+    console.log('Agent called:', {
+      caller: context.tetto_context.caller_wallet,
+      agent_id: context.tetto_context.caller_agent_id || 'direct_user',
+      intent: context.tetto_context.intent_id,
+      timestamp: new Date(context.tetto_context.timestamp).toISOString()
+    });
+
+    const result = processText(input.text);
+    return { result };
+  }
+});
+```
+
+### Pattern 2: Authorization (Private Agents)
+
+```typescript
+export const POST = createAgentHandler({
+  async handler(input: { text: string }, context: AgentRequestContext) {
+    // Restrict to specific wallet
+    const AUTHORIZED_WALLET = 'YourWalletAddressHere...';
+
+    if (context.tetto_context.caller_wallet !== AUTHORIZED_WALLET) {
+      throw new Error('Unauthorized: This agent is private');
+    }
+
+    // Process for authorized user only
+    const result = processPrivateData(input.text);
+    return { result };
+  }
+});
+```
+
+### Pattern 3: Agent-Only Endpoints
+
+```typescript
+export const POST = createAgentHandler({
+  async handler(input: { text: string }, context: AgentRequestContext) {
+    // Only allow agent-to-agent calls (coordinators)
+    if (!context.tetto_context.caller_agent_id) {
+      throw new Error('This endpoint is for agents only');
+    }
+
+    console.log('Called by agent:', context.tetto_context.caller_agent_name);
+
+    const result = processForAgent(input.text);
+    return { result };
+  }
+});
+```
+
+### Pattern 4: Audit Trail
+
+```typescript
+export const POST = createAgentHandler({
+  async handler(input: { query: string }, context: AgentRequestContext) {
+    // Store audit log in database
+    await db.logs.insert({
+      intent_id: context.tetto_context.intent_id,
+      caller_wallet: context.tetto_context.caller_wallet,
+      caller_agent: context.tetto_context.caller_agent_id,
+      timestamp: context.tetto_context.timestamp,
+      query: input.query
+    });
+
+    const result = await processQuery(input.query);
+    return { result };
+  }
+});
+```
+
+### Common Use Cases
+
+**Logging:** Track who calls your agent and when (Pattern 1)
+**Authorization:** Restrict agent access to specific wallets (Pattern 2)
+**Agent-Only:** Build endpoints only coordinators can call (Pattern 3)
+**Audit Trails:** Compliance and debugging (Pattern 4)
+**Analytics:** Understand usage patterns by wallet/agent
+**Rate Limiting:** Limit calls per wallet
 
 ---
 
@@ -655,5 +772,5 @@ return { result: text };
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-31

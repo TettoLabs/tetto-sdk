@@ -34,7 +34,7 @@ import {
   Keypair,
 } from "@solana/web3.js";
 
-// TETTO_WARM_UPGRADE - CP2: Plugin system imports
+// Plugin system imports
 import type { PluginAPI } from './plugin-api';
 import type { Plugin, PluginInstance, TettoContext } from './types';
 
@@ -600,7 +600,7 @@ export class TettoSDK {
   }
 
   // ============================================================================
-  // PLUGIN SYSTEM (v2.0) - TETTO_WARM_UPGRADE CP2
+  // PLUGIN SYSTEM (v2.0)
   // ============================================================================
 
   /**
@@ -812,6 +812,6 @@ export default TettoSDK;
 export { createWalletFromKeypair, createWalletFromAdapter } from "./wallet-helpers";
 export { getDefaultConfig, createConnection, getUSDCMint } from "./network-helpers";
 
-// Plugin System (v2.0) - TETTO_WARM_UPGRADE CP2
+// Plugin System (v2.0)
 export type { PluginAPI } from './plugin-api';
 export type { Plugin, PluginInstance, TettoContext, ErrorContext, PluginOptions } from './types';

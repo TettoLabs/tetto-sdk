@@ -19,7 +19,6 @@
  * - Check if other plugins loaded (for optional dependencies)
  *
  * Created: 2025-10-28
- * Part of: TETTO_WARM_UPGRADE CP2
  * Security: CRITICAL - Do not expose secrets!
  */
 

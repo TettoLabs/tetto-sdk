@@ -503,7 +503,7 @@ interface TettoConfig {
 
 ### TettoWallet
 
-**Updated for v1.0.0**
+**Updated for v2.0.0**
 
 ```typescript
 interface TettoWallet {
@@ -701,5 +701,5 @@ Remove agent from marketplace (soft delete).
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-31

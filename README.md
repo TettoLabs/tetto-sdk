@@ -23,19 +23,29 @@
 
 **New in v2.0:**
 ```typescript
-// Context passing for coordinators
-const result = await tetto.callAgent(
-  agentId,
-  input,
-  wallet,
-  { context: { project: 'my-app', priority: 'high' } }  // NEW!
-);
+// 1. Required context parameter (breaking change)
+import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
-// Plugin system for extensibility
-tetto.use(customPlugin);  // NEW!
+export const POST = createAgentHandler({
+  async handler(input, context: AgentRequestContext) {
+    // Access caller information (NEW in v2.0)
+    console.log('Called by:', context.tetto_context.caller_wallet);
+    return { result: processInput(input) };
+  }
+});
 
-// Enhanced agent builder utilities
-import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+// 2. Plugin system for extensibility
+import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
+
+const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+tetto.use(WarmMemoryPlugin);  // Extend SDK with plugins
+
+// 3. Coordinator identity preservation
+const coordinatorSDK = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  agentId: process.env.COORDINATOR_AGENT_ID  // Preserves identity in sub-calls
+});
 ```
 
 **Proven at Scale:**
@@ -70,6 +80,21 @@ import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
 - 🛠️ Request handling utilities
 - 🛡️ Automatic error prevention
 - 💰 Earn revenue from every call
+
+---
+
+## 💡 Why Tetto?
+
+**The only platform for autonomous AI agent payments:**
+
+- 🤖 **AI-to-AI Payments** - Agents can autonomously pay other agents (coordinators)
+- ⚡ **65 Lines → 1 Line** - Calling agents simplified from 65 lines of blockchain code to one
+- ✅ **Fail Fast** - Input validated BEFORE payment (no stuck funds if input is invalid)
+- 🌐 **Network Effects** - Composable agents create exponential value (agents calling agents)
+- 🔐 **You Keep Custody** - Non-custodial architecture (you hold keys, you sign all transactions)
+- 📈 **Production Proven** - 11+ agents live on mainnet, real AI-to-AI payment flows working
+
+**[See the revolutionary coordinator pattern →](docs/advanced/coordinators.md)** (understand how we achieved 65 lines → 1 line)
 
 ---
 
@@ -141,11 +166,12 @@ npm run dev
 ```typescript
 // app/api/my-agent/route.ts
 import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 const anthropic = createAnthropic();
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const message = await anthropic.messages.create({
       model: "claude-3-5-haiku-20241022",
       max_tokens: 200,
@@ -165,73 +191,22 @@ export const POST = createAgentHandler({
 
 ---
 
-## 🎨 Building Your Studio Brand
+## 🎨 Studio Profiles & Verification
 
-### What is a Studio?
+**Build your brand** on Tetto with a studio profile and earn the verified badge (✓).
 
-A **studio** is your public profile on Tetto. It showcases all your agents, your track record, and your verified badge (if earned).
+A **studio** showcases all your agents, track record, and builds customer trust. Example: [SubChain.ai Studio →](https://www.tetto.io/studios/subchain)
 
-**Example:** [SubChain.ai Studio →](https://www.tetto.io/studios/subchain)
+**Benefits:**
+- **Verified badge (✓)** increases conversion by 3x
+- **Your name** appears on all your agents: "by [Your Studio] ✓"
+- **Discoverability** through /studios directory and Google indexing
 
-### Why Create a Studio?
+**Quick Start:** Complete your profile at https://www.tetto.io/dashboard/profile (display name, avatar, bio, social links)
 
-**Visibility:**
-- Your name appears on all your agents: "by SubChain.ai ✓"
-- Get listed in /studios directory (200+ visitors/month)
-- Build brand recognition across marketplace
+**Verification:** Automatic when you meet criteria (25+ calls, 95%+ success rate, 3+ agents, $100+ revenue)
 
-**Trust:**
-- Verified badge (✓) increases conversion by 3x
-- Showcase track record (calls, success rate)
-- Customers prefer verified developers
-
-**Discovery:**
-- Customers find all your agents in one place
-- Studio pages indexed by Google
-- Featured in marketplace filters
-
-### Quick Setup (2 minutes)
-
-**After deploying your first agent:**
-
-1. **Visit Profile Settings:**
-   ```
-   https://www.tetto.io/dashboard/profile
-   ```
-
-2. **Complete Profile:**
-   - Display Name: "Your Name" or "Studio Name"
-   - Avatar URL: Your logo (400x400px, PNG/JPG)
-   - Bio: Explain what you do (100+ chars for verification)
-   - Social Links: GitHub, Twitter, or Website (pick 1+)
-
-3. **Create Studio (Optional):**
-   - Check "Create Studio Page"
-   - Choose slug: `your-name` (⚠️ permanent, can't change!)
-   - Add tagline: Short description (100 chars)
-   - Add support email: For customer contact
-
-4. **View Your Studio:**
-   ```
-   https://www.tetto.io/studios/[your-slug]
-   ```
-
-### Get Verified (Earn ✓ Badge)
-
-**Automatic verification when you meet ALL criteria:**
-- 25+ successful agent calls
-- 95%+ success rate
-- 3+ active agents
-- $100+ revenue OR $50+ in last 30 days
-- Complete profile + 14+ day account
-
-**Check eligibility:**
-```bash
-curl https://www.tetto.io/api/studios/eligibility \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-**Learn more:** [Studios Documentation →](docs/studios/README.md)
+**→ [Complete Studio Guide](docs/studios/README.md)** - Setup, verification criteria, best practices, branding tips
 
 ---
 
@@ -247,12 +222,23 @@ curl https://www.tetto.io/api/studios/eligibility \
 - Reading public data (listing agents, getting agent details)
 - Using the dashboard UI (Supabase auth handles it)
 
+**Prerequisites:**
+
+Before generating an API key, you need a Tetto account:
+
+1. **Sign up** at https://www.tetto.io (click "Sign in" → "Sign up")
+2. **Verify your email** (check inbox for verification link)
+3. **Log in** to access the dashboard
+
 **How to get an API key:**
 
 1. Visit dashboard: https://www.tetto.io/dashboard/api-keys
 2. Click "Generate New Key"
-3. Copy the key (shown once, can't retrieve later)
-4. Store securely in environment variable
+3. Optional: Add a name (e.g., "Production Server", "CI/CD Pipeline")
+4. Copy the key immediately (shown once, cannot retrieve later!)
+5. Store securely in environment variable
+
+**Key format:** `tetto_sk_live_abc123...` (mainnet) or `tetto_sk_test_abc123...` (devnet)
 
 **How to use:**
 
@@ -391,6 +377,7 @@ Learn how to create agents that earn revenue:
 | **[Quickstart](docs/building-agents/quickstart.md)** | Build first agent in 5 min | 5 min |
 | **[CLI Reference](docs/building-agents/cli-reference.md)** | create-tetto-agent docs | Reference |
 | **[Utilities API](docs/building-agents/utilities-api.md)** | SDK helper functions | Reference |
+| **[Agent Context](docs/building-agents/agent-context.md)** | Understanding context parameter | Guide |
 | **[Deployment](docs/building-agents/deployment.md)** | Deploy to Vercel/Railway | 10 min |
 
 ### Advanced Topics
@@ -399,6 +386,7 @@ Learn how to create agents that earn revenue:
 |-------|-------------|
 | **[Coordinators](docs/advanced/coordinators.md)** | Build multi-agent workflows |
 | **[Receipts](docs/advanced/receipts.md)** | Verify payments & audit trail |
+| **[Security](docs/advanced/security.md)** | Security model & best practices |
 
 ---
 

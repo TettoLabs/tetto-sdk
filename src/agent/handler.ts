@@ -1,4 +1,4 @@
-// TETTO_WARM_UPGRADE - CP2: Import TettoContext for context passing
+// Import TettoContext for context passing
 import type { TettoContext } from '../types';
 
 /**

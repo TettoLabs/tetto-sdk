@@ -207,11 +207,12 @@ Your agent endpoint with:
 
 ```typescript
 import { createAgentHandler, createAnthropic } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 
 const anthropic = createAnthropic();
 
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const message = await anthropic.messages.create({
       model: process.env.CLAUDE_MODEL || "claude-3-5-haiku-20241022",
       max_tokens: 200,
@@ -410,7 +411,7 @@ Edit `tetto.config.json`:
 Then use in `route.ts`:
 
 ```typescript
-async handler(input: { text: string; language: string }) {
+async handler(input: { text: string; language: string }, context: AgentRequestContext) {
   // Use input.language
 }
 ```
@@ -594,5 +595,5 @@ Examples: yes
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-31

@@ -13,10 +13,10 @@
  */
 
 import { createAgentHandler, getTokenMint } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 import TettoSDK, {
   getDefaultConfig,
-  createWalletFromKeypair,
-  createConnection
+  createWalletFromKeypair
 } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
 
@@ -26,12 +26,11 @@ const coordinatorKeypair = Keypair.fromSecretKey(Uint8Array.from(coordinatorSecr
 
 // Setup SDK for calling sub-agents
 const network = (process.env.NETWORK as 'mainnet' | 'devnet') || 'mainnet';
-const connection = createConnection(network);
-const coordinatorWallet = createWalletFromKeypair(coordinatorKeypair, connection);
+const coordinatorWallet = createWalletFromKeypair(coordinatorKeypair);  // No connection needed!
 const tetto = new TettoSDK(getDefaultConfig(network));
 
 export const POST = createAgentHandler({
-  async handler(input: { code: string; language: string }) {
+  async handler(input: { code: string; language: string }, context: AgentRequestContext) {
     console.log('🎯 Coordinator: Starting code audit...');
 
     // Step 1: Find sub-agents dynamically

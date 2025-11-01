@@ -24,10 +24,11 @@
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "test": "npm run test:unit && npm run test:integration && npm run test:security",
-    "test:unit": "tsx test/agent.test.ts",
-    "test:integration": "tsx test/node-test.ts",
+    "test": "npm run test:unit && npm run test:integration && npm run test:security && npm run test:context",
+    "test:unit": "tsx test/agent-utilities.test.ts",
+    "test:integration": "tsx test/end-to-end.test.ts",
     "test:security": "tsx test/plugin-security.test.ts",
+    "test:context": "tsx test/context-identity.test.ts",
     "test:quick": "npm run test:unit",
     "lint": "tsc --noEmit"
   },
