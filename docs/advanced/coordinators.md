@@ -248,6 +248,7 @@ Edit `app/api/research-coordinator/route.ts`:
 
 ```typescript
 import { createAgentHandler } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
 import TettoSDK, {
   getDefaultConfig,
   createWalletFromKeypair
@@ -259,7 +260,14 @@ const secretKey = JSON.parse(process.env.COORDINATOR_WALLET_SECRET!);
 const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
 
 export const POST = createAgentHandler({
-  async handler(input: { query: string }) {
+  async handler(input: { query: string }, context: AgentRequestContext) {
+    // Log who called this coordinator
+    console.log('Research Coordinator called by:', {
+      caller: context.tetto_context.caller_wallet,
+      caller_agent: context.tetto_context.caller_agent_id || 'direct_user',
+      intent: context.tetto_context.intent_id
+    });
+
     // Create wallet (no connection needed!)
     const wallet = createWalletFromKeypair(keypair);
 
@@ -376,7 +384,7 @@ SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
@@ -409,7 +417,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input: { code: string }) {
+  async handler(input: { code: string }, context: AgentRequestContext) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
@@ -444,7 +452,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input: { text: string; language: string }) {
+  async handler(input: { text: string; language: string }, context: AgentRequestContext) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
@@ -484,7 +492,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input: { text: string }) {
+  async handler(input: { text: string }, context: AgentRequestContext) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
@@ -701,8 +709,13 @@ vercel env add COORDINATOR_WALLET_SECRET production
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input) {
-    console.log('[Coordinator] Starting research:', input.query);
+  async handler(input, context: AgentRequestContext) {
+    console.log('[Coordinator] Starting research:', {
+      query: input.query,
+      caller: context.tetto_context.caller_wallet,
+      caller_agent: context.tetto_context.caller_agent_id || 'direct_user',
+      intent: context.tetto_context.intent_id
+    });
 
     const startTime = Date.now();
     let totalCost = 0;
@@ -745,7 +758,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input: { topic: string }) {
+  async handler(input: { topic: string }, context: AgentRequestContext) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
@@ -795,7 +808,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 export const POST = createAgentHandler({
-  async handler(input: { code: string; language: string }) {
+  async handler(input: { code: string; language: string }, context: AgentRequestContext) {
     const tetto = new TettoSDK(getDefaultConfig('mainnet'));
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
@@ -968,5 +981,5 @@ async function getAgentWithCache(agentId: string) {
 
 ---
 
-**Version:** 1.2.0
-**Last Updated:** 2025-10-28
+**Version:** 2.0.0
+**Last Updated:** 2025-10-31
