@@ -1,26 +1,31 @@
 /**
- * Plugin Security Test Suite - TETTO_WARM_UPGRADE CP2
+ * Plugin Security Test Suite
  *
- * CRITICAL: All 16 tests MUST pass before publishing SDK v2.0
+ * CRITICAL: All tests MUST pass before publishing SDK v2.0
  *
- * These tests verify the PluginAPI security boundary prevents:
- * - API key theft
- * - Private key theft
- * - Method interception
- * - Cross-plugin access
- * - State modification
+ * Validates the PluginAPI security boundary prevents:
+ * - API key theft (plugins can't access SDK config)
+ * - Wallet bypass (all plugin methods require wallet parameter)
+ * - Method interception (plugins receive restricted API)
+ * - Cross-plugin access (plugin isolation maintained)
+ * - State modification (plugins can't alter SDK state)
+ *
+ * These tests ensure plugins extend SDK functionality safely
+ * without compromising the payment security model.
  *
  * Created: 2025-10-28
+ * Updated: 2025-10-31 (v2.0.0 professional quality)
  * Status: BLOCKING for SDK v2.0 release
  */
 
 import { TettoSDK, getDefaultConfig } from '../src/index';
 import type { Plugin, PluginAPI, TettoContext } from '../src/index';
+import type { AgentRequestContext } from '../src/agent/handler';
 
 console.log('🔒 Plugin Security Test Suite\n');
 console.log('=' .repeat(70));
-console.log('TETTO_WARM_UPGRADE CP2 - Security Validation');
-console.log('All 16 tests must pass before SDK v2.0 release');
+console.log('Validates plugin system security boundaries');
+console.log('All tests must pass before SDK v2.0 release');
 console.log('=' .repeat(70) + '\n');
 
 const config = {
@@ -417,57 +422,38 @@ try {
   }
 
   // ============================================================================
-  // TEST 13: Handler backward compatible (v1.x works)
+  // TEST 13: Handler context parameter (v2.0 required pattern)
   // ============================================================================
   try {
-    // Old-style handler (v1.x) should compile without errors
-    const oldHandler = async (input: any) => {
-      return { result: 'success' };
+    // v2.0 handlers require context parameter (not optional)
+    const handler = async (input: any, context: AgentRequestContext) => {
+      // Context always present in v2.0 (no defensive checks needed)
+      return {
+        result: 'success',
+        caller: context.tetto_context.caller_wallet
+      };
     };
 
-    const result = await oldHandler({ test: 'data' });
-    if (result.result !== 'success') {
-      throw new Error('Old handler failed');
-    }
-
-    console.log('✅ Test 13: Backward compatible handlers');
-    testsPassed++;
-  } catch (error) {
-    console.error('❌ Test 13 failed:', error);
-    testsFailed++;
-  }
-
-  // ============================================================================
-  // TEST 14: Handler context parameter works (v2.0)
-  // ============================================================================
-  try {
-    // New-style handler (v2.0) with context parameter
-    const newHandler = async (input: any, context?: any) => {
-      if (!context) {
-        throw new Error('Context not provided');
-      }
-      return { result: 'success', caller: context.tetto_context?.caller_wallet };
-    };
-
-    const mockContext = {
+    const mockContext: AgentRequestContext = {
       tetto_context: {
         caller_wallet: 'TestWallet',
         caller_agent_id: null,
+        caller_agent_name: null,
         intent_id: 'test',
         timestamp: Date.now(),
-        version: '1.0.0'
+        version: '2.0'
       }
     };
 
-    const result = await newHandler({ test: 'data' }, mockContext);
-    if (result.result !== 'success') {
-      throw new Error('New handler failed');
+    const result = await handler({ test: 'data' }, mockContext);
+    if (result.result !== 'success' || result.caller !== 'TestWallet') {
+      throw new Error('Handler context parameter validation failed');
     }
 
-    console.log('✅ Test 14: Handler context parameter works');
+    console.log('✅ Test 13: Handler context parameter works (v2.0)');
     testsPassed++;
   } catch (error) {
-    console.error('❌ Test 14 failed:', error);
+    console.error('❌ Test 13 failed:', error);
     testsFailed++;
   }
 
@@ -533,10 +519,10 @@ try {
   // SUMMARY
   // ============================================================================
   console.log('\n' + '='.repeat(70));
-  console.log('SECURITY TEST RESULTS');
+  console.log('PLUGIN SECURITY TEST RESULTS');
   console.log('='.repeat(70));
-  console.log(`Passed: ${testsPassed}/16`);
-  console.log(`Failed: ${testsFailed}/16`);
+  console.log(`Passed: ${testsPassed}/15`);
+  console.log(`Failed: ${testsFailed}/15`);
   console.log('='.repeat(70));
 
   if (testsFailed > 0) {
