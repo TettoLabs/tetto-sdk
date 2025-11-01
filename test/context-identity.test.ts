@@ -1,15 +1,16 @@
 /**
- * TETTO_WARM_UPGRADE Validation Test Suite
+ * Context & Identity Validation Test Suite
  *
- * Validates that SDK v2.0.0 fully supports the patterns from CP0+CP1:
+ * Validates that SDK v2.0.0 fully supports context passing and identity preservation:
  * - calling_agent_id sent to portal
  * - fromContext() preserves agent identity
- * - Handler receives tetto_context
- * - Backward compatibility maintained
+ * - Handler receives required tetto_context
+ * - Context parameter is required (not optional)
  *
  * ALL TESTS MUST PASS before merging SDK to main.
  *
  * Created: 2025-10-30
+ * Updated: 2025-10-31 (v2.0.0 context requirements)
  * Status: BLOCKING for SDK main merge
  */
 
@@ -18,9 +19,9 @@ import { createAgentHandler } from '../src/agent/handler';
 import type { TettoContext, TettoWallet } from '../src/index';
 import type { AgentRequestContext } from '../src/agent/handler';
 
-console.log('🔬 TETTO_WARM_UPGRADE Validation Test Suite\n');
+console.log('🔬 Context & Identity Validation Test Suite\n');
 console.log('='.repeat(70));
-console.log('Validates SDK v2.0.0 supports CP0+CP1 patterns');
+console.log('Validates SDK v2.0.0 context and identity features');
 console.log('='.repeat(70) + '\n');
 
 let testsPassed = 0;
@@ -182,7 +183,7 @@ try {
 }
 
 // ============================================================================
-// ASYNC TESTS (Tests 6-8 and 11)
+// ASYNC TESTS (Tests 6, 9, 10, 11, 12, 13)
 // ============================================================================
 (async () => {
   // ============================================================================
@@ -192,7 +193,7 @@ try {
     let receivedContext: AgentRequestContext | undefined;
 
     const handler = createAgentHandler({
-      async handler(input: any, context?: AgentRequestContext) {
+      async handler(input: any, context: AgentRequestContext) {
         receivedContext = context;
         return { success: true };
       }
@@ -259,19 +260,31 @@ try {
   }
 
   // ============================================================================
-  // TEST 10: AgentRequestContext type is exported
+  // TEST 10: AgentRequestContext type is exported and properly typed
   // ============================================================================
   try {
-    // Import works (already did it at top)
+    // Verify AgentRequestContext requires non-null TettoContext
     const mockCtx: AgentRequestContext = {
-      tetto_context: null
+      tetto_context: {
+        caller_wallet: 'TestWallet123',
+        caller_agent_id: 'test-agent',
+        caller_agent_name: 'TestAgent',
+        intent_id: 'intent-test',
+        timestamp: Date.now(),
+        version: '2.0'
+      }
     };
 
-    if (mockCtx.tetto_context !== null) {
-      throw new Error('AgentRequestContext type invalid');
+    // Verify all required fields present
+    if (!mockCtx.tetto_context) {
+      throw new Error('AgentRequestContext requires tetto_context');
     }
 
-    console.log('✅ Test 10: AgentRequestContext type exported');
+    if (!mockCtx.tetto_context.caller_wallet) {
+      throw new Error('TettoContext requires caller_wallet');
+    }
+
+    console.log('✅ Test 10: AgentRequestContext type exported and properly typed');
     testsPassed++;
   } catch (error) {
     console.error('❌ Test 10 failed:', error);
@@ -284,9 +297,9 @@ try {
   try {
     // Step 1: Upstream agent receives call from user
     const upstreamHandler = createAgentHandler({
-      async handler(input: any, context?: AgentRequestContext) {
-        // Step 2: Create SDK from context
-        const tetto = TettoSDK.fromContext(context!.tetto_context!, {
+      async handler(input: any, context: AgentRequestContext) {
+        // Step 2: Create SDK from context (context always present in v2.0)
+        const tetto = TettoSDK.fromContext(context.tetto_context, {
           network: 'devnet'
         });
 
@@ -337,18 +350,78 @@ try {
   }
 
   // ============================================================================
+  // TEST 12: SDK validates tetto_context is required
+  // ============================================================================
+  try {
+    const handler = createAgentHandler({
+      async handler(input: any, context: AgentRequestContext) {
+        return { success: true };
+      }
+    });
+
+    // Mock request WITHOUT tetto_context (should error)
+    const mockRequest = {
+      json: async () => ({
+        input: { test: 'data' }
+        // Missing tetto_context!
+      })
+    };
+
+    const response = await handler(mockRequest as any);
+    const data = await response?.json();
+
+    if (!data.error || !data.error.includes('tetto_context')) {
+      throw new Error('Should reject missing tetto_context');
+    }
+
+    console.log('✅ Test 12: SDK validates tetto_context is required');
+    testsPassed++;
+  } catch (error) {
+    console.error('❌ Test 12 failed:', error);
+    testsFailed++;
+  }
+
+  // ============================================================================
+  // TEST 13: All TettoContext fields are accessible and typed
+  // ============================================================================
+  try {
+    const mockContext: TettoContext = {
+      caller_wallet: 'AYPz8VHckZbbqsQd4qQfypKrE6bpSpJKJNYr9r4AJNZV',
+      caller_agent_id: 'agent-uuid-123',
+      caller_agent_name: 'TestAgent',
+      intent_id: '1d50f128-2c92-4f53-b466-9a554044a6d1',
+      timestamp: 1730419845000,
+      version: '2.0'
+    };
+
+    // Verify all 6 fields accessible and typed correctly
+    if (!mockContext.caller_wallet) throw new Error('caller_wallet required');
+    if (mockContext.caller_agent_id === undefined) throw new Error('caller_agent_id required');
+    if (mockContext.caller_agent_name === undefined) throw new Error('caller_agent_name defined');
+    if (!mockContext.intent_id) throw new Error('intent_id required');
+    if (!mockContext.timestamp) throw new Error('timestamp required');
+    if (!mockContext.version) throw new Error('version required');
+
+    console.log('✅ Test 13: All TettoContext fields accessible and typed');
+    testsPassed++;
+  } catch (error) {
+    console.error('❌ Test 13 failed:', error);
+    testsFailed++;
+  }
+
+  // ============================================================================
   // SUMMARY
   // ============================================================================
   console.log('\n' + '='.repeat(70));
-  console.log('WARM_UPGRADE VALIDATION RESULTS');
+  console.log('CONTEXT & IDENTITY VALIDATION RESULTS');
   console.log('='.repeat(70));
-  console.log(`Passed: ${testsPassed}/9`);
-  console.log(`Failed: ${testsFailed}/9`);
+  console.log(`Passed: ${testsPassed}/11`);
+  console.log(`Failed: ${testsFailed}/11`);
   console.log('='.repeat(70));
 
   if (testsFailed > 0) {
     console.error('\n❌ VALIDATION FAILED - DO NOT MERGE TO MAIN');
-    console.error('\nSDK does not fully support CP0+CP1 patterns.');
+    console.error('\nSDK does not fully support context and identity features.');
     console.error('Fix issues before merging staging → main.\n');
     process.exit(1);
   } else {
@@ -356,8 +429,9 @@ try {
     console.log('\nSDK v2.0.0 fully supports:');
     console.log('  ✅ calling_agent_id sent to portal');
     console.log('  ✅ fromContext() preserves agent identity');
-    console.log('  ✅ Handler receives required tetto_context');
+    console.log('  ✅ Handler receives required tetto_context (not optional)');
     console.log('  ✅ Context validation (errors if missing)');
+    console.log('  ✅ All TettoContext fields properly typed');
     console.log('  ✅ Types exported correctly');
     console.log('\n🎯 SAFE TO MERGE SDK STAGING → MAIN\n');
   }
