@@ -135,10 +135,10 @@ solana airdrop 1 --url devnet
 # 4. Receive 100 devnet USDC (fake, for testing)
 
 # Verify balance
-spl-token balance --url devnet EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4
+spl-token balance --url devnet 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
 ```
 
-**Devnet USDC Mint:** `EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4`
+**Devnet USDC Mint:** `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` (Circle's testnet USDC)
 
 **Learn more:** [Testing on Devnet →](./testing-on-devnet.md)
 

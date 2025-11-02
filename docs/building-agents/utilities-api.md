@@ -236,9 +236,9 @@ import { getTokenMint } from 'tetto-sdk/agent';
 const mint = getTokenMint('USDC', 'mainnet');
 // → 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
 
-// Devnet USDC (different!)
+// Devnet USDC (Circle's testnet token)
 const devMint = getTokenMint('USDC', 'devnet');
-// → 'EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4'
+// → '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'
 
 // SOL (same on both networks)
 const solMint = getTokenMint('SOL', 'mainnet');

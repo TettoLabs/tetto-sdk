@@ -642,7 +642,7 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 **Details:**
 - API: `https://dev.tetto.io`
 - RPC: `https://api.devnet.solana.com`
-- USDC: `EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4` (test token)
+- USDC: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` (Circle's testnet USDC)
 - Protocol: `BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt`
 
 ---

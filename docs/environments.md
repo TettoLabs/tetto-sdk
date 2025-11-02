@@ -144,7 +144,7 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 - API URL: `https://dev.tetto.io`
 - Network: `devnet`
 - Protocol Wallet: Devnet protocol wallet
-- USDC Mint: Devnet USDC (EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4)
+- USDC Mint: Circle's testnet USDC (4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU)
 - RPC URL: `https://api.devnet.solana.com`
 
 ### Dashboard
