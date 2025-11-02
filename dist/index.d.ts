@@ -54,7 +54,7 @@ export declare const NETWORK_DEFAULTS: {
     readonly devnet: {
         readonly apiUrl: "https://dev.tetto.io";
         readonly protocolWallet: "BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt";
-        readonly usdcMint: "EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4";
+        readonly usdcMint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
         readonly rpcUrl: "https://api.devnet.solana.com";
     };
 };

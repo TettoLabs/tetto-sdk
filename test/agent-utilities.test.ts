@@ -37,10 +37,10 @@ try {
   process.exit(1);
 }
 
-// Test 2: getTokenMint - devnet USDC
+// Test 2: getTokenMint - devnet USDC (Circle's testnet token)
 try {
   const mint = getTokenMint('USDC', 'devnet');
-  if (mint === 'EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4') {
+  if (mint === '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU') {
     console.log('✅ getTokenMint: devnet USDC correct');
   } else {
     throw new Error(`Expected devnet USDC mint, got ${mint}`);

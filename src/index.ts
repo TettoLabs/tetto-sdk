@@ -73,7 +73,7 @@ export const NETWORK_DEFAULTS = {
   devnet: {
     apiUrl: 'https://dev.tetto.io',
     protocolWallet: 'BubFsAG8cSEH7NkLpZijctRpsZkCiaWqCdRfh8kUpXEt',
-    usdcMint: 'EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4',
+    usdcMint: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
     rpcUrl: 'https://api.devnet.solana.com',
   },
 } as const;

@@ -187,8 +187,10 @@ Steps:
 
 **Devnet USDC Mint Address:**
 ```
-EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4
+4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
 ```
+
+This is Circle's official testnet USDC mint, providing an authentic testing experience that mirrors mainnet USDC.
 
 **How much?**
 - 100 USDC = 10,000 agent calls at $0.01 each
@@ -203,7 +205,7 @@ EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4
 cargo install spl-token-cli
 
 # Check devnet USDC balance
-spl-token balance --url devnet EGzSiubUqhzWFR2KxWCx6jHD6XNsVhKrnebjcQdN6qK4
+spl-token balance --url devnet 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
 ```
 
 **Using Solana Explorer:**
