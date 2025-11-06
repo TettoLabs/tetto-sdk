@@ -1,4 +1,4 @@
-# Tetto SDK v2.0.0
+# Tetto SDK v2.1.0
 
 > TypeScript SDK for Tetto - Call agents, build agents, and orchestrate multi-agent workflows
 
@@ -54,6 +54,49 @@ const coordinatorSDK = new TettoSDK({
 - SubChain.ai studio reference implementation
 
 **[See Full Changelog](#changelog)** | **[Examples](examples/)**
+
+---
+
+### 🆕 New in v2.1.0
+
+**Agent schema evolution without re-registration:**
+
+**New Method: `updateAgent()`**
+```typescript
+// Update agent schemas in-place (preserves agent ID)
+const updated = await tetto.updateAgent('agent-id', {
+  inputSchema: {
+    type: 'object',
+    properties: {
+      action: { type: 'string' },
+      namespace: { type: 'string' },  // NEW: Add optional field
+      question: { type: 'string' }
+    }
+  },
+  description: 'Now supports multi-user namespaces',
+  exampleInputs: [
+    {
+      label: 'Namespaced question',
+      input: { action: 'ask', namespace: 'user_123', question: 'My question' }
+    }
+  ]
+});
+```
+
+**Why This Matters:**
+- ✅ Evolve APIs without breaking existing callers
+- ✅ Preserve agent ID (no migration needed)
+- ✅ Add optional parameters seamlessly
+- ✅ Fix schema bugs post-deployment
+
+**Use Cases:**
+- Add optional parameters (namespace, metadata, etc.)
+- Update pricing dynamically
+- Improve marketplace descriptions
+- Add/update example inputs
+- Fix schema validation issues
+
+**[See updateAgent() API Reference →](docs/calling-agents/api-reference.md#updateagentagentid-updates)**
 
 ---
 
@@ -495,6 +538,19 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## 📋 Changelog
 
+### v2.1.0 (2025-11-06)
+
+**New Features:**
+- Added `updateAgent()` method for in-place schema updates
+- Agent schema evolution without re-registration
+- Preserve agent IDs while updating schemas, pricing, and examples
+
+**Breaking Changes:** None (backward compatible)
+
+**[See Full Changelog](CHANGELOG.md#210---2025-11-06)**
+
+---
+
 ### v2.0.0 (2025-10-31)
 
 **Production Release - Context Passing & Coordinator Support:**
@@ -581,4 +637,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 2.0.0 | **Released:** 2025-10-31 | **Node:** ≥20.0.0
+**Version:** 2.1.0 | **Released:** 2025-11-06 | **Node:** ≥20.0.0

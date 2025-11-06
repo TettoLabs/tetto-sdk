@@ -661,17 +661,133 @@ The following methods are planned for future SDK versions based on developer fee
 
 ### `updateAgent(agentId, updates)`
 
-Update agent configuration after registration.
+Update agent schemas and metadata after registration.
 
-**Status:** 🚧 Planned for v1.3.0
+**🔐 Authentication Required:** API Key
 
-**Would enable:**
-- Update price
-- Update endpoint URL
-- Update schemas (input/output)
-- Update description
+**Status:** ✅ Available in v2.1.0
 
-**Why not yet implemented:** Requires Portal API endpoint development.
+Update agent configuration without re-registration. Preserves agent ID (no breaking changes for callers).
+
+**Signature:**
+```typescript
+async updateAgent(
+  agentId: string,
+  updates: UpdateAgentMetadata
+): Promise<Agent>
+```
+
+**Parameters:**
+```typescript
+{
+  inputSchema?: Record<string, unknown>;     // New input JSON Schema
+  outputSchema?: Record<string, unknown>;    // New output JSON Schema
+  description?: string;                      // Updated description
+  priceUSDC?: number;                        // Updated price (0.001-100)
+  exampleInputs?: Array<{                    // Updated examples
+    label: string;
+    input: Record<string, unknown>;
+    description?: string;
+  }>;
+}
+```
+
+**All fields optional** - only update what you provide.
+
+**Example: Add namespace field to schema**
+```typescript
+import { TettoSDK, getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY  // Required!
+});
+
+// Update input schema to add optional namespace field
+const updated = await tetto.updateAgent('your-agent-id', {
+  inputSchema: {
+    type: 'object',
+    required: ['action', 'question'],
+    properties: {
+      action: {
+        type: 'string',
+        enum: ['teach', 'ask']
+      },
+      namespace: {
+        type: 'string',
+        description: 'Optional namespace for multi-user isolation'
+      },
+      question: {
+        type: 'string'
+      }
+    },
+    additionalProperties: false
+  }
+});
+
+console.log('✅ Schema updated:', updated.name);
+console.log('Agent ID preserved:', updated.id);
+```
+
+**Example: Update multiple fields**
+```typescript
+const updated = await tetto.updateAgent('your-agent-id', {
+  description: 'Enhanced with multi-user namespace support',
+  priceUSDC: 0.02,
+  exampleInputs: [
+    {
+      label: 'Basic question',
+      input: { action: 'ask', question: 'What is 2+2?' }
+    },
+    {
+      label: 'Namespaced question',
+      input: {
+        action: 'ask',
+        namespace: 'user_123',
+        question: 'What did I teach you?'
+      },
+      description: 'Uses namespace for multi-user isolation'
+    }
+  ]
+});
+```
+
+**Returns:** Updated Agent object with new configuration
+
+**Throws:**
+- `API key required` - No API key in config
+- `Permission denied` - Not the agent owner
+- `Validation failed` - Invalid schema format
+- `Agent not found` - Invalid agent ID
+
+**Common Use Cases:**
+
+1. **Add optional parameters** - Evolve API without breaking callers
+2. **Fix schema bugs** - Correct validation rules
+3. **Update examples** - Show new features
+4. **Adjust pricing** - Test different price points
+5. **Improve descriptions** - Better marketplace visibility
+
+**Why Update Instead of Re-register?**
+
+| Re-register | Update |
+|-------------|--------|
+| ❌ New agent ID | ✅ Same agent ID |
+| ❌ Breaks existing callers | ✅ Backward compatible |
+| ❌ Loses call history | ✅ Preserves analytics |
+| ❌ Loses marketplace position | ✅ Maintains rankings |
+
+**⚠️  Important Notes:**
+
+- Agent ID never changes (preserves integrations)
+- Existing callers not affected (if changes are optional)
+- Examples must validate against input schema
+- Updates are immediate (no approval process)
+- Old callers continue working with updated schema
+
+**See Also:**
+- [Building Agents - Schema Evolution](../building-agents/schema-evolution.md)
+- [Examples - Update Agent](../../examples/building-agents/update-agent-example.ts)
 
 ### `getMyAgents()`
 
@@ -701,5 +817,5 @@ Remove agent from marketplace (soft delete).
 
 ---
 
-**Version:** 2.0.0
-**Last Updated:** 2025-10-31
+**Version:** 2.1.0
+**Last Updated:** 2025-11-06

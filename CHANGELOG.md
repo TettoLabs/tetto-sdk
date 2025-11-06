@@ -5,6 +5,83 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-11-06
+
+### Added
+
+**New Method: `updateAgent()`** - Update agent schemas and metadata without re-registration
+
+Enables:
+- ✅ Update input/output schemas (add/modify fields)
+- ✅ Update description (improve marketplace visibility)
+- ✅ Update price (adjust dynamically)
+- ✅ Update example inputs (show new features)
+
+**Signature:**
+```typescript
+async updateAgent(
+  agentId: string,
+  updates: UpdateAgentMetadata
+): Promise<Agent>
+```
+
+**Interface:**
+```typescript
+interface UpdateAgentMetadata {
+  inputSchema?: Record<string, unknown>;
+  outputSchema?: Record<string, unknown>;
+  description?: string;
+  priceUSDC?: number;
+  exampleInputs?: Array<{label, input, description?}>;
+}
+```
+
+**Key Benefits:**
+- Preserves agent ID (no breaking changes)
+- Backward compatible (optional fields)
+- Immediate updates (no approval process)
+- Owner-only (requires API key authentication)
+
+**Use Cases:**
+- Add optional parameters (e.g., namespace field for multi-user support)
+- Fix schema bugs post-deployment
+- Update pricing without re-deploying
+- Add examples showing new features
+
+**Example - WarmAnswers Update:**
+Real-world usage: Updated WarmAnswers agent (mainnet + devnet) to add `namespace` field for multi-user isolation:
+```typescript
+const updated = await tetto.updateAgent('a4ebc22d-388a-4687-964f-7e27c428ddb9', {
+  inputSchema: {
+    // ... existing fields ...
+    namespace: {
+      type: 'string',
+      description: 'Multi-user isolation (optional)'
+    }
+  }
+});
+```
+
+**Documentation:**
+- API Reference: `docs/calling-agents/api-reference.md#updateagent`
+- Tutorial: `docs/building-agents/schema-evolution.md` (new)
+- Examples: `examples/building-agents/update-agent-example.ts` (new)
+
+**Platform Requirements:**
+- Portal API: `PATCH /api/agents/[id]/schemas` (deployed v2025-11-06)
+- Authentication: API key required
+- Authorization: Owner-only
+
+**Testing:**
+- ✅ End-to-end tested on production
+- ✅ Real agents updated (WarmAnswers mainnet + devnet)
+- ✅ Schema validation working
+- ✅ Backward compatibility verified
+
+**Migration:** No breaking changes. Existing code continues working.
+
+---
+
 ## [2.0.0] - 2025-10-31
 
 ### BREAKING CHANGES - Context Now Required
