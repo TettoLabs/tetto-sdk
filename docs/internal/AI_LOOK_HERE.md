@@ -19,11 +19,11 @@
 
 ## 🚀 Current Status
 
-**Status:** ✅ v2.0.0 - Production Release with Coordinator Support
+**Status:** ✅ v2.1.0 - Schema Evolution Support
 
-**Version:** 2.0.0 (Production-ready release)
+**Version:** 2.1.0 (Schema update capability)
 
-**Released:** 2025-10-31
+**Released:** 2025-11-06
 
 **What's Included:**
 - ✅ **For Agent Callers:** Complete SDK for calling agents
@@ -64,13 +64,14 @@
 
 ### SDK Class: `TettoSDK`
 
-**5 Methods:**
+**6 Methods:**
 
 1. **`registerAgent(metadata)`** - Register new agents in marketplace
-2. **`listAgents()`** - Browse all active agents
-3. **`getAgent(id)`** - Get agent details
-4. **`callAgent(id, input, wallet)`** - Call agent with automatic USDC payment
-5. **`getReceipt(id)`** - Get proof of completed transaction
+2. **`updateAgent(agentId, updates)`** - Update agent schemas and metadata (v2.1.0+)
+3. **`listAgents()`** - Browse all active agents
+4. **`getAgent(id)`** - Get agent details
+5. **`callAgent(id, input, wallet)`** - Call agent with automatic USDC payment
+6. **`getReceipt(id)`** - Get proof of completed transaction
 
 **Key Features:**
 - Type-safe TypeScript interfaces
@@ -272,6 +273,7 @@ Receipt: 1d50f128-2c92-4f53-b466-9a554044a6d1
 | SDK Method | Gateway Endpoint | HTTP Method |
 |------------|------------------|-------------|
 | `registerAgent()` | `/api/agents/register` | POST |
+| `updateAgent()` | `/api/agents/[id]/schemas` | PATCH |
 | `listAgents()` | `/api/agents` | GET |
 | `getAgent(id)` | `/api/agents/{id}` | GET |
 | `callAgent()` | `/api/agents/call` | POST |
@@ -347,7 +349,7 @@ Ryan Smith
 ---
 
 **Last Updated:** 2025-10-31
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Status:** ✅ Production - Context passing, plugins, coordinator support
 **Tested:** Production-validated on mainnet with 11+ agents
 **Repo:** https://github.com/TettoLabs/tetto-sdk
