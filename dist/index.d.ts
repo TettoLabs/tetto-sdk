@@ -75,6 +75,30 @@ export interface AgentMetadata {
     isBeta?: boolean;
 }
 /**
+ * Metadata fields that can be updated after agent registration
+ *
+ * All fields are optional - only provide the fields you want to update.
+ * Schemas will be validated before update.
+ *
+ * @since v2.1.0 - Added agent update capability
+ */
+export interface UpdateAgentMetadata {
+    /** New input schema (will be validated) */
+    inputSchema?: Record<string, unknown>;
+    /** New output schema (will be validated) */
+    outputSchema?: Record<string, unknown>;
+    /** Updated description */
+    description?: string;
+    /** Updated price in USD (e.g., 0.02 = 2 cents) */
+    priceUSDC?: number;
+    /** Updated example inputs (will be validated against input schema) */
+    exampleInputs?: Array<{
+        label: string;
+        input: Record<string, unknown>;
+        description?: string;
+    }>;
+}
+/**
  * Studio owner information returned by the platform API
  *
  * Represents the developer/studio that owns an agent.
@@ -200,6 +224,58 @@ export declare class TettoSDK {
      * ```
      */
     registerAgent(metadata: AgentMetadata): Promise<Agent>;
+    /**
+     * Update agent schemas and metadata
+     *
+     * Requires API key authentication and agent ownership.
+     * Only updates fields that are provided (partial update).
+     * Schemas will be validated before update.
+     *
+     * @param agentId - Agent UUID
+     * @param updates - Fields to update (all optional)
+     * @returns Updated agent details
+     *
+     * @throws Error if not authenticated, not owner, or validation fails
+     *
+     * @example Update schema to add namespace field
+     * ```typescript
+     * const tetto = new TettoSDK({
+     *   ...getDefaultConfig('mainnet'),
+     *   apiKey: process.env.TETTO_API_KEY
+     * });
+     *
+     * const updated = await tetto.updateAgent('agent-uuid', {
+     *   inputSchema: {
+     *     type: 'object',
+     *     required: ['action', 'question'],
+     *     properties: {
+     *       action: { type: 'string', enum: ['teach', 'ask'] },
+     *       namespace: { type: 'string', description: 'Multi-user isolation' },
+     *       question: { type: 'string' }
+     *     }
+     *   }
+     * });
+     *
+     * console.log('Updated:', updated.name);
+     * ```
+     *
+     * @example Update multiple fields at once
+     * ```typescript
+     * const updated = await tetto.updateAgent('agent-uuid', {
+     *   description: 'Enhanced question-answering with namespace support',
+     *   priceUSDC: 0.02,
+     *   exampleInputs: [
+     *     {
+     *       label: 'Multi-user question',
+     *       input: { action: 'ask', namespace: 'user123', question: 'What is my password?' }
+     *     }
+     *   ]
+     * });
+     * ```
+     *
+     * @since v2.1.0
+     */
+    updateAgent(agentId: string, updates: UpdateAgentMetadata): Promise<Agent>;
     /**
      * Get agent details by ID
      *

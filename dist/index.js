@@ -128,6 +128,115 @@ class TettoSDK {
         return result.agent;
     }
     /**
+     * Update agent schemas and metadata
+     *
+     * Requires API key authentication and agent ownership.
+     * Only updates fields that are provided (partial update).
+     * Schemas will be validated before update.
+     *
+     * @param agentId - Agent UUID
+     * @param updates - Fields to update (all optional)
+     * @returns Updated agent details
+     *
+     * @throws Error if not authenticated, not owner, or validation fails
+     *
+     * @example Update schema to add namespace field
+     * ```typescript
+     * const tetto = new TettoSDK({
+     *   ...getDefaultConfig('mainnet'),
+     *   apiKey: process.env.TETTO_API_KEY
+     * });
+     *
+     * const updated = await tetto.updateAgent('agent-uuid', {
+     *   inputSchema: {
+     *     type: 'object',
+     *     required: ['action', 'question'],
+     *     properties: {
+     *       action: { type: 'string', enum: ['teach', 'ask'] },
+     *       namespace: { type: 'string', description: 'Multi-user isolation' },
+     *       question: { type: 'string' }
+     *     }
+     *   }
+     * });
+     *
+     * console.log('Updated:', updated.name);
+     * ```
+     *
+     * @example Update multiple fields at once
+     * ```typescript
+     * const updated = await tetto.updateAgent('agent-uuid', {
+     *   description: 'Enhanced question-answering with namespace support',
+     *   priceUSDC: 0.02,
+     *   exampleInputs: [
+     *     {
+     *       label: 'Multi-user question',
+     *       input: { action: 'ask', namespace: 'user123', question: 'What is my password?' }
+     *     }
+     *   ]
+     * });
+     * ```
+     *
+     * @since v2.1.0
+     */
+    async updateAgent(agentId, updates) {
+        this._validateUUID(agentId, 'agent ID');
+        // API key required for updates
+        if (!this.config.apiKey) {
+            throw new Error('API key required for updateAgent.\n\n' +
+                'Generate one at: https://www.tetto.io/dashboard/api-keys\n' +
+                'Add to config: { apiKey: process.env.TETTO_API_KEY }');
+        }
+        // At least one field must be provided
+        if (!updates.inputSchema && !updates.outputSchema && !updates.description &&
+            updates.priceUSDC === undefined && !updates.exampleInputs) {
+            throw new Error('No updates provided. Specify at least one field:\n' +
+                '- inputSchema\n' +
+                '- outputSchema\n' +
+                '- description\n' +
+                '- priceUSDC\n' +
+                '- exampleInputs');
+        }
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.config.apiKey}`
+        };
+        const response = await fetch(`${this.apiUrl}/api/agents/${agentId}/schemas`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({
+                input_schema: updates.inputSchema,
+                output_schema: updates.outputSchema,
+                description: updates.description,
+                price_usd: updates.priceUSDC,
+                example_inputs: updates.exampleInputs
+            })
+        });
+        const result = await response.json();
+        if (!result.ok) {
+            // Handle specific error codes
+            if (response.status === 403) {
+                throw new Error(`Permission denied: ${result.error}\n\n` +
+                    'Only the agent owner can update schemas.\n' +
+                    'Verify you are using the correct API key.');
+            }
+            if (response.status === 400) {
+                throw new Error(`Validation failed: ${result.error}\n\n` +
+                    'Check that your schemas are valid JSON Schema format.\n' +
+                    'Ensure example inputs match the input schema.');
+            }
+            if (response.status === 401) {
+                throw new Error(`Authentication failed: ${result.error}\n\n` +
+                    'Your API key may be invalid or expired.\n' +
+                    'Generate a new one at: https://www.tetto.io/dashboard/api-keys');
+            }
+            throw new Error(result.error || 'Agent update failed');
+        }
+        if (!result.agent) {
+            throw new Error('Agent data missing from response');
+        }
+        return result.agent;
+    }
+    /**
      * Get agent details by ID
      *
      * @param agentId - Agent UUID
