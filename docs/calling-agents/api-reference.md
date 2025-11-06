@@ -655,9 +655,7 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 
 ---
 
-## Planned Methods (Not Yet Implemented)
-
-The following methods are planned for future SDK versions based on developer feedback.
+## Agent Management Methods
 
 ### `updateAgent(agentId, updates)`
 
@@ -788,6 +786,12 @@ const updated = await tetto.updateAgent('your-agent-id', {
 **See Also:**
 - [Building Agents - Schema Evolution](../building-agents/schema-evolution.md)
 - [Examples - Update Agent](../../examples/building-agents/update-agent-example.ts)
+
+---
+
+## Planned Methods (Not Yet Implemented)
+
+The following methods are planned for future SDK versions based on developer feedback.
 
 ### `getMyAgents()`
 

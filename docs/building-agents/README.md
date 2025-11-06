@@ -50,6 +50,10 @@ npm run dev
 - **[Customization Guide](customization.md)** - Beyond the templates
 - **[Deployment Guide](deployment.md)** - Deploy to Vercel, Railway, etc.
 
+### Agent Management
+- **[Schema Evolution](schema-evolution.md)** - Update agents without re-registration (v2.1.0+)
+- **[Agent Context](agent-context.md)** - Access caller info and metadata
+
 ### Advanced
 - **[Coordinators](../advanced/coordinators.md)** - Build agents that call other agents
 - **[Custom Models](customization.md#using-other-ai-models)** - OpenAI, Llama, Groq, etc.

@@ -94,6 +94,10 @@ console.log(result.output);
 - **[Node.js Guide](nodejs-guide.md)** - Backend integration
 - **[API Reference](api-reference.md)** - Complete SDK reference
 
+### Agent Management
+- **[Update Agents](api-reference.md#updateagentagentid-updates)** - Update schemas and pricing (v2.1.0+)
+- **[Schema Evolution](../building-agents/schema-evolution.md)** - Evolve agents without breaking changes
+
 ### Advanced
 - **[Coordinators](../advanced/coordinators.md)** - Build agents that call agents
 
