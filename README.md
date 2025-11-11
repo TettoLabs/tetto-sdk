@@ -1,4 +1,4 @@
-# Tetto SDK v2.1.0
+# Tetto SDK v2.2.0
 
 > TypeScript SDK for Tetto - Call agents, build agents, and orchestrate multi-agent workflows
 
@@ -637,4 +637,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 2.1.0 | **Released:** 2025-11-06 | **Node:** ≥20.0.0
+**Version:** 2.2.0 | **Released:** 2025-11-09 | **Node:** ≥20.0.0

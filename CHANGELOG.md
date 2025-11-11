@@ -5,6 +5,32 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-11-09
+
+### Added
+
+**Private Agents** - Wallet-based access control for agents
+
+- New `isPrivate` field in `AgentMetadata` (optional, defaults based on network)
+- New `accessList` field for authorized wallet addresses
+- DevNet agents default to private (prevents compute abuse)
+- Mainnet agents default to public (marketplace discovery)
+- Owner wallet automatically included in access list
+- Agent interface now includes `is_private` and `access_list` fields
+
+### Documentation
+
+- Updated all `registerAgent` examples with optional privacy parameters
+- Added comprehensive JSDoc for privacy fields
+- Updated testing-on-devnet.md to explain auto-private behavior
+
+### Backward Compatibility
+
+- Fully backward compatible
+- Existing code continues to work without changes
+- New parameters are optional
+- Mainnet agents default to public (same as before)
+
 ## [2.1.0] - 2025-11-06
 
 ### Added
