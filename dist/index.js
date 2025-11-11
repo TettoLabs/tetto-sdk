@@ -108,6 +108,9 @@ class TettoSDK {
                 token_mint: metadata.tokenMint,
                 example_inputs: metadata.exampleInputs,
                 is_beta: metadata.isBeta || false,
+                // Privacy fields for access control (v2.2.0)
+                is_private: metadata.isPrivate,
+                access_list: metadata.accessList,
             }),
         });
         const result = await response.json();

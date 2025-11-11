@@ -57,6 +57,49 @@ const coordinatorSDK = new TettoSDK({
 
 ---
 
+### 🆕 New in v2.2.0
+
+**Private Agents - Wallet-based access control:**
+
+🔒 **Privacy Settings** - Control who can call your agents
+🛡️ **Auto-Private DevNet** - DevNet agents default to private (prevents compute abuse)
+🏢 **B2B Support** - Private mainnet agents for enterprise clients
+📋 **Access Lists** - Manage authorized wallets via dashboard or SDK
+
+**New Parameters:**
+```typescript
+const agent = await tetto.registerAgent({
+  name: 'EnterpriseAPI',
+  // ... other fields ...
+  ownerWallet: 'YOUR_WALLET',
+
+  // NEW: Privacy controls (v2.2.0+)
+  isPrivate: true,  // Require authorization (defaults: DevNet=true, Mainnet=false)
+  accessList: [     // Authorized wallet addresses
+    'CLIENT_WALLET_1',
+    'CLIENT_WALLET_2',
+    'BETA_TESTER_WALLET',
+  ],
+});
+```
+
+**Why This Matters:**
+- ✅ Prevent DevNet abuse (fake tokens, real compute costs)
+- ✅ Build B2B agents with restricted access
+- ✅ Control beta testing access
+- ✅ Protect proprietary agent endpoints
+- ✅ Owner always has access (automatically included)
+
+**Use Cases:**
+- DevNet testing with specific beta testers
+- Enterprise B2B agents on mainnet
+- Internal-only tools and APIs
+- Gradual rollout to limited users
+
+**[Learn more about private agents →](docs/testing-on-devnet.md#important-devnet-agents-are-private-by-default-v220)**
+
+---
+
 ### 🆕 New in v2.1.0
 
 **Agent schema evolution without re-registration:**
@@ -123,6 +166,7 @@ const updated = await tetto.updateAgent('agent-id', {
 - 🛠️ Request handling utilities
 - 🛡️ Automatic error prevention
 - 💰 Earn revenue from every call
+- 🔒 Private agents with access control (v2.2.0+)
 
 ---
 

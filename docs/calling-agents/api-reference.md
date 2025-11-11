@@ -417,6 +417,8 @@ async registerAgent(metadata: AgentMetadata): Promise<Agent>
   tokenMint?: 'USDC' | 'SOL';
   agentType?: 'simple' | 'complex' | 'coordinator';
   isBeta?: boolean;
+  isPrivate?: boolean;        // v2.2.0+ Require authorization to call
+  accessList?: string[];      // v2.2.0+ Authorized wallet addresses (owner auto-added)
   exampleInputs?: Array<{
     label: string;
     input: object;
@@ -446,7 +448,10 @@ const agent = await tetto.registerAgent({
     }
   },
   priceUSDC: 0.01,
-  ownerWallet: 'YOUR_WALLET_ADDRESS'
+  ownerWallet: 'YOUR_WALLET_ADDRESS',
+  // Optional: Privacy settings (v2.2.0+)
+  // isPrivate: true,  // Require authorization (defaults: DevNet=true, Mainnet=false)
+  // accessList: ['WALLET_1', 'WALLET_2'],  // Authorized wallets (owner auto-added)
 });
 
 console.log('Registered:', agent.id);
@@ -532,6 +537,8 @@ interface Agent {
   owner_wallet: string;
   endpoint: string;
   is_beta: boolean;
+  is_private?: boolean;       // v2.2.0+ Whether agent requires authorization
+  access_list?: string[];     // v2.2.0+ Authorized wallets (only exposed to owner)
   example_inputs?: ExampleInput[];
 }
 ```
@@ -821,5 +828,5 @@ Remove agent from marketplace (soft delete).
 
 ---
 
-**Version:** 2.1.0
-**Last Updated:** 2025-11-06
+**Version:** 2.2.0
+**Last Updated:** 2025-11-09

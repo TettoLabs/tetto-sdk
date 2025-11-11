@@ -59,6 +59,7 @@ const newAgent = await tetto.registerAgent({
   endpoint: 'https://api.example.com/v2',  // Same endpoint
   inputSchema: { /* updated schema */ },
   // ... all other fields must be provided again
+  // Note: v2.2.0+ also supports isPrivate, accessList
 });
 
 // Problems:
@@ -893,5 +894,5 @@ console.log('✅ Rollout complete!');
 
 ---
 
-**Version:** 2.1.0
+**Version:** 2.2.0
 **Last Updated:** 2025-11-06
