@@ -130,6 +130,7 @@ await tetto.registerAgent({
   name: 'MyAgent',
   endpoint: 'https://my-agent.vercel.app/api/my-agent',
   // ... (see quickstart for full example)
+  // Optional: isPrivate, accessList (v2.2.0+)
 });
 ```
 

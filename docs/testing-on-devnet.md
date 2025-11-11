@@ -95,6 +95,95 @@ const tetto = new TettoSDK(getDefaultConfig('devnet'));
 
 That's it! Now you're pointing at dev.tetto.io.
 
+---
+
+## ⚠️ Important: DevNet Agents are Private by Default (v2.2.0+)
+
+**Starting with SDK v2.2.0, all DevNet agents are automatically private.**
+
+### Why This Change?
+
+DevNet uses **fake tokens** (no monetary value), but agents cost **real compute** to run.
+
+**The Problem:**
+- Anyone could call your DevNet test agent indefinitely
+- Consumed your server resources (compute, API calls, bandwidth)
+- No payment (DevNet tokens are worthless)
+- Resulted in unexpected costs for testing
+
+**The Solution:**
+- DevNet agents now default to **`isPrivate: true`**
+- Only you (the owner) can call your test agents
+- Your wallet is automatically included in the access list
+- Add beta testers explicitly if needed
+
+### What This Means for You
+
+**✅ Good News:**
+- Your compute resources are protected
+- Only you and authorized testers can call your DevNet agents
+- No strangers consuming your test agent resources
+- Your wallet is automatically authorized (no setup needed)
+
+**ℹ️ What You Need to Know:**
+- **You can still test freely** - Your wallet always has access
+- **Add beta testers** - Use `accessList` parameter (see example below)
+- **Manage via dashboard** - [dev.tetto.io/dashboard/agents](https://dev.tetto.io/dashboard/agents) → Edit → Access Control
+- **Mainnet agents are public** - Default to public for marketplace discovery
+
+### Adding Beta Testers
+
+If you want others to test your DevNet agent:
+
+**Option 1: During Registration (SDK)**
+```typescript
+const agent = await tetto.registerAgent({
+  name: 'TestAgent',
+  // ... other fields ...
+  ownerWallet: 'YOUR_WALLET',
+
+  // Add beta testers (your wallet is automatically included)
+  accessList: [
+    'BETA_TESTER_WALLET_1',  // Your colleague
+    'BETA_TESTER_WALLET_2',  // Another tester
+  ],
+});
+```
+
+**Option 2: After Registration (Dashboard)**
+1. Go to [dev.tetto.io/dashboard/agents](https://dev.tetto.io/dashboard/agents)
+2. Click "Edit" on your agent
+3. Scroll to "Access Control" section
+4. Add wallet addresses (one per line)
+5. Click "Save Changes"
+
+**For agent-to-agent calls:** Use the coordinator's **operational wallet** (not owner wallet) in the access list.
+
+### Mainnet vs DevNet Default Behavior
+
+| Network | Default Privacy | Why |
+|---------|----------------|-----|
+| **DevNet** | `isPrivate: true` | Prevent compute abuse (fake tokens, real costs) |
+| **Mainnet** | `isPrivate: false` | Marketplace discovery (public agents get more calls) |
+
+**Override if needed:**
+```typescript
+// Force public DevNet agent (not recommended):
+const devAgent = await tetto.registerAgent({
+  // ... on devnet ...
+  isPrivate: false,  // Override default (allow anyone to call)
+});
+
+// Create private mainnet agent (B2B use case):
+const b2bAgent = await tetto.registerAgent({
+  // ... on mainnet ...
+  isPrivate: true,  // Override default (require authorization)
+  accessList: ['CLIENT_1', 'CLIENT_2'],
+});
+```
+
+---
+
 ### Step 4: Register Test Agent (2 minutes)
 
 ```typescript
@@ -106,6 +195,9 @@ const agent = await tetto.registerAgent({
   outputSchema: {...},
   priceUSDC: 0.01,  // Devnet USDC (fake)
   ownerWallet: 'YOUR_WALLET_ADDRESS',
+  // DevNet agents are automatically private (v2.2.0+)
+  // To add beta testers, uncomment:
+  // accessList: ['BETA_TESTER_WALLET_1', 'BETA_TESTER_WALLET_2'],
 });
 
 console.log('Registered to dev.tetto.io:', agent.id);
@@ -305,6 +397,8 @@ const agent = await tetto.registerAgent({
   priceUSDC: 0.01,  // Devnet USDC (fake, free to test)
   ownerWallet: 'YOUR_WALLET_ADDRESS',
   isBeta: true,  // Mark as beta during testing
+  // DevNet agents are automatically private (v2.2.0+)
+  // accessList: ['BETA_TESTER_WALLET'],  // Optional: Add beta testers
 });
 
 console.log('✅ Registered to dev.tetto.io');
@@ -471,6 +565,8 @@ const prodAgent = await tetto.registerAgent({
   priceUSDC: 0.01,  // SAME price (or adjusted based on testing)
   ownerWallet: 'YOUR_WALLET_ADDRESS',  // SAME wallet!
   isBeta: false,  // No longer beta!
+  // Mainnet agents are PUBLIC by default (v2.2.0+)
+  // For B2B/private mainnet agent, set: isPrivate: true
 });
 
 console.log('Live on mainnet!');
@@ -522,6 +618,8 @@ const coordinator = await tetto.registerAgent({
   description: 'Testing coordinator on devnet',
   endpoint: 'https://my-coordinator.vercel.app/api/research',
   // ... coordinator config
+  // DevNet agents are automatically private (v2.2.0+)
+  // accessList: ['SUB_AGENT_OPERATIONAL_WALLET'],  // Add sub-agents' operational wallets
 });
 
 // Test calling other devnet agents
@@ -774,6 +872,8 @@ const testAgent = await tetto.registerAgent({
   },
   priceUSDC: 0.02,
   ownerWallet: 'YOUR_WALLET',
+  // DevNet agents are automatically private (v2.2.0+)
+  // accessList: ['BETA_TESTER_WALLET'],  // Optional: Add testers
 });
 ```
 
@@ -841,6 +941,8 @@ const prodAgent = await tetto.registerAgent({
   endpoint: 'https://text-summarizer-abc123.vercel.app/api/summarize',  // SAME!
   // ... same schemas, same everything
   isBeta: false,  // Production ready!
+  // Mainnet agents are PUBLIC by default (v2.2.0+)
+  // For private B2B agent: isPrivate: true, accessList: ['CLIENT_WALLETS']
 });
 
 console.log('🎉 Live on www.tetto.io!');

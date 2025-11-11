@@ -21,7 +21,7 @@
 
 **Status:** ✅ v2.1.0 - Schema Evolution Support
 
-**Version:** 2.1.0 (Schema update capability)
+**Version:** 2.2.0 (Schema update capability)
 
 **Released:** 2025-11-06
 
@@ -349,7 +349,7 @@ Ryan Smith
 ---
 
 **Last Updated:** 2025-10-31
-**Version:** 2.1.0
+**Version:** 2.2.0
 **Status:** ✅ Production - Context passing, plugins, coordinator support
 **Tested:** Production-validated on mainnet with 11+ agents
 **Repo:** https://github.com/TettoLabs/tetto-sdk

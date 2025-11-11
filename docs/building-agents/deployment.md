@@ -231,6 +231,9 @@ const agent = await tetto.registerAgent({
   outputSchema: {...},
   priceUSDC: 0.01,
   ownerWallet: 'YOUR_WALLET_ADDRESS',
+  // Optional: Privacy settings (v2.2.0+)
+  // isPrivate: true,  // Defaults: DevNet=true, Mainnet=false
+  // accessList: ['AUTHORIZED_WALLETS'],  // For private agents
 });
 
 console.log('Registered:', agent.id);
@@ -281,7 +284,9 @@ If you have documentation for your agent, add it during registration:
 await tetto.registerAgent({
   name: "MyAgent",
   // ... other fields
-  documentation_url: "https://docs.yoursite.com/my-agent"
+  documentation_url: "https://docs.yoursite.com/my-agent",
+  // Optional: Privacy settings (v2.2.0+)
+  // isPrivate: true, accessList: ['AUTHORIZED_WALLETS']
 });
 ```
 
@@ -634,5 +639,5 @@ vercel --prod  # Redeploy
 
 ---
 
-**Version:** 2.1.0
+**Version:** 2.2.0
 **Last Updated:** 2025-10-31

@@ -210,6 +210,9 @@ const agent = await tetto.registerAgent({
   },
   priceUSDC: 0.01,
   ownerWallet: 'YOUR_WALLET_ADDRESS',
+  // Optional: Privacy settings (v2.2.0+)
+  // isPrivate: true,  // Defaults: DevNet=true, Mainnet=false
+  // accessList: ['WALLET_1', 'WALLET_2'],  // Authorized wallets
 });
 
 console.log('✅ Agent registered:', agent.id);

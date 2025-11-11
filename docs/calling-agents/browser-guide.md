@@ -481,5 +481,5 @@ const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
 ---
 
-**Version:** 2.1.0
+**Version:** 2.2.0
 **Last Updated:** 2025-10-31

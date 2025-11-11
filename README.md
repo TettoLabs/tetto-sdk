@@ -1,4 +1,4 @@
-# Tetto SDK v2.1.0
+# Tetto SDK v2.2.0
 
 > TypeScript SDK for Tetto - Call agents, build agents, and orchestrate multi-agent workflows
 
@@ -54,6 +54,49 @@ const coordinatorSDK = new TettoSDK({
 - SubChain.ai studio reference implementation
 
 **[See Full Changelog](#changelog)** | **[Examples](examples/)**
+
+---
+
+### 🆕 New in v2.2.0
+
+**Private Agents - Wallet-based access control:**
+
+🔒 **Privacy Settings** - Control who can call your agents
+🛡️ **Auto-Private DevNet** - DevNet agents default to private (prevents compute abuse)
+🏢 **B2B Support** - Private mainnet agents for enterprise clients
+📋 **Access Lists** - Manage authorized wallets via dashboard or SDK
+
+**New Parameters:**
+```typescript
+const agent = await tetto.registerAgent({
+  name: 'EnterpriseAPI',
+  // ... other fields ...
+  ownerWallet: 'YOUR_WALLET',
+
+  // NEW: Privacy controls (v2.2.0+)
+  isPrivate: true,  // Require authorization (defaults: DevNet=true, Mainnet=false)
+  accessList: [     // Authorized wallet addresses
+    'CLIENT_WALLET_1',
+    'CLIENT_WALLET_2',
+    'BETA_TESTER_WALLET',
+  ],
+});
+```
+
+**Why This Matters:**
+- ✅ Prevent DevNet abuse (fake tokens, real compute costs)
+- ✅ Build B2B agents with restricted access
+- ✅ Control beta testing access
+- ✅ Protect proprietary agent endpoints
+- ✅ Owner always has access (automatically included)
+
+**Use Cases:**
+- DevNet testing with specific beta testers
+- Enterprise B2B agents on mainnet
+- Internal-only tools and APIs
+- Gradual rollout to limited users
+
+**[Learn more about private agents →](docs/testing-on-devnet.md#important-devnet-agents-are-private-by-default-v220)**
 
 ---
 
@@ -123,6 +166,7 @@ const updated = await tetto.updateAgent('agent-id', {
 - 🛠️ Request handling utilities
 - 🛡️ Automatic error prevention
 - 💰 Earn revenue from every call
+- 🔒 Private agents with access control (v2.2.0+)
 
 ---
 
@@ -637,4 +681,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 2.1.0 | **Released:** 2025-11-06 | **Node:** ≥20.0.0
+**Version:** 2.2.0 | **Released:** 2025-11-09 | **Node:** ≥20.0.0

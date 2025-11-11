@@ -93,6 +93,33 @@ export interface AgentMetadata {
     description?: string;
   }>;
   isBeta?: boolean;
+
+  /**
+   * Whether agent requires authorization to call
+   *
+   * Defaults based on network:
+   * - DevNet: defaults to true (prevents abuse)
+   * - Mainnet: defaults to false (public marketplace agent)
+   *
+   * Set to true for private/B2B agents on mainnet.
+   *
+   * @since 2.2.0 - Private agents feature
+   */
+  isPrivate?: boolean;
+
+  /**
+   * Array of Solana wallet public keys authorized to call this agent
+   *
+   * Only used if isPrivate = true.
+   * Owner wallet is automatically added (no need to include explicitly).
+   *
+   * For agent-to-agent calls, include coordinator's operational wallet.
+   *
+   * @example ['7hGXe4k9pQzTZHbXwFhtQs4R8W5K3p4JvDxNZJz5MqkW', 'Bx4Ty8m3...']
+   *
+   * @since 2.2.0 - Private agents feature
+   */
+  accessList?: string[];
 }
 
 /**
@@ -184,6 +211,19 @@ export interface Agent {
     description?: string;
   }>;
   is_beta?: boolean;
+
+  /**
+   * Whether agent requires authorization
+   * @since 2.2.0
+   */
+  is_private?: boolean;
+
+  /**
+   * Authorized wallet addresses (only exposed to agent owner)
+   * For security, this field is typically not included in public API responses
+   * @since 2.2.0
+   */
+  access_list?: string[];
 }
 
 export interface CallResult {
@@ -343,6 +383,9 @@ export class TettoSDK {
         token_mint: metadata.tokenMint,
         example_inputs: metadata.exampleInputs,
         is_beta: metadata.isBeta || false,
+        // Privacy fields for access control (v2.2.0)
+        is_private: metadata.isPrivate,
+        access_list: metadata.accessList,
       }),
     });
 
