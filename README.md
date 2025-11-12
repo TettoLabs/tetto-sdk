@@ -139,7 +139,13 @@ const updated = await tetto.updateAgent('agent-id', {
 - Add/update example inputs
 - Fix schema validation issues
 
-**[See updateAgent() API Reference →](docs/calling-agents/api-reference.md#updateagentagentid-updates)**
+**[See Full Schema Management Guide →](docs/advanced/schema-management.md)**
+
+**Quick Example:**
+```typescript
+// Run the full example:
+npx tsx examples/advanced/schema-evolution.ts
+```
 
 ---
 
