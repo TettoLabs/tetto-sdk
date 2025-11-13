@@ -10,7 +10,7 @@
  * Tetto Context - Metadata passed to agents about request origin
  *
  * Added in v2.0. Agents receive this in request body alongside input.
- * Enables agents to identify who's calling them.
+ * Enables agents to identify who's calling them and their own identity.
  *
  * @since 2.0.0
  */
@@ -23,6 +23,15 @@ export interface TettoContext {
 
   /** Human-readable agent name (null if not agent or not found) */
   caller_agent_name?: string | null;
+
+  /** Current agent's ID (the agent receiving this request) */
+  current_agent_id?: string;
+
+  /** Current agent's name (the agent receiving this request) */
+  current_agent_name?: string;
+
+  /** Current agent's network (mainnet or devnet) */
+  current_agent_network?: 'mainnet' | 'devnet';
 
   /** Payment intent ID (for debugging/tracing) */
   intent_id: string;

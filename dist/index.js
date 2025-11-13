@@ -52,10 +52,15 @@ class TettoSDK {
     constructor(config) {
         this.apiUrl = config.apiUrl.replace(/\/$/, ""); // Remove trailing slash
         this.config = config;
-        this.plugins = new Map(); // NEW: Initialize plugin registry
-        this.callingAgentId = config.agentId || process.env.TETTO_AGENT_ID || null; // NEW: Set agent identity
+        this.plugins = new Map();
+        this.callingAgentId = config.agentId || process.env.TETTO_AGENT_ID || null;
         if (this.config.debug && this.callingAgentId) {
             console.log(`🤖 SDK initialized with agent identity: ${this.callingAgentId}`);
+        }
+        if (!this.callingAgentId && this.config.debug) {
+            console.warn('⚠️  TettoSDK initialized without agentId.\n' +
+                '   For coordinator agents, use TettoSDK.fromContext(context.tetto_context)\n' +
+                '   to automatically configure agent identity for proper analytics tracking.');
         }
     }
     /**
@@ -618,7 +623,12 @@ class TettoSDK {
      * ```
      */
     static fromContext(context, overrides = {}) {
-        const network = overrides.network || 'mainnet';
+        if (!context.current_agent_id && overrides.debug) {
+            console.warn('⚠️  Context missing current_agent_id.\n' +
+                '   Sub-agent calls will not be tracked in analytics.\n' +
+                '   Ensure platform is up to date (v1.2+).');
+        }
+        const network = context.current_agent_network || overrides.network || 'mainnet';
         const defaults = exports.NETWORK_DEFAULTS[network];
         return new TettoSDK({
             apiUrl: overrides.apiUrl || defaults.apiUrl,
@@ -626,7 +636,7 @@ class TettoSDK {
             protocolWallet: overrides.protocolWallet || defaults.protocolWallet,
             debug: overrides.debug || false,
             apiKey: overrides.apiKey || process.env.TETTO_API_KEY,
-            agentId: context.caller_agent_id || undefined, // Preserve caller identity!
+            agentId: context.current_agent_id || undefined,
         });
     }
 }

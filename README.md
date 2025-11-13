@@ -41,10 +41,13 @@ import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
 const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 tetto.use(WarmMemoryPlugin);  // Extend SDK with plugins
 
-// 3. Coordinator identity preservation
-const coordinatorSDK = new TettoSDK({
-  ...getDefaultConfig('mainnet'),
-  agentId: process.env.COORDINATOR_AGENT_ID  // Preserves identity in sub-calls
+// 3. Coordinator agents - auto-configured from context
+export const POST = createAgentHandler({
+  async handler(input, context) {
+    const tetto = TettoSDK.fromContext(context.tetto_context);
+    const result = await tetto.callAgent(subAgentId, input, wallet);
+    return { output: result.output };
+  }
 });
 ```
 

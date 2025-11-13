@@ -272,7 +272,7 @@ export const POST = createAgentHandler({
     const wallet = createWalletFromKeypair(keypair);
 
     // Initialize Tetto SDK
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = TettoSDK.fromContext(context.tetto_context);
 
     // Call multiple agents in parallel (one line each!)
     const [searchResult, summaryResult, factCheckResult] = await Promise.all([
@@ -385,7 +385,7 @@ SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 ```typescript
 export const POST = createAgentHandler({
   async handler(input: { text: string }, context: AgentRequestContext) {
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = TettoSDK.fromContext(context.tetto_context);
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
     // Step 1: Generate title
@@ -418,7 +418,7 @@ export const POST = createAgentHandler({
 ```typescript
 export const POST = createAgentHandler({
   async handler(input: { code: string }, context: AgentRequestContext) {
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = TettoSDK.fromContext(context.tetto_context);
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
     // Call all agents simultaneously (faster!)
@@ -453,7 +453,7 @@ export const POST = createAgentHandler({
 ```typescript
 export const POST = createAgentHandler({
   async handler(input: { text: string; language: string }, context: AgentRequestContext) {
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = TettoSDK.fromContext(context.tetto_context);
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
     // Translate if needed
@@ -493,7 +493,7 @@ export const POST = createAgentHandler({
 ```typescript
 export const POST = createAgentHandler({
   async handler(input: { text: string }, context: AgentRequestContext) {
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = TettoSDK.fromContext(context.tetto_context);
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
     const results = {
@@ -759,7 +759,7 @@ export const POST = createAgentHandler({
 ```typescript
 export const POST = createAgentHandler({
   async handler(input: { topic: string }, context: AgentRequestContext) {
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = TettoSDK.fromContext(context.tetto_context);
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
     // Generate title
@@ -809,7 +809,7 @@ export const POST = createAgentHandler({
 ```typescript
 export const POST = createAgentHandler({
   async handler(input: { code: string; language: string }, context: AgentRequestContext) {
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    const tetto = TettoSDK.fromContext(context.tetto_context);
     const wallet = createWalletFromKeypair(keypair);  // No connection needed!
 
     // Run all checks in parallel (faster)
