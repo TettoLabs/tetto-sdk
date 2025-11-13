@@ -120,6 +120,27 @@ export interface AgentMetadata {
    * @since 2.2.0 - Private agents feature
    */
   accessList?: string[];
+
+  /**
+   * Operational wallet for coordinator agents
+   *
+   * Required for agents that call other agents. This wallet pays for sub-agent calls.
+   * Generate with: solana-keygen new
+   *
+   * @example '2Ys2jTPgg6KLgkYbSDbi9cQNaxKHU3Es6MQZDJscAu95'
+   * @since 2.3.0
+   */
+  operationalWallet?: string;
+
+  /**
+   * Signature proving ownership of operational wallet
+   *
+   * Sign a verification message with your operational wallet.
+   * Optional - can be verified later via dashboard.
+   *
+   * @since 2.3.0
+   */
+  operationalWalletSignature?: string;
 }
 
 /**
@@ -391,9 +412,10 @@ export class TettoSDK {
         token_mint: metadata.tokenMint,
         example_inputs: metadata.exampleInputs,
         is_beta: metadata.isBeta || false,
-        // Privacy fields for access control (v2.2.0)
         is_private: metadata.isPrivate,
         access_list: metadata.accessList,
+        operational_wallet_pubkey: metadata.operationalWallet,
+        operational_wallet_signature: metadata.operationalWalletSignature,
       }),
     });
 
