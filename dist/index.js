@@ -113,6 +113,7 @@ class TettoSDK {
                 token_mint: metadata.tokenMint,
                 example_inputs: metadata.exampleInputs,
                 is_beta: metadata.isBeta || false,
+                agent_type: metadata.agentType,
                 is_private: metadata.isPrivate,
                 access_list: metadata.accessList,
                 operational_wallet_pubkey: metadata.operationalWallet,

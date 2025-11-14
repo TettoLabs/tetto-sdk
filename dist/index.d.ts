@@ -74,6 +74,18 @@ export interface AgentMetadata {
     }>;
     isBeta?: boolean;
     /**
+     * Agent type determines timeout and behavior
+     *
+     * - simple: 20s timeout, standard agent
+     * - coordinator: 180s timeout, calls other agents
+     * - complex: 120s timeout, complex operations
+     *
+     * Defaults to 'simple' if not specified.
+     *
+     * @since 2.3.0
+     */
+    agentType?: 'simple' | 'coordinator' | 'complex';
+    /**
      * Whether agent requires authorization to call
      *
      * Defaults based on network:
