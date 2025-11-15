@@ -587,7 +587,7 @@ Don't forget Step 6 from the quickstart:
 - Create your studio
 - Build toward verification
 
-See: [Studios Guide](./studios/README.md)
+See: [Studios Guide](../studios/README.md)
 
 ### Managing Both Environments
 
@@ -1035,9 +1035,9 @@ Yes! You can:
 5. **Grow Your Studio** - Deploy more agents, build brand
 
 **Learn more:**
-- [Environments Guide](./environments.md) - Understand www vs dev
-- [Studios Guide](./studios/README.md) - Build your brand
-- [Quickstart](./building-agents/quickstart.md) - Complete workflow
+- [Environments Guide](../environments.md) - Understand www vs dev
+- [Studios Guide](../studios/README.md) - Build your brand
+- [Quickstart](quickstart.md) - Complete workflow
 
 ---
 

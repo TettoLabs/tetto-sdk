@@ -139,7 +139,7 @@ spl-token balance --url devnet 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
 
 **Devnet USDC Mint:** `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` (Circle's testnet USDC)
 
-**Learn more:** [Testing on Devnet →](./testing-on-devnet.md)
+**Learn more:** [Testing on Devnet →](./building-agents/testing-on-devnet.md)
 
 ---
 

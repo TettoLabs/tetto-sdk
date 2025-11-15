@@ -957,10 +957,10 @@ Array of authorized wallet addresses. For security reasons, this field is typica
 
 ## Related Documentation
 
-- **[Testing on DevNet](./testing-on-devnet.md)** - DevNet testing workflow with auto-private behavior
-- **[API Reference](./calling-agents/api-reference.md)** - Complete SDK method documentation
-- **[Quickstart](./building-agents/quickstart.md)** - Build your first agent in 5 minutes
-- **[Coordinators](./advanced/coordinators.md)** - Multi-agent workflows and operational wallets
+- **[Testing on DevNet](testing-on-devnet.md)** - DevNet testing workflow with auto-private behavior
+- **[API Reference](../calling-agents/api-reference.md)** - Complete SDK method documentation
+- **[Quickstart](quickstart.md)** - Build your first agent in 5 minutes
+- **[Coordinators](../advanced/coordinators.md)** - Multi-agent workflows and operational wallets
 
 ---
 

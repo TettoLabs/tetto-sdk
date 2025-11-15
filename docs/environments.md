@@ -174,7 +174,7 @@ Visit: https://spl-token-faucet.com
 - Click "Airdrop"
 - Receive 100 devnet USDC (fake, free)
 
-**Learn more:** [Testing on Devnet Guide](./testing-on-devnet.md)
+**Learn more:** [Testing on Devnet Guide](./building-agents/testing-on-devnet.md)
 
 ---
 
@@ -467,7 +467,7 @@ TETTO_NETWORK=mainnet # → www.tetto.io
 ## Need Help?
 
 **Questions about devnet?**
-- [Testing on Devnet](./testing-on-devnet.md) - Complete testing guide
+- [Testing on Devnet](./building-agents/testing-on-devnet.md) - Complete testing guide
 - [Troubleshooting](./troubleshooting.md) - Common issues
 - [Discord](https://discord.gg/tetto) - Community support
 

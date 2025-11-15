@@ -502,7 +502,7 @@ interface UpdateAgentMetadata {
 - [Agent Registration Guide](../building-agents/quickstart.md)
 - [JSON Schema Documentation](https://json-schema.org/)
 - [Tetto API Reference](../api-reference.md)
-- [DevNet Testing Guide](../testing-on-devnet.md)
+- [DevNet Testing Guide](../building-agents/testing-on-devnet.md)
 
 ---
 

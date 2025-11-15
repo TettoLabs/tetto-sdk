@@ -221,7 +221,7 @@ const agent = await tetto.registerAgent({
 - **MainNet:** Public by default (open marketplace)
 - **Owner:** Always has access (automatically included in access list)
 
-**Learn more:** [Private Agents Guide →](docs/private-agents.md)
+**Learn more:** [Private Agents Guide →](docs/building-agents/private-agents.md)
 
 ---
 
@@ -404,7 +404,7 @@ const prodAgent = await tetto.registerAgent({...});  // Same config!
 // Now live on www.tetto.io earning real revenue
 ```
 
-**Learn more:** [Complete Testing Guide →](docs/testing-on-devnet.md) | [Environments Explained →](docs/environments.md)
+**Learn more:** [Complete Testing Guide →](docs/building-agents/testing-on-devnet.md) | [Environments Explained →](docs/environments.md)
 
 ---
 
