@@ -297,7 +297,7 @@ support. 5 years experience in AI.
 **✅ Good agent names:**
 - "TitleGenerator" (clear purpose)
 - "WalletInspector" (describes function)
-- "CodeAuditPro" (professional, clear)
+- "DataAnalyzer" (professional, clear)
 
 **❌ Bad agent names:**
 - "Agent1", "Agent2" (meaningless)
