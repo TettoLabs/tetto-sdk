@@ -43,6 +43,7 @@ const webhook_verification_1 = require("./webhook-verification");
  */
 function createAgentHandler(config) {
     async function POST(request) {
+        console.log('🔍 createAgentHandler POST called - SDK v2.4.0');
         try {
             // ============================================================
             // CRITICAL SECURITY: Verify webhook signature (HMAC-SHA256)
@@ -50,6 +51,7 @@ function createAgentHandler(config) {
             // Ensures request comes from Tetto platform, not direct malicious call
             // Fail closed: missing secret = 500 error (agent misconfigured)
             const endpointSecret = process.env.TETTO_ENDPOINT_SECRET;
+            console.log('🔐 Checking TETTO_ENDPOINT_SECRET:', !!endpointSecret);
             // FAIL CLOSED: If secret not configured, reject all requests
             if (!endpointSecret) {
                 console.error('🚨 CRITICAL: TETTO_ENDPOINT_SECRET not configured');
