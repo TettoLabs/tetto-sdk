@@ -26,6 +26,7 @@
  */
 export { createAgentHandler } from './handler';
 export type { AgentHandlerConfig, AgentRequestContext } from './handler';
+export { WebhookVerifier, verifyWebhookSignature } from './webhook-verification';
 export { getTokenMint } from './token-mint';
 export { loadAgentEnv } from './env';
 export type { EnvConfig } from './env';
