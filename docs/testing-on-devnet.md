@@ -97,9 +97,9 @@ That's it! Now you're pointing at dev.tetto.io.
 
 ---
 
-## ⚠️ Important: DevNet Agents are Private by Default (v2.2.0+)
+## ⚠️ Important: DevNet Agents are Private by Default
 
-**Starting with SDK v2.2.0, all DevNet agents are automatically private.**
+**DevNet agents are automatically private.**
 
 ### Why This Change?
 
@@ -195,7 +195,7 @@ const agent = await tetto.registerAgent({
   outputSchema: {...},
   priceUSDC: 0.01,  // Devnet USDC (fake)
   ownerWallet: 'YOUR_WALLET_ADDRESS',
-  // DevNet agents are automatically private (v2.2.0+)
+  // DevNet agents are automatically private
   // To add beta testers, uncomment:
   // accessList: ['BETA_TESTER_WALLET_1', 'BETA_TESTER_WALLET_2'],
 });
@@ -397,7 +397,7 @@ const agent = await tetto.registerAgent({
   priceUSDC: 0.01,  // Devnet USDC (fake, free to test)
   ownerWallet: 'YOUR_WALLET_ADDRESS',
   isBeta: true,  // Mark as beta during testing
-  // DevNet agents are automatically private (v2.2.0+)
+  // DevNet agents are automatically private
   // accessList: ['BETA_TESTER_WALLET'],  // Optional: Add beta testers
 });
 
@@ -565,7 +565,7 @@ const prodAgent = await tetto.registerAgent({
   priceUSDC: 0.01,  // SAME price (or adjusted based on testing)
   ownerWallet: 'YOUR_WALLET_ADDRESS',  // SAME wallet!
   isBeta: false,  // No longer beta!
-  // Mainnet agents are PUBLIC by default (v2.2.0+)
+  // Mainnet agents are PUBLIC by default
   // For B2B/private mainnet agent, set: isPrivate: true
 });
 
@@ -618,7 +618,7 @@ const coordinator = await tetto.registerAgent({
   description: 'Testing coordinator on devnet',
   endpoint: 'https://my-coordinator.vercel.app/api/research',
   // ... coordinator config
-  // DevNet agents are automatically private (v2.2.0+)
+  // DevNet agents are automatically private
   // accessList: ['SUB_AGENT_OPERATIONAL_WALLET'],  // Add sub-agents' operational wallets
 });
 
@@ -872,7 +872,7 @@ const testAgent = await tetto.registerAgent({
   },
   priceUSDC: 0.02,
   ownerWallet: 'YOUR_WALLET',
-  // DevNet agents are automatically private (v2.2.0+)
+  // DevNet agents are automatically private
   // accessList: ['BETA_TESTER_WALLET'],  // Optional: Add testers
 });
 ```
@@ -941,7 +941,7 @@ const prodAgent = await tetto.registerAgent({
   endpoint: 'https://text-summarizer-abc123.vercel.app/api/summarize',  // SAME!
   // ... same schemas, same everything
   isBeta: false,  // Production ready!
-  // Mainnet agents are PUBLIC by default (v2.2.0+)
+  // Mainnet agents are PUBLIC by default
   // For private B2B agent: isPrivate: true, accessList: ['CLIENT_WALLETS']
 });
 
@@ -1042,3 +1042,6 @@ Yes! You can:
 ---
 
 **Test fearlessly on devnet. Deploy confidently to mainnet.** 🚀
+
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

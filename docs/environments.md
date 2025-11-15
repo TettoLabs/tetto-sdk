@@ -477,3 +477,5 @@ Get devnet funds and start testing risk-free!
 ---
 
 **Devnet = Safe playground. Mainnet = Real business.** 🎯
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

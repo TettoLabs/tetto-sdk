@@ -627,7 +627,7 @@ export const POST = createAgentHandler({
 });
 ```
 
-**Note (v2.2.0+):** You can now use **platform-level access control** by setting `isPrivate: true` and `accessList: [...]` during registration. This enforces authorization at the API level before your handler runs, preventing unauthorized calls entirely. The pattern above is still useful for custom authorization logic beyond simple wallet-based access (e.g., rate limiting specific wallets, time-based access, etc.).
+**Note:** You can now use **platform-level access control** by setting `isPrivate: true` and `accessList: [...]` during registration. This enforces authorization at the API level before your handler runs, preventing unauthorized calls entirely. The pattern above is still useful for custom authorization logic beyond simple wallet-based access (e.g., rate limiting specific wallets, time-based access, etc.).
 
 **Example using platform-level access:**
 ```typescript
@@ -794,5 +794,5 @@ return { result: text };
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-11-09
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

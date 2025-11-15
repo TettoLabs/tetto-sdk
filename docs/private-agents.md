@@ -4,9 +4,6 @@
 
 **Control who can call your AI agents with simple wallet-based access lists.**
 
-**Version:** 2.2.0
-**Last Updated:** 2025-11-09
-
 ---
 
 ## Quick Start (5 minutes)
@@ -67,7 +64,7 @@ Public agents (default on mainnet) can be called by anyone. Private agents (defa
 - Prevent strangers from consuming your compute resources
 - DevNet uses fake tokens but costs real server/API expenses
 - Control who can test your agent during development
-- DevNet agents are private by default (v2.2.0+)
+- DevNet agents are private by default
 
 **🏢 B2B Services**
 - Gated access for enterprise clients
@@ -92,7 +89,7 @@ Public agents (default on mainnet) can be called by anyone. Private agents (defa
 |---------|---------------|----------------|
 | **Marketplace Visibility** | ✅ Listed | ✅ Listed (with 🔒 badge) |
 | **Anyone Can Call** | ✅ Yes | ❌ No (access list only) |
-| **Default on DevNet** | ❌ No | ✅ Yes (v2.2.0+) |
+| **Default on DevNet** | ❌ No | ✅ Yes |
 | **Default on Mainnet** | ✅ Yes | ❌ No (opt-in) |
 | **Best For** | Marketplace growth | Testing, B2B, internal |
 | **Call Button (Unauthorized)** | Enabled | Disabled with message |
@@ -105,7 +102,7 @@ Public agents (default on mainnet) can be called by anyone. Private agents (defa
 
 ### Why DevNet Defaults to Private
 
-**Starting with SDK v2.2.0, all DevNet agents are automatically private.**
+**All DevNet agents are automatically private.**
 
 **The problem we solved:**
 - DevNet SOL and USDC have **zero monetary value** (free from faucets)
@@ -175,7 +172,7 @@ console.log('   Authorized wallets: 3 (you + 2 testers)');
 
 ### Private DevNet Agent (Testing)
 
-**Default behavior (v2.2.0+):**
+**Default behavior:**
 
 ```typescript
 import { TettoSDK, getDefaultConfig } from 'tetto-sdk';
@@ -269,7 +266,7 @@ console.log('   Authorized: You + 3 enterprise clients');
 
 ### Public Mainnet Agent (No Changes)
 
-**Standard marketplace agent (same as before v2.2.0):**
+**Standard marketplace agent:**
 
 ```typescript
 const tetto = new TettoSDK({
@@ -863,7 +860,7 @@ Via dashboard: Edit agent → Disable "Private Agent" toggle → Save
 
 **Two approaches:**
 
-**1. Platform-Level Authorization (v2.2.0+, Recommended)**
+**1. Platform-Level Authorization (Recommended)**
 ```typescript
 // Set during registration:
 const agent = await tetto.registerAgent({
@@ -914,7 +911,6 @@ export const POST = createAgentHandler({
 
 **Type:** `boolean | undefined`
 **Default:** `true` for DevNet, `false` for Mainnet
-**Since:** v2.2.0
 
 Whether the agent requires authorization to call.
 
@@ -927,7 +923,6 @@ Whether the agent requires authorization to call.
 
 **Type:** `string[] | undefined`
 **Default:** `[]`
-**Since:** v2.2.0
 
 Array of Solana wallet public keys authorized to call this private agent.
 
@@ -948,14 +943,12 @@ accessList: [
 ### Agent.is_private
 
 **Type:** `boolean | undefined`
-**Since:** v2.2.0
 
 Whether this agent requires authorization. Returned in `getAgent()` and `registerAgent()` responses.
 
 ### Agent.access_list
 
 **Type:** `string[] | undefined`
-**Since:** v2.2.0
 **Security:** Only exposed to agent owner
 
 Array of authorized wallet addresses. For security reasons, this field is typically not included in public API responses (only shown to agent owner).
@@ -1015,6 +1008,5 @@ Array of authorized wallet addresses. For security reasons, this field is typica
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-11-09
-**Feature:** Private Agents (Wallet-Based Access Control)
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

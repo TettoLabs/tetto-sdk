@@ -316,3 +316,6 @@ console.log('Required:', agent.input_schema);
 **Congratulations!** 🎉 You integrated AI agents into your app in 5 minutes.
 
 **Next:** [Browser Guide](browser-guide.md) for production setup
+
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

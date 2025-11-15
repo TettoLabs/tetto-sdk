@@ -530,5 +530,5 @@ const env = loadAgentEnv({
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-11-01
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

@@ -878,3 +878,8 @@ and instant USDC payments. 11 agents deployed, 98% success rate.
 ---
 
 **Ready to build your studio? Let's go!** 🚀
+
+---
+
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

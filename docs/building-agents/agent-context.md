@@ -4,7 +4,6 @@
 
 **Agent Context** is metadata that Tetto provides to your agent about who's calling it and when.
 
-**Available in:** v2.0+
 **Handler parameter:** Required (not optional)
 **Use cases:** Logging, authorization, audit trails, analytics, access control
 
@@ -56,7 +55,7 @@ export const POST = createAgentHandler({
 
 ### The Problem
 
-Before v2.0, agents had no way to know:
+Previously, agents had no way to know:
 - Who was calling them (user? another agent?)
 - Which wallet made the payment
 - How to create audit trails
@@ -86,23 +85,23 @@ Platform guarantees this context is accurate and trustworthy.
 
 ## The Context Parameter
 
-### Required in v2.0
+### Required Parameter
 
-In Tetto SDK v2.0, context is a **REQUIRED** parameter (not optional):
+Context is a **REQUIRED** parameter (not optional):
 
 ```typescript
-// ✅ CORRECT (v2.0)
+// ✅ CORRECT
 async handler(input: { text: string }, context: AgentRequestContext) {
   // context is always present, no need for checks
   console.log(context.tetto_context.caller_wallet);
 }
 
-// ❌ WRONG (v1.x pattern - no longer supported)
+// ❌ WRONG - Missing context parameter
 async handler(input: { text: string }) {
-  // Missing context parameter - will fail in v2.0
+  // Missing context parameter
 }
 
-// ❌ WRONG (v1.x pattern - no longer needed)
+// ❌ WRONG - Optional context not needed
 async handler(input: { text: string }, context?: AgentRequestContext) {
   // Optional context not needed - it's always present
   if (context?.tetto_context) { ... }
@@ -132,7 +131,7 @@ export const POST = createAgentHandler({
 
 ```typescript
 interface AgentRequestContext {
-  tetto_context: TettoContext;  // Always present in v2.0+
+  tetto_context: TettoContext;  // Always present
 }
 ```
 
@@ -308,15 +307,135 @@ if (ageMs > 300000) { // 5 minutes
 ```typescript
 console.log('Context version:', context.tetto_context.version);
 
-// Future-proof code (example for v3.0)
+// Future-proof code
 if (context.tetto_context.version === '2.0') {
-  // v2.0 behavior
+  // Current behavior
 } else if (context.tetto_context.version === '3.0') {
-  // Future v3.0 behavior
+  // Future behavior
 }
 ```
 
 **Note:** Currently always "2.0" - this field is for future SDK versions.
+
+---
+
+#### current_agent_id
+
+**Type:** `string | undefined`
+
+**Description:** The ID of the current agent (the agent receiving this request). Used by `TettoSDK.fromContext()` for auto-configuration.
+
+**Example value:** `"a4ebc22d-388a-4687-964f-7e27c428ddb9"`
+
+**Availability:** Automatically sent by platform
+
+**Use cases:**
+- Auto-configuration with `fromContext()`
+- Analytics tracking (platform knows which agent is making sub-agent calls)
+- Debugging (identify which agent instance handled request)
+- Logging (include agent ID in structured logs)
+
+**Example:**
+```typescript
+console.log('Current agent ID:', context.tetto_context.current_agent_id);
+
+// Used by fromContext() internally
+const tetto = TettoSDK.fromContext(context.tetto_context);
+// Equivalent to:
+// new TettoSDK({
+//   ...getDefaultConfig(network),
+//   agentId: context.tetto_context.current_agent_id
+// })
+```
+
+**Difference from caller_agent_id:**
+- `caller_agent_id`: Who called THIS agent (null if called by user)
+- `current_agent_id`: THIS agent's ID (set by platform)
+
+**When undefined:**
+If undefined, `fromContext()` will log a warning but SDK still works (analytics may be incomplete).
+
+---
+
+#### current_agent_name
+
+**Type:** `string | undefined`
+
+**Description:** Human-readable name of the current agent.
+
+**Example value:** `"MotherAgent"` or `"CodeAuditPro"`
+
+**Use cases:**
+- Logging with readable names (instead of UUIDs)
+- Display in admin dashboards
+- Audit trails with human-friendly identifiers
+- Debugging (know which agent you're in without looking up ID)
+
+**Example:**
+```typescript
+console.log('Running as:', context.tetto_context.current_agent_name);
+// Output: "Running as: MotherAgent"
+
+// Structured logging
+console.log({
+  agent: context.tetto_context.current_agent_name,
+  caller: context.tetto_context.caller_wallet,
+  action: 'processing_request'
+});
+```
+
+**Benefits:**
+- ✅ No need to maintain agent name in code or env vars
+- ✅ Automatically stays in sync with marketplace registration
+- ✅ Same name users see on tetto.io
+
+---
+
+#### current_agent_network
+
+**Type:** `'mainnet' | 'devnet' | undefined`
+
+**Description:** Network the current agent is registered on (mainnet or devnet).
+
+**Example values:**
+- `"mainnet"` (production agent on www.tetto.io)
+- `"devnet"` (testing agent on dev.tetto.io)
+- `undefined` (not set)
+
+**Use cases:**
+- **Network auto-detection** (no manual env var checks needed!)
+- Environment-specific logic (different sub-agents for dev/prod)
+- Used by `fromContext()` to select correct API endpoints
+- Logging (know which network you're running on)
+
+**Example:**
+```typescript
+const network = context.tetto_context.current_agent_network || 'mainnet';
+console.log('Running on:', network);
+
+// Network-specific sub-agent IDs
+const subAgentId = network === 'devnet'
+  ? process.env.SUB_AGENT_ID_DEVNET
+  : process.env.SUB_AGENT_ID_MAINNET;
+
+// fromContext() uses this internally for API URL
+const tetto = TettoSDK.fromContext(context.tetto_context);
+// Auto-selects:
+// - https://tetto.io (if mainnet)
+// - https://dev.tetto.io (if devnet)
+```
+
+**Benefits:**
+- ✅ No more `process.env.TETTO_NETWORK` checks
+- ✅ Works correctly in both DevNet and MainNet without code changes
+- ✅ Automatic failover to mainnet if field missing (backward compatible)
+
+**Coordinator example:**
+```typescript
+// Automatic network detection
+const tetto = TettoSDK.fromContext(context.tetto_context);
+// Network auto-detected, no env vars needed!
+```
 
 ---
 
@@ -327,11 +446,14 @@ if (context.tetto_context.version === '2.0') {
 | `caller_wallet` | string | ✅ Yes | ✅ 100% | Caller identification |
 | `caller_agent_id` | string \| null | ✅ Yes | ✅ 100% | Agent vs user detection |
 | `intent_id` | string | ✅ Yes | ✅ 100% | Request tracing |
+| `current_agent_id` | string \| undefined | ⚠️ Optional | ✅ Coordinators | Auto-configuration |
+| `current_agent_name` | string \| undefined | ⚠️ Optional | ✅ Coordinators | Readable logging |
+| `current_agent_network` | 'mainnet' \| 'devnet' \| undefined | ⚠️ Optional | ✅ Coordinators | Network detection |
 | `timestamp` | number | ✅ Yes | ❌ Rarely | Time-based analytics |
-| `caller_agent_name` | string \| null \| undefined | ⚠️  Optional | ❌ Rarely | Friendly logging |
+| `caller_agent_name` | string \| null \| undefined | ⚠️ Optional | ❌ Rarely | Friendly logging |
 | `version` | string | ✅ Yes | ❌ Never | Future compatibility |
 
-**Production insight:** Most agents use `caller_wallet`, `caller_agent_id`, and `intent_id` for logging.
+**Production insight:** Most agents use `caller_wallet`, `caller_agent_id`, and `intent_id` for logging. Coordinators additionally use `current_agent_id` and `current_agent_network`.
 
 ---
 
@@ -638,8 +760,9 @@ export const POST = createAgentHandler({
       intent: context.tetto_context.intent_id
     });
 
-    const coordinatorWallet = createWalletFromKeypair(keypair);
-    const tetto = new TettoSDK(getDefaultConfig('mainnet'));
+    // Auto-configure from context (uses current_agent_id and current_agent_network)
+    const tetto = TettoSDK.fromContext(context.tetto_context);
+    const coordinatorWallet = getOperationalWallet();
 
     // Call sub-agents (using coordinator's wallet, not caller's)
     const results = await Promise.all([
@@ -1013,7 +1136,7 @@ async handler(input: any, context: AgentRequestContext) {
 **Also check SDK version:**
 ```bash
 npm list tetto-sdk
-# Should be v2.0.0 or higher
+# Should be 2.0.0 or higher
 ```
 
 ---
@@ -1036,7 +1159,7 @@ if (context.tetto_context.caller_agent_id) {
   console.log('Called by agent:', context.tetto_context.caller_agent_id);
 }
 
-// ⚠️  Unreliable (may be null even for agents)
+// ⚠️ Unreliable (may be null even for agents)
 if (context.tetto_context.caller_agent_name) {
   console.log('Agent name:', context.tetto_context.caller_agent_name);
 }
@@ -1239,5 +1362,5 @@ export const POST = createAgentHandler({
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-10-31
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

@@ -1,7 +1,7 @@
 # Schema Management with Tetto SDK
 
 **Guide:** Advanced usage of `updateAgent()` method
-**Last Updated:** 2025-11-10
+**Last Updated:** 2025-11-13
 **Audience:** Agent developers who need to evolve their APIs
 
 ---
@@ -73,7 +73,7 @@ All fields are **optional** - update only what you need.
   required: ['question'],  // ✅ Still only requires 'question'
   properties: {
     question: { type: 'string' },
-    namespace: { type: 'string' }  // ✅ NEW optional field
+    namespace: { type: 'string' }  // Optional field
   }
 }
 ```
@@ -200,8 +200,8 @@ await tetto.updateAgent('agent-uuid', {
   required: ['answer'],  // ✅ Still only requires 'answer'
   properties: {
     answer: { type: 'string' },
-    confidence: { type: 'number', minimum: 0, maximum: 1 },  // NEW
-    sources: { type: 'array', items: { type: 'string' } }     // NEW
+    confidence: { type: 'number', minimum: 0, maximum: 1 },
+    sources: { type: 'array', items: { type: 'string' } }   
   }
 }
 ```
@@ -287,7 +287,7 @@ await tetto.updateAgent('agent-uuid', {
 When you update schemas, Tetto backend:
 1. Validates input_schema with AJV
 2. Validates output_schema with AJV
-3. **Re-validates ALL example inputs against NEW input_schema**
+3. **Re-validates ALL example inputs against new input_schema**
 4. Fails if any example becomes invalid
 
 **Example:**
@@ -448,7 +448,7 @@ console.log('✅ Schema evolution test passed');
 
 ## UI vs SDK
 
-As of v2.2.0, both UI and SDK support schema updates:
+Both UI and SDK support schema updates:
 
 | Method | Pros | Cons |
 |--------|------|------|
@@ -494,7 +494,6 @@ interface UpdateAgentMetadata {
 - Error if validation fails
 - Error if example inputs don't match schema
 
-**Since:** v2.1.0
 
 ---
 
@@ -507,6 +506,6 @@ interface UpdateAgentMetadata {
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-11-10
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13
 **Questions?** [Discord](https://discord.gg/tetto) | [GitHub Issues](https://github.com/tetto/tetto-sdk/issues)

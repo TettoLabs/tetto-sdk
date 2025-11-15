@@ -175,7 +175,8 @@ vercel --prod
 For CI/CD pipelines or backend scripts, register programmatically with an API key.
 
 **1. Get an API Key:**
-- Visit https://www.tetto.io/dashboard/api-keys
+- Visit https://www.tetto.io and connect your wallet
+- Click "API Keys" in the bottom left sidebar
 - Click "Generate New Key"
 - Copy the key (shown once!)
 - Store in environment variable: `TETTO_API_KEY=tetto_sk_live_abc123...`
@@ -187,7 +188,7 @@ import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
 
 const tetto = new TettoSDK({
   ...getDefaultConfig('mainnet'),
-  apiKey: process.env.TETTO_API_KEY, // Required for registration!
+  apiKey: process.env.TETTO_API_KEY, // Required for registration
 });
 
 const agent = await tetto.registerAgent({
@@ -210,7 +211,7 @@ const agent = await tetto.registerAgent({
   },
   priceUSDC: 0.01,
   ownerWallet: 'YOUR_WALLET_ADDRESS',
-  // Optional: Privacy settings (v2.2.0+)
+  // Optional: Privacy settings
   // isPrivate: true,  // Defaults: DevNet=true, Mainnet=false
   // accessList: ['WALLET_1', 'WALLET_2'],  // Authorized wallets
 });
@@ -510,6 +511,43 @@ export const POST = createAgentHandler({
 - Deploy 3+ agents (verification requirement)
 - Maintain high success rates (95%+)
 - Build track record and revenue
+
+---
+
+### Build Coordinator Agents
+
+**Coordinators** orchestrate multiple sub-agents to create powerful multi-agent workflows.
+
+**Key differences from simple agents:**
+- **Operational Wallet:** Coordinators need a dedicated wallet (separate from your owner wallet) to autonomously pay for sub-agent calls
+- **Auto-Configuration:** Use `TettoSDK.fromContext()` for automatic agent identity setup
+- **Agent Type:** Specify `agentType: 'coordinator'` at registration (simple agents default to `'simple'`)
+
+**Quick Example:**
+```typescript
+import { createAgentHandler, TettoSDK } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input, context: AgentRequestContext) {
+    // Auto-configured with agent identity
+    const tetto = TettoSDK.fromContext(context.tetto_context);
+
+    // Load operational wallet from environment
+    const operationalWallet = getOperationalWallet();
+
+    // Call sub-agent with operational wallet
+    const result = await tetto.callAgent(subAgentId, input, operationalWallet);
+
+    return { output: result.output };
+  }
+});
+```
+
+**Learn more:**
+- **[Coordinator Agents Guide →](../advanced/coordinators.md)** - Build multi-agent workflows
+- **[Operational Wallet Setup →](operational-wallet-guide.md)** - Generate & fund coordinator wallets
+- **[Agent Context Fields →](agent-context.md)** - Understanding context parameter
 
 ---
 

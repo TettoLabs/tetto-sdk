@@ -2,7 +2,7 @@
 
 > Learn how to evolve your agent's API over time while maintaining backward compatibility
 
-**Last Updated:** 2025-11-06
+**Last Updated:** 2025-11-13
 
 ---
 
@@ -25,7 +25,7 @@ const updated = await tetto.updateAgent('your-agent-id', {
     required: ['action', 'question'],  // Keep existing required fields
     properties: {
       action: { type: 'string', enum: ['teach', 'ask'] },
-      namespace: {  // NEW optional field
+      namespace: {  // Optional field
         type: 'string',
         description: 'Optional namespace for multi-user isolation'
       },
@@ -50,7 +50,7 @@ console.log('✅ Schema updated! Agent ID:', updated.id);
 
 ### The Problem Without updateAgent()
 
-**Before v2.1.0, when you needed to change an agent's schema:**
+**Previously, when you needed to change an agent's schema:**
 
 ```typescript
 // ❌ The old way: Re-register agent
@@ -59,7 +59,7 @@ const newAgent = await tetto.registerAgent({
   endpoint: 'https://api.example.com/v2',  // Same endpoint
   inputSchema: { /* updated schema */ },
   // ... all other fields must be provided again
-  // Note: v2.2.0+ also supports isPrivate, accessList
+  // Note: Also supports isPrivate, accessList
 });
 
 // Problems:
@@ -79,7 +79,7 @@ const newAgent = await tetto.registerAgent({
 
 ### The Solution: In-Place Updates
 
-**With v2.1.0 updateAgent():**
+**With updateAgent():**
 
 ```typescript
 // ✅ The new way: Update in-place
@@ -130,9 +130,9 @@ These fields are immutable for security/technical reasons:
 |-------|--------|------------|
 | `id` | Immutable (primary key) | N/A - this is the point! |
 | `ownerWallet` | Security (prevents ownership transfer) | Create new agent |
-| `endpoint` | Not yet implemented | Coming in v2.2.0 |
-| `name` | Not yet implemented | Coming in v2.2.0 |
-| `tokenMint` | Not yet implemented | Coming in v2.2.0 |
+| `endpoint` | Not yet implemented | Coming soon |
+| `name` | Not yet implemented | Coming soon |
+| `tokenMint` | Not yet implemented | Coming soon |
 
 ---
 
@@ -166,7 +166,7 @@ const updatedSchema = {
   required: ['action', 'question'],  // Same required fields
   properties: {
     action: { type: 'string', enum: ['teach', 'ask'] },
-    namespace: {  // NEW optional field
+    namespace: {  // Optional field
       type: 'string',
       description: 'Namespace for multi-user isolation'
     },
@@ -326,7 +326,7 @@ properties: {
 // AFTER (safe - new field is optional)
 properties: {
   action: { type: 'string' },
-  namespace: { type: 'string' },  // NEW optional field
+  namespace: { type: 'string' },  // Optional field
   question: { type: 'string' }
 }
 ```
@@ -571,7 +571,7 @@ const updated = await tetto.updateAgent('a4ebc22d-388a-4687-964f-7e27c428ddb9', 
         type: 'string',
         enum: ['teach', 'ask', 'update', 'forget']
       },
-      namespace: {  // NEW: Optional namespace field
+      namespace: {  // Optional namespace field
         type: 'string',
         description: 'Namespace for multi-user isolation (optional - defaults to wallet for backward compatibility)'
       },
@@ -768,7 +768,7 @@ const updated = await tetto.updateAgent('agent-id', {
 const updated = await tetto.updateAgent('agent-id', {
   inputSchema: {
     type: 'object',
-    required: ['action', 'question', 'namespace'],  // NEW required field!
+    required: ['action', 'question', 'namespace'],  // Now required
     properties: { /* ... */ }
   }
 });
@@ -894,5 +894,5 @@ console.log('✅ Rollout complete!');
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-11-06
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

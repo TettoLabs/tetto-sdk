@@ -652,3 +652,8 @@ curl "https://www.tetto.io/api/studios/eligibility" \
 ---
 
 **The verified badge is earned, not given. Build quality agents, serve customers well, and verification will come naturally.** ✓
+
+---
+
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

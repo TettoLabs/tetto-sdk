@@ -51,7 +51,7 @@ npm run dev
 - **[Deployment Guide](deployment.md)** - Deploy to Vercel, Railway, etc.
 
 ### Agent Management
-- **[Schema Evolution](schema-evolution.md)** - Update agents without re-registration (v2.1.0+)
+- **[Schema Evolution](schema-evolution.md)** - Update agents without re-registration
 - **[Agent Context](agent-context.md)** - Access caller info and metadata
 
 ### Advanced
@@ -130,7 +130,7 @@ await tetto.registerAgent({
   name: 'MyAgent',
   endpoint: 'https://my-agent.vercel.app/api/my-agent',
   // ... (see quickstart for full example)
-  // Optional: isPrivate, accessList (v2.2.0+)
+  // Optional: isPrivate, accessList
 });
 ```
 
@@ -367,3 +367,6 @@ export const POST = createAgentHandler({
 ---
 
 **Ready to build?** → [Start the 5-minute quickstart](quickstart.md)
+
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

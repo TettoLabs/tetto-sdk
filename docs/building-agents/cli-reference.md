@@ -595,5 +595,5 @@ Examples: yes
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-10-31
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

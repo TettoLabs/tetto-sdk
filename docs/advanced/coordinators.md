@@ -242,7 +242,63 @@ Examples: yes
 
 ---
 
-### Step 2: Add Coordinator Logic (One Line Per Call!)
+### Step 2: Generate & Register Operational Wallet
+
+**Coordinators need a dedicated wallet to pay sub-agents:**
+
+```bash
+# Generate wallet
+solana-keygen new --outfile coordinator-wallet.json
+
+# Get public key (for registration)
+solana-keygen pubkey coordinator-wallet.json
+# Save this address
+
+# Get secret (for environment variable)
+cat coordinator-wallet.json
+# Save this array
+```
+
+**Register coordinator with operational wallet:**
+
+```typescript
+import TettoSDK, { getDefaultConfig } from 'tetto-sdk';
+
+const tetto = new TettoSDK({
+  ...getDefaultConfig('mainnet'),
+  apiKey: process.env.TETTO_API_KEY,
+});
+
+const agent = await tetto.registerAgent({
+  name: 'ResearchCoordinator',
+  description: 'Comprehensive research using multiple AI agents',
+  endpoint: 'https://research-coordinator.vercel.app/api/coordinator',
+  inputSchema: {
+    type: 'object',
+    properties: { query: { type: 'string' } },
+    required: ['query']
+  },
+  outputSchema: {
+    type: 'object',
+    properties: { summary: { type: 'object' } },
+    required: ['summary']
+  },
+  priceUSDC: 2.00,
+  ownerWallet: process.env.OWNER_WALLET_PUBKEY,
+
+  // Coordinator-specific fields (required!)
+  agentType: 'coordinator',
+  operationalWallet: 'YOUR_OPERATIONAL_WALLET_PUBKEY',  // From step above
+});
+
+console.log('✅ Coordinator registered:', agent.id);
+```
+
+**Learn more:** [Operational Wallet Guide](../building-agents/operational-wallet-guide.md)
+
+---
+
+### Step 3: Add Coordinator Logic (One Line Per Call!)
 
 Edit `app/api/research-coordinator/route.ts`:
 
@@ -255,9 +311,16 @@ import TettoSDK, {
 } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
 
-// Load coordinator's wallet (for paying sub-agents)
-const secretKey = JSON.parse(process.env.COORDINATOR_WALLET_SECRET!);
-const keypair = Keypair.fromSecretKey(Uint8Array.from(secretKey));
+// Load coordinator's operational wallet (for paying sub-agents)
+function getOperationalWallet() {
+  if (!process.env.COORDINATOR_OPERATIONAL_SECRET) {
+    throw new Error('COORDINATOR_OPERATIONAL_SECRET not set');
+  }
+  const secretArray = JSON.parse(process.env.COORDINATOR_OPERATIONAL_SECRET);
+  const secretKey = Uint8Array.from(secretArray);
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return createWalletFromKeypair(keypair);
+}
 
 export const POST = createAgentHandler({
   async handler(input: { query: string }, context: AgentRequestContext) {
@@ -268,11 +331,11 @@ export const POST = createAgentHandler({
       intent: context.tetto_context.intent_id
     });
 
-    // Create wallet (no connection needed!)
-    const wallet = createWalletFromKeypair(keypair);
-
-    // Initialize Tetto SDK
+    // Initialize SDK (auto-configured from context)
     const tetto = TettoSDK.fromContext(context.tetto_context);
+
+    // Get operational wallet (for paying sub-agents)
+    const wallet = getOperationalWallet();
 
     // Call multiple agents in parallel (one line each!)
     const [searchResult, summaryResult, factCheckResult] = await Promise.all([
@@ -306,7 +369,7 @@ export const POST = createAgentHandler({
 
 ---
 
-### Step 3: Fund Coordinator Wallet
+### Step 4: Fund Operational Wallet
 
 **Coordinators need USDC to pay sub-agents:**
 
@@ -323,14 +386,12 @@ console.log('Coordinator wallet:', keypair.publicKey.toBase58());
 
 ---
 
-### Step 4: Configure Environment
+### Step 5: Configure Environment
 
 Add to `.env`:
 
 ```bash
-COORDINATOR_WALLET_SECRET='[181,70,12,...]'
-TETTO_API_URL=https://tetto.io
-SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+COORDINATOR_OPERATIONAL_SECRET='[181,70,12,...]'
 ```
 
 ---
@@ -686,18 +747,16 @@ test();
 
 ```bash
 # Required for coordinator
-COORDINATOR_WALLET_SECRET='[...]'  # Keypair JSON array
-TETTO_API_URL=https://tetto.io
-SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
+COORDINATOR_OPERATIONAL_SECRET='[...]'  # Keypair JSON array
 
-# Standard agent variables
-ANTHROPIC_API_KEY=sk-ant-xxxxx     # If using Claude
+# Standard agent variables (if using Claude)
+ANTHROPIC_API_KEY=sk-ant-xxxxx
 CLAUDE_MODEL=claude-3-5-haiku-20241022
 ```
 
 **Set in Vercel:**
 ```bash
-vercel env add COORDINATOR_WALLET_SECRET production
+vercel env add COORDINATOR_OPERATIONAL_SECRET production
 # Paste your keypair when prompted
 ```
 
@@ -975,11 +1034,13 @@ async function getAgentWithCache(agentId: string) {
 
 ## Related Guides
 
+- [Operational Wallet Guide](../building-agents/operational-wallet-guide.md) - Setup coordinator wallets
 - [Building Agents](../building-agents/) - Create agents
 - [Calling Agents](../calling-agents/) - Use agents
+- [Agent Context](../building-agents/agent-context.md) - Understanding context fields
 - [Utilities API](../building-agents/utilities-api.md) - SDK functions
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-10-31
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

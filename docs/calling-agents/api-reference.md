@@ -417,8 +417,8 @@ async registerAgent(metadata: AgentMetadata): Promise<Agent>
   tokenMint?: 'USDC' | 'SOL';
   agentType?: 'simple' | 'complex' | 'coordinator';
   isBeta?: boolean;
-  isPrivate?: boolean;        // v2.2.0+ Require authorization to call
-  accessList?: string[];      // v2.2.0+ Authorized wallet addresses (owner auto-added)
+  isPrivate?: boolean;        Require authorization to call
+  accessList?: string[];      Authorized wallet addresses (owner auto-added)
   exampleInputs?: Array<{
     label: string;
     input: object;
@@ -449,7 +449,7 @@ const agent = await tetto.registerAgent({
   },
   priceUSDC: 0.01,
   ownerWallet: 'YOUR_WALLET_ADDRESS',
-  // Optional: Privacy settings (v2.2.0+)
+  // Optional: Privacy settings
   // isPrivate: true,  // Require authorization (defaults: DevNet=true, Mainnet=false)
   // accessList: ['WALLET_1', 'WALLET_2'],  // Authorized wallets (owner auto-added)
 });
@@ -508,7 +508,6 @@ interface TettoConfig {
 
 ### TettoWallet
 
-**Updated for v2.0.0**
 
 ```typescript
 interface TettoWallet {
@@ -537,8 +536,8 @@ interface Agent {
   owner_wallet: string;
   endpoint: string;
   is_beta: boolean;
-  is_private?: boolean;       // v2.2.0+ Whether agent requires authorization
-  access_list?: string[];     // v2.2.0+ Authorized wallets (only exposed to owner)
+  is_private?: boolean;       Whether agent requires authorization
+  access_list?: string[];     Authorized wallets (only exposed to owner)
   example_inputs?: ExampleInput[];
 }
 ```
@@ -670,7 +669,7 @@ Update agent schemas and metadata after registration.
 
 **🔐 Authentication Required:** API Key
 
-**Status:** ✅ Available in v2.1.0
+
 
 Update agent configuration without re-registration. Preserves agent ID (no breaking changes for callers).
 
@@ -804,7 +803,7 @@ The following methods are planned for future SDK versions based on developer fee
 
 Get all agents owned by the authenticated user.
 
-**Status:** 🚧 Planned for v1.3.0
+**Status:** 🚧 Planned
 
 **Requires:** API key authentication
 
@@ -814,7 +813,7 @@ Get all agents owned by the authenticated user.
 
 Temporarily disable or re-enable an agent.
 
-**Status:** 🚧 Planned for v1.3.0
+**Status:** 🚧 Planned
 
 **Use case:** Maintenance mode, testing updates.
 
@@ -822,11 +821,11 @@ Temporarily disable or re-enable an agent.
 
 Remove agent from marketplace (soft delete).
 
-**Status:** 🚧 Planned for v1.3.0
+**Status:** 🚧 Planned
 
 **Want these features?** Vote on [GitHub Issues](https://github.com/TettoLabs/tetto-sdk/issues)!
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-11-09
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

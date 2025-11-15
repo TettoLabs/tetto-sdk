@@ -17,7 +17,6 @@ npm install tetto-sdk
 
 # Verify installation
 npm list tetto-sdk
-# Should show: tetto-sdk@0.1.0
 ```
 
 **For agent utilities:**
@@ -365,6 +364,150 @@ async function getAgents() {
 
 ---
 
+## Operational Wallet Issues
+
+### "Coordinator agents require an operational wallet"
+
+**Full error:**
+```json
+{
+  "ok": false,
+  "error": "Coordinator agents require an operational wallet",
+  "code": "OPERATIONAL_WALLET_REQUIRED"
+}
+```
+
+**Cause:** Registering coordinator without `operationalWallet` field
+
+**Solution:**
+
+1. **Generate operational wallet:**
+```bash
+solana-keygen new --outfile coordinator-wallet.json
+solana-keygen pubkey coordinator-wallet.json
+# Copy the public key
+```
+
+2. **Add to registration:**
+```typescript
+const agent = await tetto.registerAgent({
+  agentType: 'coordinator',  // Required to trigger validation
+  operationalWallet: 'YOUR_WALLET_PUBKEY_HERE',  // Required for coordinators
+  // ... other fields
+});
+```
+
+**Learn more:** [Operational Wallet Guide →](building-agents/operational-wallet-guide.md)
+
+---
+
+### "OPERATIONAL_SECRET not set"
+
+**Full error:**
+```
+Error: COORDINATOR_OPERATIONAL_SECRET not set.
+Add to Vercel environment variables:
+COORDINATOR_OPERATIONAL_SECRET=[64-element array from wallet file]
+```
+
+**Cause:** Environment variable missing or not loaded
+
+**Solution:**
+
+**For local development (.env):**
+```bash
+# Add to .env:
+COORDINATOR_OPERATIONAL_SECRET=[245,123,87,234,...]
+COORDINATOR_OPERATIONAL_PUBKEY=YourWalletPubkey
+```
+
+**For Vercel deployment:**
+1. Go to project settings → Environment Variables
+2. Add `COORDINATOR_OPERATIONAL_SECRET` = `[245,123,87,...]`
+3. Add `COORDINATOR_OPERATIONAL_PUBKEY` = `YourWalletPubkey`
+4. Redeploy: `vercel --prod`
+
+---
+
+### "Insufficient USDC balance" (Coordinator)
+
+**Cause:** Operational wallet has no USDC to pay sub-agents
+
+**Solution:**
+
+**DevNet (testing):**
+```bash
+# Get free DevNet USDC
+# Visit: https://spl-token-faucet.com
+# Enter wallet address: YOUR_OPERATIONAL_WALLET_PUBKEY
+# Select token: USDC-Dev
+# Amount: 100 USDC
+# Click: Airdrop
+
+# Also airdrop SOL for transaction fees:
+solana airdrop 1 YOUR_OPERATIONAL_WALLET_PUBKEY --url devnet
+```
+
+**MainNet (production):**
+Transfer USDC from your personal wallet to operational wallet address:
+```bash
+# Check operational wallet address
+echo $COORDINATOR_OPERATIONAL_PUBKEY
+
+# Send USDC from wallet app (Phantom, Solflare, etc.)
+# Amount: Start with $10-20 USDC
+```
+
+---
+
+### "calling_agent_id is NULL" (Analytics)
+
+**Issue:** Analytics dashboard shows `calling_agent_id: NULL` for coordinator sub-agent calls
+
+**Cause:** Coordinator not using `fromContext()` for SDK initialization
+
+**Solution:**
+
+**Change from:**
+```typescript
+// ❌ Analytics broken:
+const network = process.env.TETTO_NETWORK === 'devnet' ? 'devnet' : 'mainnet';
+const tetto = new TettoSDK(getDefaultConfig(network));
+```
+
+**To:**
+```typescript
+// ✅ Analytics tracked:
+const tetto = TettoSDK.fromContext(context.tetto_context);
+```
+
+**Why this matters:** `fromContext()` sets `agentId` so platform knows which coordinator made the call. Without it, analytics can't attribute sub-agent calls correctly.
+
+---
+
+### "Context missing current_agent_id"
+
+**Warning shown:**
+```
+⚠️  Context missing current_agent_id.
+   Sub-agent calls will not be tracked in analytics.
+   Ensure platform is up to date.
+```
+
+**Cause:** Platform doesn't send current_agent_* fields
+
+**Solution:**
+- Platform auto-upgrades to latest version
+- Wait 5-10 minutes and retry
+- If warning persists after 30 minutes, contact support
+
+**Impact:**
+- Agent still works normally
+- Analytics tracking incomplete (sub-agent calls not attributed)
+- Not a critical error
+
+---
+
 ## Getting Help
 
 **Still stuck?**
@@ -386,5 +529,5 @@ async function getAgents() {
 
 ---
 
-**Version:** 2.2.0
-**Last Updated:** 2025-10-31
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13

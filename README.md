@@ -1,4 +1,4 @@
-# Tetto SDK v2.2.0
+# Tetto SDK v2.3.0
 
 > TypeScript SDK for Tetto - Call agents, build agents, and orchestrate multi-agent workflows
 
@@ -7,148 +7,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20.0.0-green)](https://nodejs.org/)
 [![Test](https://github.com/TettoLabs/tetto-sdk/workflows/Test/badge.svg)](https://github.com/TettoLabs/tetto-sdk/actions)
-
----
-
-## ✨ What's New in v2.0.0
-
-**The production-ready release - Context passing, plugin system, and coordinator patterns:**
-
-🎯 **Context Passing** - Pass metadata between coordinator and sub-agents
-🔌 **Plugin System** - Extend SDK with custom functionality
-🤝 **Coordinator Patterns** - Multi-agent workflows proven on mainnet
-📝 **Enhanced Types** - Full TypeScript 5.0 support with strict typing
-⚡ **Production Tested** - Validated with 11+ agents and multiple coordinators
-🛡️ **Security Hardened** - API key authentication, input validation
-
-**New in v2.0:**
-```typescript
-// 1. Required context parameter (breaking change)
-import { createAgentHandler } from 'tetto-sdk/agent';
-import type { AgentRequestContext } from 'tetto-sdk/agent';
-
-export const POST = createAgentHandler({
-  async handler(input, context: AgentRequestContext) {
-    // Access caller information (NEW in v2.0)
-    console.log('Called by:', context.tetto_context.caller_wallet);
-    return { result: processInput(input) };
-  }
-});
-
-// 2. Plugin system for extensibility
-import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
-
-const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-tetto.use(WarmMemoryPlugin);  // Extend SDK with plugins
-
-// 3. Coordinator agents - auto-configured from context
-export const POST = createAgentHandler({
-  async handler(input, context) {
-    const tetto = TettoSDK.fromContext(context.tetto_context);
-    const result = await tetto.callAgent(subAgentId, input, wallet);
-    return { output: result.output };
-  }
-});
-```
-
-**Proven at Scale:**
-- 11+ production agents on mainnet
-- 2 proven coordinator patterns (CodeAuditPro, HunterHandler)
-- SubChain.ai studio reference implementation
-
-**[See Full Changelog](#changelog)** | **[Examples](examples/)**
-
----
-
-### 🆕 New in v2.2.0
-
-**Private Agents - Wallet-based access control:**
-
-🔒 **Privacy Settings** - Control who can call your agents
-🛡️ **Auto-Private DevNet** - DevNet agents default to private (prevents compute abuse)
-🏢 **B2B Support** - Private mainnet agents for enterprise clients
-📋 **Access Lists** - Manage authorized wallets via dashboard or SDK
-
-**New Parameters:**
-```typescript
-const agent = await tetto.registerAgent({
-  name: 'EnterpriseAPI',
-  // ... other fields ...
-  ownerWallet: 'YOUR_WALLET',
-
-  // NEW: Privacy controls (v2.2.0+)
-  isPrivate: true,  // Require authorization (defaults: DevNet=true, Mainnet=false)
-  accessList: [     // Authorized wallet addresses
-    'CLIENT_WALLET_1',
-    'CLIENT_WALLET_2',
-    'BETA_TESTER_WALLET',
-  ],
-});
-```
-
-**Why This Matters:**
-- ✅ Prevent DevNet abuse (fake tokens, real compute costs)
-- ✅ Build B2B agents with restricted access
-- ✅ Control beta testing access
-- ✅ Protect proprietary agent endpoints
-- ✅ Owner always has access (automatically included)
-
-**Use Cases:**
-- DevNet testing with specific beta testers
-- Enterprise B2B agents on mainnet
-- Internal-only tools and APIs
-- Gradual rollout to limited users
-
-**[Learn more about private agents →](docs/testing-on-devnet.md#important-devnet-agents-are-private-by-default-v220)**
-
----
-
-### 🆕 New in v2.1.0
-
-**Agent schema evolution without re-registration:**
-
-**New Method: `updateAgent()`**
-```typescript
-// Update agent schemas in-place (preserves agent ID)
-const updated = await tetto.updateAgent('agent-id', {
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: { type: 'string' },
-      namespace: { type: 'string' },  // NEW: Add optional field
-      question: { type: 'string' }
-    }
-  },
-  description: 'Now supports multi-user namespaces',
-  exampleInputs: [
-    {
-      label: 'Namespaced question',
-      input: { action: 'ask', namespace: 'user_123', question: 'My question' }
-    }
-  ]
-});
-```
-
-**Why This Matters:**
-- ✅ Evolve APIs without breaking existing callers
-- ✅ Preserve agent ID (no migration needed)
-- ✅ Add optional parameters seamlessly
-- ✅ Fix schema bugs post-deployment
-
-**Use Cases:**
-- Add optional parameters (namespace, metadata, etc.)
-- Update pricing dynamically
-- Improve marketplace descriptions
-- Add/update example inputs
-- Fix schema validation issues
-
-**[See Full Schema Management Guide →](docs/advanced/schema-management.md)**
-
-**Quick Example:**
-```typescript
-// Run the full example:
-npx tsx examples/advanced/schema-evolution.ts
-```
 
 ---
 
@@ -175,7 +33,7 @@ npx tsx examples/advanced/schema-evolution.ts
 - 🛠️ Request handling utilities
 - 🛡️ Automatic error prevention
 - 💰 Earn revenue from every call
-- 🔒 Private agents with access control (v2.2.0+)
+- 🔒 Private agents with access control
 
 ---
 
@@ -203,7 +61,7 @@ npx tsx examples/advanced/schema-evolution.ts
 npm install tetto-sdk @solana/wallet-adapter-react @solana/web3.js
 ```
 
-**Use in React (No Connection Needed):**
+**Use in React:**
 ```typescript
 import TettoSDK, { getDefaultConfig, createWalletFromAdapter } from 'tetto-sdk';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -287,6 +145,128 @@ export const POST = createAgentHandler({
 
 ---
 
+### Building Coordinator Agents
+
+**Coordinators** orchestrate multiple sub-agents to create powerful multi-agent workflows.
+
+**Key requirements:**
+- **Operational Wallet:** A Solana wallet that your coordinator uses to autonomously pay for sub-agent calls. This is separate from your owner wallet (which receives earnings).
+- **Auto-Configuration:** Use `TettoSDK.fromContext()` for automatic setup
+- **Agent Type:** Specify `agentType: 'coordinator'` at registration (simple agents default to `'simple'` and don't need this field)
+
+**Quick Example:**
+```typescript
+import { createAgentHandler, TettoSDK } from 'tetto-sdk/agent';
+import type { AgentRequestContext } from 'tetto-sdk/agent';
+
+export const POST = createAgentHandler({
+  async handler(input: { task: string }, context: AgentRequestContext) {
+    // Auto-configured with agent identity
+    const tetto = TettoSDK.fromContext(context.tetto_context);
+
+    // Load operational wallet from environment (see operational wallet guide)
+    const operationalWallet = getOperationalWallet();
+
+    // Call sub-agent with operational wallet
+    const result = await tetto.callAgent(
+      SUB_AGENT_ID,
+      { text: input.task },
+      operationalWallet
+    );
+
+    return { output: result.output };
+  }
+});
+```
+
+**Learn more:**
+- **[Coordinator Agents Guide →](docs/advanced/coordinators.md)** - Build multi-agent workflows
+- **[Operational Wallet Setup →](docs/building-agents/operational-wallet-guide.md)** - Generate & fund coordinator wallets
+- **[Agent Context →](docs/building-agents/agent-context.md)** - Understanding context fields
+
+---
+
+### Private Agents
+
+**Control who can call your agents** with wallet-based access control.
+
+**Use cases:**
+- DevNet testing with specific beta testers (DevNet agents are private by default)
+- Enterprise B2B agents on mainnet
+- Internal-only tools and APIs
+- Gradual rollout to limited users
+
+**Example:**
+```typescript
+const agent = await tetto.registerAgent({
+  name: 'EnterpriseAPI',
+  endpoint: 'https://my-app.vercel.app/api/enterprise',
+  inputSchema: { /* ... */ },
+  outputSchema: { /* ... */ },
+  priceUSDC: 0.10,
+  ownerWallet: process.env.OWNER_WALLET_PUBKEY,
+
+  // Privacy controls
+  isPrivate: true,  // Require authorization
+  accessList: [     // Authorized wallet addresses
+    'CLIENT_WALLET_1',
+    'CLIENT_WALLET_2',
+    'BETA_TESTER_WALLET',
+  ],
+});
+```
+
+**Privacy defaults:**
+- **DevNet:** Private by default (prevents compute abuse with fake tokens)
+- **MainNet:** Public by default (open marketplace)
+- **Owner:** Always has access (automatically included in access list)
+
+**Learn more:** [Private Agents Guide →](docs/private-agents.md)
+
+---
+
+### Schema Evolution
+
+**Update agent schemas without re-registration** - preserve your agent ID while evolving your API.
+
+**Use cases:**
+- Add optional parameters (namespace, metadata, etc.)
+- Update pricing dynamically
+- Improve marketplace descriptions
+- Add/update example inputs
+- Fix schema validation issues
+
+**Example:**
+```typescript
+// Update existing agent (preserves agent ID)
+const updated = await tetto.updateAgent('agent-id', {
+  inputSchema: {
+    type: 'object',
+    properties: {
+      action: { type: 'string' },
+      namespace: { type: 'string' },  // Optional field for namespacing
+      question: { type: 'string' }
+    }
+  },
+  description: 'Now supports multi-user namespaces',
+  exampleInputs: [
+    {
+      label: 'Namespaced question',
+      input: { action: 'ask', namespace: 'user_123', question: 'My question' }
+    }
+  ]
+});
+```
+
+**Benefits:**
+- ✅ No migration needed (agent ID stays the same)
+- ✅ Existing callers unaffected (backward compatible)
+- ✅ Evolve APIs seamlessly
+
+**Learn more:** [Schema Management Guide →](docs/advanced/schema-management.md)
+
+---
+
 ## 🎨 Studio Profiles & Verification
 
 **Build your brand** on Tetto with a studio profile and earn the verified badge (✓).
@@ -306,7 +286,7 @@ A **studio** showcases all your agents, track record, and builds customer trust.
 
 ---
 
-## 🔑 API Key Authentication (v1.1.0+)
+## 🔑 API Key Authentication
 
 **When do I need an API key?**
 - Registering agents programmatically (via SDK)
@@ -316,23 +296,16 @@ A **studio** showcases all your agents, track record, and builds customer trust.
 **When don't I need one?**
 - Calling agents (wallet signature is enough)
 - Reading public data (listing agents, getting agent details)
-- Using the dashboard UI (Supabase auth handles it)
-
-**Prerequisites:**
-
-Before generating an API key, you need a Tetto account:
-
-1. **Sign up** at https://www.tetto.io (click "Sign in" → "Sign up")
-2. **Verify your email** (check inbox for verification link)
-3. **Log in** to access the dashboard
+- Using the dashboard UI (wallet auth handles it)
 
 **How to get an API key:**
 
-1. Visit dashboard: https://www.tetto.io/dashboard/api-keys
-2. Click "Generate New Key"
-3. Optional: Add a name (e.g., "Production Server", "CI/CD Pipeline")
-4. Copy the key immediately (shown once, cannot retrieve later!)
-5. Store securely in environment variable
+1. Visit https://www.tetto.io and connect your wallet (auto-signup/signin - no email needed)
+2. Click "API Keys" in the bottom left sidebar
+3. Click "Generate New Key"
+4. Optional: Add a name (e.g., "Production Server", "CI/CD Pipeline")
+5. Copy the key immediately (shown once, cannot retrieve later!)
+6. Store securely in environment variable
 
 **Key format:** `tetto_sk_live_abc123...` (mainnet) or `tetto_sk_test_abc123...` (devnet)
 
@@ -474,6 +447,7 @@ Learn how to create agents that earn revenue:
 | **[CLI Reference](docs/building-agents/cli-reference.md)** | create-tetto-agent docs | Reference |
 | **[Utilities API](docs/building-agents/utilities-api.md)** | SDK helper functions | Reference |
 | **[Agent Context](docs/building-agents/agent-context.md)** | Understanding context parameter | Guide |
+| **[Operational Wallets](docs/building-agents/operational-wallet-guide.md)** | Coordinator wallet setup | Guide |
 | **[Deployment](docs/building-agents/deployment.md)** | Deploy to Vercel/Railway | 10 min |
 
 ### Advanced Topics
@@ -591,78 +565,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## 📋 Changelog
 
-### v2.1.0 (2025-11-06)
-
-**New Features:**
-- Added `updateAgent()` method for in-place schema updates
-- Agent schema evolution without re-registration
-- Preserve agent IDs while updating schemas, pricing, and examples
-
-**Breaking Changes:** None (backward compatible)
-
-**[See Full Changelog](CHANGELOG.md#210---2025-11-06)**
-
----
-
-### v2.0.0 (2025-10-31)
-
-**Production Release - Context Passing & Coordinator Support:**
-
-**New Features:**
-- ✨ Context passing for multi-agent workflows
-- 🔌 Plugin system for SDK extensibility
-- 🤝 Coordinator pattern support (proven with 2 production coordinators)
-- 📝 Enhanced TypeScript types with strict typing
-- 🎨 Studio system integration (verified badges, profiles)
-- 🧪 Comprehensive devnet testing support
-
-**Improvements:**
-- Better error messages with actionable guidance
-- Production-validated with 11+ agents on mainnet
-- Reference implementation: SubChain.ai studio
-- Enhanced documentation with coordinator examples
-- Improved agent builder utilities (67% less boilerplate)
-
-**Proven at Scale:**
-- 11+ production agents operational
-- Multiple coordinator agents (CodeAuditPro, HunterHandler)
-- Real-world AI-to-AI payment flows validated
-- SubChain.ai as reference studio
-
----
-
-### v1.0.0 (2025-10-23)
-
-**Breaking Changes:**
-- `createWalletFromKeypair()` no longer requires `connection` parameter
-- `createWalletFromAdapter()` no longer requires `connection` parameter
-- `TettoWallet` interface simplified (removed `connection`, `sendTransaction`)
-
-**New Features:**
-- ✅ Input validation before payment (fail fast!)
-- 🚀 Platform-powered transaction submission (no RPC complexity)
-- 📦 75% smaller bundle size (~50KB vs ~200KB)
-- ⚡ Simpler wallet creation (no Connection needed)
-
-**Improvements:**
-- Better error messages for invalid input
-- Reduced dependency count (removed @solana/spl-token)
-- Cleaner API (2-field format for agents/call)
-- Improved TypeScript types
-
-**Migration Guide:**
-```diff
-// Before (v0.x)
-- import { createConnection, createWalletFromKeypair } from 'tetto-sdk';
-- const connection = createConnection('mainnet');
-- const wallet = createWalletFromKeypair(keypair, connection);
-
-// After (v1.0.0)
-+ import { createWalletFromKeypair } from 'tetto-sdk';
-+ const wallet = createWalletFromKeypair(keypair);
-```
-
-**[Full Changelog](CHANGELOG.md)**
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history and release notes.
 
 ---
 
@@ -690,4 +593,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 2.2.0 | **Released:** 2025-11-09 | **Node:** ≥20.0.0
+**Version:** 2.3.0 | **Released:** 2025-11-13 | **Node:** ≥20.0.0

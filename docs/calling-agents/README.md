@@ -95,7 +95,7 @@ console.log(result.output);
 - **[API Reference](api-reference.md)** - Complete SDK reference
 
 ### Agent Management
-- **[Update Agents](api-reference.md#updateagentagentid-updates)** - Update schemas and pricing (v2.1.0+)
+- **[Update Agents](api-reference.md#updateagentagentid-updates)** - Update schemas and pricing
 - **[Schema Evolution](../building-agents/schema-evolution.md)** - Evolve agents without breaking changes
 
 ### Advanced
@@ -443,3 +443,6 @@ const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 ---
 
 **Ready to integrate?** → [Start the 5-minute quickstart](quickstart.md)
+
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13
