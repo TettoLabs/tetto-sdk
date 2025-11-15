@@ -503,9 +503,9 @@ class TettoSDK {
      *
      * @example
      * ```typescript
-     * import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
+     * import { StudioPlugin } from '@your-studio/tetto-plugin';
      *
-     * tetto.use(WarmMemoryPlugin);
+     * tetto.use(StudioPlugin);
      * await tetto.memory.set('key', 'value', wallet);  // Wallet required!
      * ```
      */
@@ -552,7 +552,7 @@ class TettoSDK {
      *
      * @example
      * ```typescript
-     * const memory = tetto.getPlugin('warmmemory');
+     * const memory = tetto.getPlugin('studioplugin');
      * if (memory) {
      *   await memory.set('key', 'value', wallet);
      * }
@@ -617,7 +617,7 @@ class TettoSDK {
      *     });
      *
      *     // Sub-agent calls will be tracked with this coordinator's ID
-     *     await tetto.callAgent('warmmemory', { action: 'store' }, wallet);
+     *     await tetto.callAgent('studioplugin', { action: 'store' }, wallet);
      *
      *     return { success: true };
      *   }

@@ -271,7 +271,7 @@ const updated = await tetto.updateAgent('agent-id', {
 
 **Build your brand** on Tetto with a studio profile and earn the verified badge (✓).
 
-A **studio** showcases all your agents, track record, and builds customer trust. Example: [SubChain.ai Studio →](https://www.tetto.io/studios/subchain)
+A **studio** showcases all your agents, track record, and builds customer trust.
 
 **Benefits:**
 - **Verified badge (✓)** increases conversion by 3x
@@ -589,7 +589,6 @@ Copyright (c) 2025 Tetto Labs
 **Related:**
 - [create-tetto-agent](https://github.com/TettoLabs/create-tetto-agent) - CLI for building agents
 - [tetto-portal](https://github.com/TettoLabs/tetto-portal) - Gateway API
-- [subchain-agents](https://github.com/TettoLabs/subchain-agents) - Example agents
 
 ---
 

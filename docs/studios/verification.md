@@ -20,7 +20,7 @@
 The verified badge (✓) is a **trust signal** shown next to your studio name throughout Tetto.
 
 **Where it appears:**
-- On all your agent cards: "by SubChain.ai ✓"
+- On all your agent cards: "by AgentSwarm.ai ✓"
 - Your studio page header
 - Studio directory listings
 - Marketplace search results
@@ -319,7 +319,7 @@ Platform Fee: 10% = $0.01
 
 **Example (142 chars):**
 ```
-SubChain is a platform for building AI agents on Solana.
+AgentSwarm is a platform for building AI agents on Solana.
 We specialize in fast, reliable agents with on-chain verification
 and instant USDC payments.
 ```

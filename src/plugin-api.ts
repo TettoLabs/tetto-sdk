@@ -47,12 +47,12 @@ export interface PluginAPI {
    * ```typescript
    * // ✅ CORRECT: Wallet from caller
    * async function pluginMethod(wallet: TettoWallet) {
-   *   return await api.callAgent('warmmemory', { action: 'store' }, wallet);
+   *   return await api.callAgent('studioplugin', { action: 'store' }, wallet);
    * }
    *
    * // ❌ WRONG: No wallet parameter
    * async function badMethod() {
-   *   return await api.callAgent('warmmemory', { action: 'store' }, this._wallet);
+   *   return await api.callAgent('studioplugin', { action: 'store' }, this._wallet);
    * }
    * ```
    */
@@ -99,7 +99,7 @@ export interface PluginAPI {
    * Check if plugin is loaded
    *
    * Useful for optional plugin dependencies:
-   * "If WarmMemory plugin is loaded, use it. Otherwise, call agent directly."
+   * "If StudioPlugin plugin is loaded, use it. Otherwise, call agent directly."
    *
    * SECURITY: Does NOT provide access to plugin instance.
    * Only returns boolean (yes/no).
@@ -109,10 +109,10 @@ export interface PluginAPI {
    *
    * @example
    * ```typescript
-   * if (api.hasPlugin('warmmemory')) {
-   *   console.log('WarmMemory plugin available');
+   * if (api.hasPlugin('studioplugin')) {
+   *   console.log('StudioPlugin plugin available');
    * } else {
-   *   console.log('WarmMemory not loaded, will call agent directly');
+   *   console.log('StudioPlugin not loaded, will call agent directly');
    * }
    * ```
    */

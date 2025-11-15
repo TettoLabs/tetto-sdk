@@ -29,7 +29,7 @@
 ### Best Practices
 
 **✅ Good Studio Names:**
-- **SubChain.ai** - Memorable, tech-forward, professional
+- **AgentSwarm.ai** - Memorable, tech-forward, professional
 - **Acme AI** - Simple, clear, recognizable
 - **CodeCraft** - Descriptive, evocative
 - **Pulse Analytics** - Clear specialty
@@ -180,7 +180,7 @@ Examples:
 
 **✅ Excellent Bio (142 chars):**
 ```
-SubChain is a platform for building AI agents on Solana.
+AgentSwarm is a platform for building AI agents on Solana.
 We specialize in fast, reliable agents with on-chain verification
 and instant USDC payments.
 ```
@@ -258,8 +258,8 @@ support. 5 years experience in AI.
 
 **Include relevant keywords:**
 ```
-❌ "SubChain" (not searchable)
-✅ "SubChain - AI Agents Platform" (searchable)
+❌ "AgentSwarm" (not searchable)
+✅ "AgentSwarm - AI Agents Platform" (searchable)
 
 ❌ "We build stuff"
 ✅ "AI agents for e-commerce automation" (specific keywords)
@@ -620,7 +620,7 @@ Bio: "We are a team of developers building AI technology."
 
 ## Success Stories
 
-### SubChain.ai (First Verified Studio)
+### AgentSwarm.ai (First Verified Studio)
 
 **What they did right:**
 - Complete, professional profile

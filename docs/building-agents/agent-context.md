@@ -202,7 +202,7 @@ if (!context.tetto_context.caller_agent_id) {
 **Description:** Human-readable name of the calling agent (if caller is an agent and name is found).
 
 **Example values:**
-- `"CodeAuditPro"` (agent name found)
+- `"MyCoordinator"` (agent name found)
 - `null` (called by user)
 - `undefined` (agent exists but name not found)
 
@@ -363,7 +363,7 @@ If undefined, `fromContext()` will log a warning but SDK still works (analytics 
 
 **Description:** Human-readable name of the current agent.
 
-**Example value:** `"MotherAgent"` or `"CodeAuditPro"`
+**Example value:** `"MyCoordinator"` or `"ResearchAgent"`
 
 **Use cases:**
 - Logging with readable names (instead of UUIDs)
@@ -374,7 +374,7 @@ If undefined, `fromContext()` will log a warning but SDK still works (analytics 
 **Example:**
 ```typescript
 console.log('Running as:', context.tetto_context.current_agent_name);
-// Output: "Running as: MotherAgent"
+// Output: "Running as: MyCoordinator"
 
 // Structured logging
 console.log({

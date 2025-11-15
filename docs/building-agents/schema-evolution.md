@@ -519,13 +519,13 @@ console.log('✅ Mainnet updated safely');
 
 ---
 
-## Real-World Example: WarmAnswers
+## Complete Example: Adding Optional Namespace Field
 
-**Production update: Adding namespace field for multi-user isolation**
+**Scenario: Adding namespace field for multi-user isolation**
 
 ### Before Update
 
-**Original WarmAnswers schema:**
+**Original agent schema:**
 ```typescript
 {
   type: 'object',
@@ -561,8 +561,11 @@ const tetto = new TettoSDK({
   apiKey: process.env.TETTO_API_KEY
 });
 
-// Update mainnet WarmAnswers
-const updated = await tetto.updateAgent('a4ebc22d-388a-4687-964f-7e27c428ddb9', {
+// Your agent ID (from dashboard)
+const agentId = 'your-agent-id-here';
+
+// Update agent schema
+const updated = await tetto.updateAgent(agentId, {
   inputSchema: {
     type: 'object',
     required: ['action', 'question'],  // Same required fields
@@ -607,7 +610,7 @@ const updated = await tetto.updateAgent('a4ebc22d-388a-4687-964f-7e27c428ddb9', 
   ]
 });
 
-console.log('✅ WarmAnswers updated on mainnet');
+console.log('✅ Agent schema updated successfully');
 console.log('   Agent ID unchanged:', updated.id);
 ```
 

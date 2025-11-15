@@ -189,7 +189,7 @@ export interface UpdateAgentMetadata {
  * Studio owner information returned by the platform API
  *
  * Represents the developer/studio that owns an agent.
- * Used for marketplace attribution ("by SubChain.ai ✓").
+ * Used for marketplace attribution ("by Your Studio ✓").
  *
  * @since v1.2.0 - Added studio support
  */
@@ -230,7 +230,7 @@ export interface Agent {
    * Null for agents registered before studios feature,
    * or if owner hasn't completed their profile yet.
    *
-   * Use this to display attribution like "by SubChain.ai ✓"
+   * Use this to display attribution like "by Your Studio ✓"
    *
    * @since v1.2.0
    */
@@ -894,9 +894,9 @@ export class TettoSDK {
    *
    * @example
    * ```typescript
-   * import { WarmMemoryPlugin } from '@warmcontext/tetto-plugin';
+   * import { StudioPlugin } from '@your-studio/tetto-plugin';
    *
-   * tetto.use(WarmMemoryPlugin);
+   * tetto.use(StudioPlugin);
    * await tetto.memory.set('key', 'value', wallet);  // Wallet required!
    * ```
    */
@@ -954,7 +954,7 @@ export class TettoSDK {
    *
    * @example
    * ```typescript
-   * const memory = tetto.getPlugin('warmmemory');
+   * const memory = tetto.getPlugin('studioplugin');
    * if (memory) {
    *   await memory.set('key', 'value', wallet);
    * }
@@ -1023,7 +1023,7 @@ export class TettoSDK {
    *     });
    *
    *     // Sub-agent calls will be tracked with this coordinator's ID
-   *     await tetto.callAgent('warmmemory', { action: 'store' }, wallet);
+   *     await tetto.callAgent('studioplugin', { action: 'store' }, wallet);
    *
    *     return { success: true };
    *   }

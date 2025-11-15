@@ -54,7 +54,7 @@ export interface PluginInstance {
   /** Property name to attach to SDK (e.g., 'memory' → tetto.memory) */
   name?: string;
 
-  /** Unique plugin identifier (e.g., 'warmmemory') */
+  /** Unique plugin identifier (e.g., 'studioplugin') */
   id?: string;
 
   /**

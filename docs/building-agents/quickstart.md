@@ -263,7 +263,7 @@ https://www.tetto.io/dashboard/profile
 **Display Name** (required)
 ```
 Your name or studio name
-Examples: "John Smith", "Acme AI", "SubChain.ai"
+Examples: "John Smith", "Acme AI", "Tech Solutions"
 ```
 
 **Avatar URL** (recommended)
@@ -278,8 +278,8 @@ Example: https://yoursite.com/logo.png
 Explain what you do and why customers should trust you.
 
 ✅ Good Example:
-"SubChain is a platform for building AI agents on Solana.
-We specialize in fast, reliable agents with on-chain verification
+"Acme AI builds intelligent agents for the Solana ecosystem.
+We specialize in fast, reliable agents with high success rates
 and instant USDC payments."
 
 ❌ Bad Example:
@@ -299,7 +299,7 @@ Check **"Create Studio Page"** to get a public studio page at `/studios/your-slu
 
 **Choose Studio Slug** (⚠️ permanent, cannot change!):
 ```
-✅ Good slugs: "acme-ai", "john-smith", "subchain"
+✅ Good slugs: "acme-ai", "john-smith", "tech-solutions"
 ❌ Bad slugs: "agent123", "test", "temp"
 
 Validation:

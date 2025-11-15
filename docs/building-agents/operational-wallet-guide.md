@@ -88,18 +88,18 @@ Each coordinator has its own operational wallet:
 **Example:**
 
 ```
-User pays MotherAgent $0.10
+User pays MyCoordinator $0.10
   ↓
- MotherAgent calls MotherSpec ($0.02)
+ MyCoordinator calls SubAgent1 ($0.02)
   ↓
-  Payment from MotherAgent operational wallet
+  Payment from MyCoordinator operational wallet
   ↓
- MotherAgent calls MotherGuide ($0.03)
+ MyCoordinator calls SubAgent2 ($0.03)
   ↓
-  Payment from MotherAgent operational wallet
+  Payment from MyCoordinator operational wallet
 ```
 
-MotherAgent keeps: $0.10 - $0.02 - $0.03 = $0.05 profit
+MyCoordinator keeps: $0.10 - $0.02 - $0.03 = $0.05 profit
 
 ---
 

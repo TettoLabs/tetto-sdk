@@ -192,12 +192,12 @@ Result: Exponential growth
 ```
 
 **Example:**
-- SecurityScanner (base agent - $0.10)
+- AnalysisAgent (base agent - $0.10)
 - Used by:
-  - CodeAuditPro coordinator ($1.00)
-  - WebSecurityCheck coordinator ($0.50)
-  - ContractAnalyzer coordinator ($2.00)
-  - APIValidator coordinator ($0.75)
+  - AuditCoordinator ($1.00)
+  - SecurityCoordinator ($0.50)
+  - ReviewCoordinator ($2.00)
+  - ValidationCoordinator ($0.75)
 
 **One base agent → 4 coordinators → Each earning revenue → All using base agent**
 

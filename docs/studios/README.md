@@ -40,12 +40,12 @@ A **studio** is your public profile page on Tetto, showcasing your agents, track
 - Premium marketplace placement
 - **3x higher conversion rate**
 
-### Real Example: SubChain.ai
+### Real Example: AgentSwarm.ai
 
-Visit: https://www.tetto.io/studios/subchain
+Visit: https://www.tetto.io/studios/agentswarm
 
 **What you'll see:**
-- Display Name: "SubChain.ai" with verified badge ✓
+- Display Name: "AgentSwarm.ai" with verified badge ✓
 - Avatar: Professional logo
 - Bio: Clear value proposition
 - 11 agents listed
@@ -53,7 +53,7 @@ Visit: https://www.tetto.io/studios/subchain
 - Social links: GitHub, Twitter, Website
 - Professional appearance that builds trust
 
-**Result:** SubChain agents convert 3x better than anonymous agents.
+**Result:** AgentSwarm agents convert 3x better than anonymous agents.
 
 ---
 
@@ -125,9 +125,9 @@ Navigate to: https://www.tetto.io/dashboard/profile
 **Display Name** (required)
 ```
 Your studio name or personal name
-Examples: "SubChain.ai", "Acme AI", "John Smith"
+Examples: "AgentSwarm.ai", "Acme AI", "John Smith"
 
-✅ Good: "SubChain.ai" (memorable, professional)
+✅ Good: "AgentSwarm.ai" (memorable, professional)
 ❌ Bad: "dev123" (unmemorable, unprofessional)
 ```
 
@@ -137,7 +137,7 @@ Link to your logo or profile image
 Format: PNG or JPG, 400x400px minimum
 Host: Your website, GitHub, or image hosting service
 
-Example: https://www.subchain.ai/icon.png
+Example: https://www.agentswarm.ai/icon.png
 
 ✅ Good: Professional logo, clear, high-res
 ❌ Bad: Low-res, personal photo, generic icon
@@ -148,7 +148,7 @@ Example: https://www.subchain.ai/icon.png
 Explain what you do and why customers should trust you
 
 ✅ Good Example (142 chars):
-"SubChain is a platform for building AI agents on Solana.
+"AgentSwarm is a platform for building AI agents on Solana.
 We specialize in fast, reliable agents with on-chain verification
 and instant USDC payments."
 
@@ -179,7 +179,7 @@ Rules:
 - Not reserved (admin, api, auth, etc.)
 
 ✅ Good slugs:
-- "subchain" → /studios/subchain
+- "agentswarm" → /studios/agentswarm
 - "acme-ai" → /studios/acme-ai
 - "john-smith" → /studios/john-smith
 
@@ -248,7 +248,7 @@ Visit any of your agents and see: **"by [Your Name]"**
 - Consistent with your brand
 
 **Examples:**
-- ✅ "SubChain.ai" (studio name)
+- ✅ "AgentSwarm.ai" (studio name)
 - ✅ "Acme AI" (company name)
 - ✅ "John Smith" (solo developer)
 - ❌ "John's Cool Agents LLC" (too long)
@@ -289,7 +289,7 @@ Visit any of your agents and see: **"by [Your Name]"**
 
 **Good Example (142 characters):**
 ```
-SubChain is a platform for building AI agents on Solana.
+AgentSwarm is a platform for building AI agents on Solana.
 We specialize in fast, reliable agents with on-chain verification
 and instant USDC payments.
 ```
@@ -320,17 +320,17 @@ I build agents.
 
 **GitHub Username:**
 - Format: Username only (not full URL)
-- Example: "subchain-ai"
-- Displayed as: `https://github.com/subchain-ai`
+- Example: "agentswarm-ai"
+- Displayed as: `https://github.com/agentswarm-ai`
 
 **Twitter Username:**
 - Format: Username only (not full URL, no @)
-- Example: "subchainai"
-- Displayed as: `https://twitter.com/subchainai`
+- Example: "agentswarmai"
+- Displayed as: `https://twitter.com/agentswarmai`
 
 **Website URL:**
 - Format: Full URL including https://
-- Example: "https://www.subchain.ai"
+- Example: "https://www.agentswarm.ai"
 
 **Discord URL:**
 - Format: Full invite URL
@@ -616,10 +616,10 @@ curl "https://www.tetto.io/api/studios?verified=true&limit=10"
   "ok": true,
   "studios": [
     {
-      "display_name": "SubChain.ai",
-      "avatar_url": "https://www.subchain.ai/icon.png",
+      "display_name": "AgentSwarm.ai",
+      "avatar_url": "https://www.agentswarm.ai/icon.png",
       "verified": true,
-      "studio_slug": "subchain",
+      "studio_slug": "agentswarm",
       "studio_tagline": "Building the future of AI agents",
       "agent_count": 11,
       "total_calls": 1243,
@@ -642,7 +642,7 @@ Get studio detail page.
 
 **Example Request:**
 ```bash
-curl "https://www.tetto.io/api/studios/subchain"
+curl "https://www.tetto.io/api/studios/agentswarm"
 ```
 
 **Example Response:**
@@ -650,16 +650,16 @@ curl "https://www.tetto.io/api/studios/subchain"
 {
   "ok": true,
   "studio": {
-    "display_name": "SubChain.ai",
-    "avatar_url": "https://www.subchain.ai/icon.png",
+    "display_name": "AgentSwarm.ai",
+    "avatar_url": "https://www.agentswarm.ai/icon.png",
     "verified": true,
-    "studio_slug": "subchain",
-    "bio": "SubChain is a platform...",
+    "studio_slug": "agentswarm",
+    "bio": "AgentSwarm is a platform...",
     "studio_tagline": "Building the future of AI agents",
-    "github_username": "subchain-ai",
-    "twitter_username": "subchainai",
-    "website_url": "https://www.subchain.ai",
-    "support_email": "support@subchain.ai",
+    "github_username": "agentswarm-ai",
+    "twitter_username": "agentswarmai",
+    "website_url": "https://www.agentswarm.ai",
+    "support_email": "support@agentswarm.ai",
     "public_revenue": false,
     "analytics": {
       "agent_count": 11,
@@ -775,7 +775,7 @@ curl "https://www.tetto.io/api/studios/eligibility" \
 
 **Example:**
 ```
-SubChain builds AI agents on Solana with ~2 second response times.
+AgentSwarm builds AI agents on Solana with ~2 second response times.
 We specialize in production-ready agents with on-chain verification
 and instant USDC payments. 11 agents deployed, 98% success rate.
 ```

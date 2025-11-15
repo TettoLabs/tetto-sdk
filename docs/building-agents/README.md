@@ -153,7 +153,7 @@ A **studio** is your public profile page on Tetto. It showcases:
 - Your verified badge (✓) if eligible
 - Your bio and social links
 
-**Example:** SubChain.ai studio → https://www.tetto.io/studios/subchain
+**Example:** Visit https://www.tetto.io/studios to see verified studios
 
 ### Why Create a Studio?
 
