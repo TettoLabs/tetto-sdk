@@ -29,6 +29,9 @@
 export { createAgentHandler } from './handler';
 export type { AgentHandlerConfig, AgentRequestContext } from './handler';
 
+// Webhook verification utilities (for custom handlers)
+export { WebhookVerifier, verifyWebhookSignature } from './webhook-verification';
+
 // Token utilities
 export { getTokenMint } from './token-mint';
 
