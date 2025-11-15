@@ -1,140 +1,178 @@
 /**
- * Coordinator Agent Example
+ * Coordinator Agent Example - Multi-Agent Orchestration
  *
- * This example shows how to build an agent that calls multiple other agents
- * to accomplish a complex task. The coordinator handles payments to sub-agents
- * autonomously.
+ * Shows how to build a coordinator agent that calls other agents to accomplish
+ * complex tasks. Demonstrates fromContext() and operational wallet patterns.
  *
- * Use case: Code audit that combines security scanning + quality analysis
+ * Use case: Research assistant that calls multiple sub-agents for comprehensive analysis
  *
  * Requirements:
- * - Coordinator must have its own funded wallet
- * - COORDINATOR_WALLET_SECRET in .env
+ * - COORDINATOR_OPERATIONAL_SECRET in .env (funded wallet)
+ * - SUB_AGENT_ID in .env (agent you want to call)
+ *
+ * Learn more: docs/advanced/coordinators.md
  */
 
-import { createAgentHandler, getTokenMint } from 'tetto-sdk/agent';
+import { createAgentHandler } from 'tetto-sdk/agent';
 import type { AgentRequestContext } from 'tetto-sdk/agent';
-import TettoSDK, {
-  getDefaultConfig,
-  createWalletFromKeypair
-} from 'tetto-sdk';
+import { TettoSDK, createWalletFromKeypair } from 'tetto-sdk';
 import { Keypair } from '@solana/web3.js';
 
-// Load coordinator's wallet
-const coordinatorSecret = JSON.parse(process.env.COORDINATOR_WALLET_SECRET || '[]');
-const coordinatorKeypair = Keypair.fromSecretKey(Uint8Array.from(coordinatorSecret));
+/**
+ * Load operational wallet from environment
+ *
+ * Operational wallet is a dedicated wallet used to pay sub-agents.
+ * This pattern is used by all production coordinator agents.
+ *
+ * SECURITY: Never commit wallet secrets to git!
+ */
+function getOperationalWallet() {
+  if (!process.env.COORDINATOR_OPERATIONAL_SECRET) {
+    throw new Error(
+      'COORDINATOR_OPERATIONAL_SECRET not set.\n\n' +
+      'Setup:\n' +
+      '1. Generate wallet: solana-keygen new --outfile coordinator-wallet.json\n' +
+      '2. Get secret: cat coordinator-wallet.json\n' +
+      '3. Add to .env: COORDINATOR_OPERATIONAL_SECRET=[64-element array]\n' +
+      '4. Fund wallet with USDC (DevNet: https://spl-token-faucet.com)\n\n' +
+      'Learn more: docs/building-agents/operational-wallet-guide.md'
+    );
+  }
 
-// Setup SDK for calling sub-agents
-const network = (process.env.NETWORK as 'mainnet' | 'devnet') || 'mainnet';
-const coordinatorWallet = createWalletFromKeypair(coordinatorKeypair);  // No connection needed!
-const tetto = new TettoSDK(getDefaultConfig(network));
+  const secretArray = JSON.parse(process.env.COORDINATOR_OPERATIONAL_SECRET);
+  const secretKey = Uint8Array.from(secretArray);
+  const keypair = Keypair.fromSecretKey(secretKey);
+  return createWalletFromKeypair(keypair);
+}
 
+/**
+ * Coordinator Agent Handler
+ *
+ * Orchestrates multiple sub-agent calls to accomplish complex tasks.
+ */
 export const POST = createAgentHandler({
-  async handler(input: { code: string; language: string }, context: AgentRequestContext) {
-    console.log('🎯 Coordinator: Starting code audit...');
-
-    // Step 1: Find sub-agents dynamically
-    const agents = await tetto.listAgents();
-
-    const securityScanner = agents.find(a => a.name === 'SecurityScanner');
-    const qualityAnalyzer = agents.find(a => a.name === 'QualityAnalyzer');
-
-    if (!securityScanner || !qualityAnalyzer) {
-      throw new Error('Required sub-agents not found in marketplace');
+  async handler(input: { task: string }, context: AgentRequestContext) {
+    // Validate input
+    if (!input?.task || typeof input.task !== 'string') {
+      throw new Error('Invalid input: task field is required (string)');
     }
 
-    console.log(`✅ Found SecurityScanner: $${securityScanner.price_display}`);
-    console.log(`✅ Found QualityAnalyzer: $${qualityAnalyzer.price_display}`);
+    if (input.task.length < 10) {
+      throw new Error('Task too short: minimum 10 characters');
+    }
 
-    // Step 2: Call SecurityScanner (autonomous payment)
-    console.log('🔒 Calling SecurityScanner...');
-    const securityResult = await tetto.callAgent(
-      securityScanner.id,
-      {
-        code: input.code,
-        language: input.language
-      },
-      coordinatorWallet
-    );
+    // Log caller information
+    console.log('🎯 Coordinator called by:', {
+      caller_wallet: context.tetto_context.caller_wallet,
+      caller_agent: context.tetto_context.caller_agent_id || 'user',
+      my_agent_id: context.tetto_context.current_agent_id,
+      my_agent_name: context.tetto_context.current_agent_name,
+      network: context.tetto_context.current_agent_network,
+      intent_id: context.tetto_context.intent_id,
+    });
 
-    console.log(`✅ Security scan complete: ${securityResult.output.score}/100`);
+    // Initialize SDK (auto-configured from context!)
+    // This automatically sets:
+    // - agentId (from current_agent_id)
+    // - network (from current_agent_network)
+    // - apiUrl (based on network)
+    const tetto = TettoSDK.fromContext(context.tetto_context);
 
-    // Step 3: Call QualityAnalyzer (autonomous payment)
-    console.log('📊 Calling QualityAnalyzer...');
-    const qualityResult = await tetto.callAgent(
-      qualityAnalyzer.id,
-      {
-        code: input.code,
-        language: input.language
-      },
-      coordinatorWallet
-    );
+    // Get operational wallet (for paying sub-agents)
+    const operationalWallet = getOperationalWallet();
 
-    console.log(`✅ Quality analysis complete: ${qualityResult.output.score}/100`);
+    console.log(`📋 Processing task: ${input.task.substring(0, 60)}...`);
 
-    // Step 4: Aggregate results
-    const overallScore = Math.round(
-      (securityResult.output.score + qualityResult.output.score) / 2
-    );
+    // Get sub-agent ID from environment
+    const subAgentId = process.env.SUB_AGENT_ID;
 
-    const grade = overallScore >= 90 ? 'A' :
-                  overallScore >= 80 ? 'B' :
-                  overallScore >= 70 ? 'C' :
-                  overallScore >= 60 ? 'D' : 'F';
+    if (!subAgentId) {
+      throw new Error(
+        'SUB_AGENT_ID environment variable not set.\n\n' +
+        'Find agents at: https://tetto.io/agents\n' +
+        'Add to .env: SUB_AGENT_ID=your-chosen-agent-id'
+      );
+    }
 
-    // Step 5: Return comprehensive report
-    return {
-      overall_score: overallScore,
-      grade: grade,
-      security: {
-        score: securityResult.output.score,
-        issues: securityResult.output.issues,
-        tx: securityResult.txSignature
-      },
-      quality: {
-        score: qualityResult.output.score,
-        suggestions: qualityResult.output.suggestions,
-        tx: qualityResult.txSignature
-      },
-      agents_called: ['SecurityScanner', 'QualityAnalyzer'],
-      total_cost: (
-        securityResult.agentReceived + securityResult.protocolFee +
-        qualityResult.agentReceived + qualityResult.protocolFee
-      ) / 1e6
-    };
-  }
+    // Call sub-agent (autonomous payment from operational wallet)
+    console.log(`📞 Calling sub-agent: ${subAgentId.substring(0, 8)}...`);
+
+    try {
+      const result = await tetto.callAgent(
+        subAgentId,
+        {
+          text: input.task,
+        },
+        operationalWallet
+      );
+
+      // Validate response
+      if (!result.output) {
+        throw new Error('Sub-agent returned empty output');
+      }
+
+      console.log(`✅ Sub-agent call successful`);
+      console.log(`💰 Cost: $${((result.agentReceived + result.protocolFee) / 1e6).toFixed(3)}`);
+
+      // Return aggregated result
+      return {
+        result: result.output,
+        sub_agent_cost: (result.agentReceived + result.protocolFee) / 1e6,
+        transaction: result.txSignature,
+      };
+    } catch (error: any) {
+      console.error('❌ Sub-agent call failed:', error.message);
+      throw new Error(`Failed to call sub-agent: ${error.message}`);
+    }
+  },
 });
 
 /**
- * Coordinator Economics:
+ * Coordinator Economics Example:
  *
  * User pays coordinator: $0.50
- * Coordinator pays SecurityScanner: $0.20
- * Coordinator pays QualityAnalyzer: $0.20
- * Coordinator profit: $0.10
- * Protocol fees: ~$0.04 (10% of each call)
+ * Coordinator pays sub-agent: $0.20 (from operational wallet)
+ * Coordinator profit: $0.30
+ * Protocol fees: ~$0.02 (10% of sub-agent call)
  *
- * Coordinator must maintain sufficient balance to pay sub-agents!
+ * IMPORTANT: Coordinator must maintain sufficient USDC balance in operational
+ * wallet to pay sub-agents! Monitor balance and refill when low.
  */
 
 /**
- * Setup:
+ * Setup Instructions:
  *
- * 1. Generate coordinator wallet:
+ * 1. Generate operational wallet:
  *    solana-keygen new --outfile coordinator-wallet.json
+ *    solana-keygen pubkey coordinator-wallet.json
  *
- * 2. Fund coordinator (mainnet):
- *    Send 0.1 SOL + $10 USDC
+ * 2. Fund operational wallet:
+ *    DevNet: Visit https://spl-token-faucet.com → Airdrop USDC-Dev
+ *    MainNet: Transfer USDC from your personal wallet
  *
  * 3. Add to .env:
- *    COORDINATOR_WALLET_SECRET=[keypair array from step 1]
- *    NETWORK=mainnet
+ *    COORDINATOR_OPERATIONAL_SECRET=[paste array from coordinator-wallet.json]
+ *    SUB_AGENT_ID=your-chosen-sub-agent-id
  *
- * 4. Deploy and register with higher price:
- *    Price: $0.50 (must cover sub-agent costs + profit)
- *    Type: coordinator
- *    Timeout: 180s (allows time for multiple calls)
+ * 4. Deploy and register:
+ *    vercel --prod
  *
- * 5. Monitor balance:
- *    solana balance YOUR_COORDINATOR_ADDRESS
+ *    const agent = await tetto.registerAgent({
+ *      name: 'MyCoordinator',
+ *      agentType: 'coordinator',  // Required!
+ *      operationalWallet: 'YOUR_WALLET_PUBKEY',  // Required!
+ *      endpoint: 'https://your-app.vercel.app/api/coordinator',
+ *      inputSchema: { type: 'object', properties: { task: { type: 'string' } }, required: ['task'] },
+ *      outputSchema: { type: 'object', properties: { result: { type: 'object' } }, required: ['result'] },
+ *      priceUSDC: 0.50,  // Must cover sub-agent costs + profit
+ *      ownerWallet: process.env.OWNER_WALLET_PUBKEY,
+ *    });
+ *
+ * 5. Monitor operational wallet balance:
+ *    solana balance YOUR_OPERATIONAL_WALLET_ADDRESS
+ *    spl-token balance EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v YOUR_WALLET  # USDC
+ *
+ * Learn more:
+ * - Operational wallet guide: docs/building-agents/operational-wallet-guide.md
+ * - Coordinator patterns: docs/advanced/coordinators.md
  */
