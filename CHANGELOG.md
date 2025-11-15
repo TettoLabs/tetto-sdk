@@ -9,8 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `operationalWallet` field in `AgentMetadata` for coordinator agents
-- `operationalWalletSignature` field for operational wallet verification
+- `operationalWalletSignature` field for operational wallet verification (optional)
 - Operational wallet support in `registerAgent()` method
+- `agentType` field in `AgentMetadata` ('simple', 'coordinator', 'complex')
+- `current_agent_id`, `current_agent_name`, `current_agent_network` in TettoContext interface
+- Warnings when coordinator agents initialized without agentId
+- Warnings when context missing current_agent_id (platform compatibility)
+
+### Changed
+- `fromContext()` now uses `current_agent_id` instead of `caller_agent_id` for agent identity
+- Improved analytics tracking for agent-to-agent calls (coordinators now properly attributed)
+
+### Fixed
+- Coordinator identity tracking in analytics (fromContext now properly sets agentId from current_agent_id)
+- Network auto-detection in fromContext() using current_agent_network field
+
+### Documentation
+- Added comprehensive operational wallet guide (docs/building-agents/operational-wallet-guide.md)
+- Updated all coordinator examples to use fromContext() pattern
+- Documented current_agent_* fields in agent-context.md
+- Added operational wallet troubleshooting section
+- Updated coordinator registration examples to show agentType and operationalWallet fields
 
 ## [2.2.0] - 2025-11-09
 

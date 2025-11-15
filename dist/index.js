@@ -611,12 +611,12 @@ class TettoSDK {
      * ```typescript
      * export const POST = createAgentHandler({
      *   async handler(input, context) {
-     *     // Create SDK from context (preserves calling_agent_id)
+     *     // Create SDK from context (uses current_agent_id for identity)
      *     const tetto = TettoSDK.fromContext(context.tetto_context, {
      *       network: 'mainnet'
      *     });
      *
-     *     // Calls to agents will include caller_agent_id automatically
+     *     // Sub-agent calls will be tracked with this coordinator's ID
      *     await tetto.callAgent('warmmemory', { action: 'store' }, wallet);
      *
      *     return { success: true };

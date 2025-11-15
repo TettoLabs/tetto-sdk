@@ -1,16 +1,16 @@
 /**
  * Context & Identity Validation Test Suite
  *
- * Validates that SDK v2.0.0 fully supports context passing and identity preservation:
+ * Validates that SDK v2.0+ fully supports context passing and identity preservation:
  * - calling_agent_id sent to portal
- * - fromContext() preserves agent identity
+ * - fromContext() uses current_agent_id (v2.3.0+) with caller_agent_id fallback
  * - Handler receives required tetto_context
  * - Context parameter is required (not optional)
  *
  * ALL TESTS MUST PASS before merging SDK to main.
  *
  * Created: 2025-10-30
- * Updated: 2025-10-31 (v2.0.0 context requirements)
+ * Updated: 2025-11-13 (v2.3.0 current_agent_id support)
  * Status: BLOCKING for SDK main merge
  */
 
@@ -124,31 +124,34 @@ try {
 }
 
 // ============================================================================
-// TEST 4: fromContext() preserves caller_agent_id
+// TEST 4: fromContext() uses current_agent_id (v2.3.0+) with caller_agent_id fallback
 // ============================================================================
 try {
   const mockContext: TettoContext = {
     caller_wallet: 'UserWallet1111111111111111111111111111',
     caller_agent_id: 'upstream-agent-789',
     caller_agent_name: 'UpstreamAgent',
+    current_agent_id: 'current-agent-456',  // NEW in v2.3.0
+    current_agent_name: 'CurrentAgent',
+    current_agent_network: 'devnet',
     intent_id: 'intent-123',
     timestamp: Date.now(),
-    version: '1.0.0'
+    version: '2.3.0'
   };
 
   const tetto = TettoSDK.fromContext(mockContext, { network: 'devnet' });
 
   const callingAgentId = (tetto as any).callingAgentId;
-  if (callingAgentId !== 'upstream-agent-789') {
-    throw new Error('fromContext did not preserve caller_agent_id');
+  if (callingAgentId !== 'current-agent-456') {
+    throw new Error('fromContext should use current_agent_id (not caller_agent_id)');
   }
 
   const config = (tetto as any).config;
-  if (config.agentId !== 'upstream-agent-789') {
-    throw new Error('agentId not set in config from context');
+  if (config.agentId !== 'current-agent-456') {
+    throw new Error('agentId should be set from current_agent_id');
   }
 
-  console.log('✅ Test 4: fromContext() preserves agent identity');
+  console.log('✅ Test 4: fromContext() uses current_agent_id (v2.3.0)');
   testsPassed++;
 } catch (error) {
   console.error('❌ Test 4 failed:', error);
@@ -163,6 +166,9 @@ try {
     caller_wallet: 'UserWallet1111111111111111111111111111',
     caller_agent_id: null,  // Direct user call
     caller_agent_name: null,
+    current_agent_id: undefined,  // Platform < v1.2 compatibility
+    current_agent_name: undefined,
+    current_agent_network: undefined,
     intent_id: 'intent-456',
     timestamp: Date.now(),
     version: '1.0.0'
@@ -243,9 +249,12 @@ try {
       caller_wallet: 'Test',
       caller_agent_id: 'test',
       caller_agent_name: 'TestAgent',
+      current_agent_id: 'current-test',
+      current_agent_name: 'CurrentTestAgent',
+      current_agent_network: 'devnet',
       intent_id: 'intent',
       timestamp: Date.now(),
-      version: '1.0.0'
+      version: '2.3.0'
     };
 
     if (!mockContext.caller_wallet) {
@@ -269,9 +278,12 @@ try {
         caller_wallet: 'TestWallet123',
         caller_agent_id: 'test-agent',
         caller_agent_name: 'TestAgent',
+        current_agent_id: 'current-test-agent',
+        current_agent_name: 'CurrentTestAgent',
+        current_agent_network: 'mainnet',
         intent_id: 'intent-test',
         timestamp: Date.now(),
-        version: '2.0'
+        version: '2.3'
       }
     };
 
@@ -324,9 +336,12 @@ try {
           caller_wallet: 'UserWallet123',
           caller_agent_id: 'upstream-agent-abc',
           caller_agent_name: 'UpstreamAgent',
+          current_agent_id: 'current-coordinator-xyz',
+          current_agent_name: 'CurrentCoordinator',
+          current_agent_network: 'devnet',
           intent_id: 'intent-xyz',
           timestamp: Date.now(),
-          version: '1.0.0'
+          version: '2.3.0'
         }
       })
     };
@@ -338,8 +353,8 @@ try {
       throw new Error('Agent-to-agent flow failed');
     }
 
-    if (data.callingAgentId !== 'upstream-agent-abc') {
-      throw new Error('Agent identity not preserved in flow');
+    if (data.callingAgentId !== 'current-coordinator-xyz') {
+      throw new Error('Agent identity should use current_agent_id');
     }
 
     console.log('✅ Test 11: Full agent-to-agent flow works');
@@ -389,15 +404,21 @@ try {
       caller_wallet: 'AYPz8VHckZbbqsQd4qQfypKrE6bpSpJKJNYr9r4AJNZV',
       caller_agent_id: 'agent-uuid-123',
       caller_agent_name: 'TestAgent',
+      current_agent_id: 'current-agent-uuid-456',
+      current_agent_name: 'CurrentTestAgent',
+      current_agent_network: 'mainnet',
       intent_id: '1d50f128-2c92-4f53-b466-9a554044a6d1',
       timestamp: 1730419845000,
-      version: '2.0'
+      version: '2.3'
     };
 
-    // Verify all 6 fields accessible and typed correctly
+    // Verify all fields accessible and typed correctly
     if (!mockContext.caller_wallet) throw new Error('caller_wallet required');
     if (mockContext.caller_agent_id === undefined) throw new Error('caller_agent_id required');
     if (mockContext.caller_agent_name === undefined) throw new Error('caller_agent_name defined');
+    if (mockContext.current_agent_id === undefined) throw new Error('current_agent_id defined');
+    if (mockContext.current_agent_name === undefined) throw new Error('current_agent_name defined');
+    if (mockContext.current_agent_network === undefined) throw new Error('current_agent_network defined');
     if (!mockContext.intent_id) throw new Error('intent_id required');
     if (!mockContext.timestamp) throw new Error('timestamp required');
     if (!mockContext.version) throw new Error('version required');
