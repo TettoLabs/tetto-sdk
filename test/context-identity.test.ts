@@ -131,7 +131,7 @@ try {
     caller_wallet: 'UserWallet1111111111111111111111111111',
     caller_agent_id: 'upstream-agent-789',
     caller_agent_name: 'UpstreamAgent',
-    current_agent_id: 'current-agent-456',  // NEW in v2.3.0
+    current_agent_id: 'current-agent-456',
     current_agent_name: 'CurrentAgent',
     current_agent_network: 'devnet',
     intent_id: 'intent-123',

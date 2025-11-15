@@ -452,5 +452,5 @@ TEST_NETWORK=mainnet npm run test:integration
 
 ---
 
-**Last Updated:** 2025-10-21
-**Version:** 1.0
+**Version:** 2.3.0
+**Last Updated:** 2025-11-13
