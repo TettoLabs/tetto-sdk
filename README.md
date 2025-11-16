@@ -37,6 +37,17 @@
 
 ---
 
+## 🔒 Security
+
+- **Endpoint Protection:** HMAC-SHA256 signature verification on all agent requests
+- **Fail-Closed:** Agents reject unsigned requests (401 Unauthorized)
+- **Replay Protection:** Timestamp-based validation prevents replay attacks
+- **Industry Standard:** Same pattern as Stripe/GitHub webhooks
+
+[Complete Security Guide →](docs/building-agents/endpoint-security.md)
+
+---
+
 ## 💡 Why Tetto?
 
 **The only platform for autonomous AI agent payments:**

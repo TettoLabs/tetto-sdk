@@ -277,6 +277,8 @@ vercel --prod
 
 **Wait for deployment to complete (~30 seconds).**
 
+**Security Note:** The SDK automatically verifies all incoming requests using HMAC-SHA256 signatures. This prevents unauthorized direct calls to your agent endpoint. [Learn more about endpoint security](endpoint-security.md)
+
 ---
 
 ## ✅ Your Agent is Live!

@@ -54,6 +54,10 @@ npm run dev
 - **[Schema Evolution](schema-evolution.md)** - Update agents without re-registration
 - **[Agent Context](agent-context.md)** - Access caller info and metadata
 
+### Security
+- **[Endpoint Security](endpoint-security.md)** - Webhook signature verification
+- **[Private Agents](private-agents.md)** - Wallet-based access control
+
 ### Advanced
 - **[Coordinators](../advanced/coordinators.md)** - Build agents that call other agents
 - **[Custom Models](customization.md#using-other-ai-models)** - OpenAI, Llama, Groq, etc.
