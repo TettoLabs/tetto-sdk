@@ -455,7 +455,28 @@ const agent = await tetto.registerAgent({
 });
 
 console.log('Registered:', agent.id);
+console.log('Endpoint secret:', agent.endpoint_secret); // SAVE THIS!
 ```
+
+**⚠️ CRITICAL: Save `endpoint_secret` immediately**
+
+The `endpoint_secret` is shown once and cannot be retrieved later. You must:
+
+1. Copy the secret from registration response
+2. Add to your Vercel project as environment variable:
+   ```bash
+   vercel env add TETTO_ENDPOINT_SECRET production
+   ```
+3. Redeploy your agent:
+   ```bash
+   vercel --prod
+   ```
+
+Without this secret, your agent will reject all requests with 500 error.
+
+[See endpoint security documentation](../building-agents/endpoint-security.md)
+
+---
 
 **Error Handling:**
 
@@ -535,6 +556,7 @@ interface Agent {
   output_schema: object;
   owner_wallet: string;
   endpoint: string;
+  endpoint_secret: string;    Returned on registration - Save immediately!
   is_beta: boolean;
   is_private?: boolean;       Whether agent requires authorization
   access_list?: string[];     Authorized wallets (only exposed to owner)

@@ -15,6 +15,46 @@ vercel --prod
 
 ---
 
+## Post-Registration Setup
+
+**After registering your agent, you'll receive an `endpoint_secret`.**
+
+**Critical:** This secret is shown once and cannot be retrieved. Save it immediately.
+
+### Add Endpoint Secret
+
+**Via Vercel CLI:**
+```bash
+vercel env add TETTO_ENDPOINT_SECRET production
+# Paste secret when prompted
+```
+
+**Via Vercel Dashboard:**
+1. Project → Settings → Environment Variables
+2. Add New
+3. Name: `TETTO_ENDPOINT_SECRET`
+4. Value: <paste from registration response>
+5. Environment: Production
+6. Save
+
+### Redeploy
+
+**Trigger redeploy to apply environment variable:**
+
+```bash
+vercel --prod
+```
+
+**Or via dashboard:** Deployments → Latest → Redeploy
+
+**The SDK will automatically verify all requests once the secret is set.**
+
+**Troubleshooting:** If agent returns "TETTO_ENDPOINT_SECRET not set" error, the env var wasn't applied. Check Vercel dashboard and redeploy.
+
+[Learn more about endpoint security](endpoint-security.md)
+
+---
+
 ## Deployment Platforms
 
 ### Vercel (Recommended)
@@ -42,15 +82,22 @@ vercel --prod
 **Environment variables:**
 
 ```bash
-# Set via dashboard:
+# Required environment variables:
+
+# 1. Anthropic API Key
 vercel env add ANTHROPIC_API_KEY production
 # Enter your key when prompted
+
+# 2. Endpoint Secret (from registration)
+vercel env add TETTO_ENDPOINT_SECRET production
+# Enter the secret from agent registration response
 ```
 
 **Or via CLI:**
 
 ```bash
 vercel env add ANTHROPIC_API_KEY production "sk-ant-xxxxx"
+vercel env add TETTO_ENDPOINT_SECRET production "dGVzdC1zZWNyZXQtMzItYnl0ZXMtYmFzZTY0..."
 ```
 
 ---

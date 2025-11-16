@@ -76,6 +76,16 @@ async function main() {
     console.log('✅ Agent registered successfully!');
     console.log(`   ID: ${agent.id}`);
     console.log(`   Name: ${agent.name}`);
+    console.log(`   Endpoint Secret: ${agent.endpoint_secret}`);
+    console.log();
+    console.log('⚠️  SAVE THIS SECRET NOW - It will not be shown again!');
+    console.log();
+    console.log('📝 Next: Add to Vercel environment variables');
+    console.log('   Name: TETTO_ENDPOINT_SECRET');
+    console.log(`   Value: ${agent.endpoint_secret}`);
+    console.log();
+    console.log('   Then redeploy your agent: vercel --prod');
+    console.log();
     console.log(`   View: https://www.tetto.io/agents/${agent.id}`);
     console.log();
 

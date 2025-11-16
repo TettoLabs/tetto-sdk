@@ -334,6 +334,13 @@ const agent = await tetto.registerAgent({
   priceUSDC: 0.01,
   ownerWallet: 'YOUR_WALLET_PUBKEY',
 });
+
+console.log('Agent registered:', agent.id);
+console.log('Endpoint secret:', agent.endpoint_secret); // Save this!
+
+// ⚠️ IMPORTANT: Add to environment variables
+// Vercel: vercel env add TETTO_ENDPOINT_SECRET production
+// Then redeploy: vercel --prod
 ```
 
 **Security Best Practices:**

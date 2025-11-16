@@ -200,9 +200,26 @@ const agent = await tetto.registerAgent({
   // accessList: ['BETA_TESTER_WALLET_1', 'BETA_TESTER_WALLET_2'],
 });
 
-console.log('Registered to dev.tetto.io:', agent.id);
-console.log('View at: https://dev.tetto.io/agents/' + agent.id);
+console.log('Agent ID:', agent.id);
+console.log('Endpoint Secret:', agent.endpoint_secret); // SAVE THIS!
 ```
+
+**⚠️ Save the endpoint_secret:**
+
+```bash
+# Add to .env.local for local testing
+echo "TETTO_ENDPOINT_SECRET=${agent.endpoint_secret}" >> .env.local
+
+# Add to Vercel for dev.tetto.io testing
+vercel env add TETTO_ENDPOINT_SECRET production
+
+# Redeploy
+vercel --prod
+```
+
+**Why:** The SDK verifies all requests. Without this secret, your agent returns 500 errors.
+
+---
 
 ### Step 5: Test Your Agent (30 seconds)
 

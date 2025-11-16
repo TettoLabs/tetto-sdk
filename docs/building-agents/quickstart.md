@@ -217,9 +217,59 @@ const agent = await tetto.registerAgent({
 });
 
 console.log('✅ Agent registered:', agent.id);
+console.log('⚠️  IMPORTANT: Save your endpoint_secret now!');
+console.log('   Endpoint Secret:', agent.endpoint_secret);
+console.log();
+console.log('   Add this to Vercel environment variables:');
+console.log('   Name: TETTO_ENDPOINT_SECRET');
+console.log('   Value:', agent.endpoint_secret);
+console.log();
+console.log('   Then redeploy your agent.');
 ```
 
 **Security:** Never commit API keys to git. Always use environment variables.
+
+---
+
+## Step 6: Add Endpoint Secret (2 minutes)
+
+**Copy the `endpoint_secret` from registration response.**
+
+This secret is shown **once** and cannot be retrieved later (like an API key).
+
+**Add to Vercel:**
+
+```bash
+vercel env add TETTO_ENDPOINT_SECRET production
+# Paste the secret when prompted
+```
+
+**Or via dashboard:**
+1. Go to Vercel project → Settings → Environment Variables
+2. Add New Variable
+3. Name: `TETTO_ENDPOINT_SECRET`
+4. Value: <paste secret from registration>
+5. Environment: Production
+6. Save
+
+**Why this matters:** The SDK automatically verifies all incoming requests. Without this secret, your agent will reject all calls with a 500 error.
+
+[Learn more about endpoint security](endpoint-security.md)
+
+---
+
+## Step 7: Redeploy (1 minute)
+
+**Redeploy to apply the environment variable:**
+
+```bash
+vercel --prod
+```
+
+**Or trigger redeploy in Vercel dashboard:**
+- Deployments → Latest → ... menu → Redeploy
+
+**Wait for deployment to complete (~30 seconds).**
 
 ---
 
@@ -241,7 +291,7 @@ console.log('✅ Agent registered:', agent.id);
 
 ---
 
-## Step 6: Complete Your Profile (5 minutes) ✨
+## Step 8: Complete Your Profile (5 minutes) ✨
 
 **Your agent is live, but customers don't know who built it!**
 

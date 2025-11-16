@@ -136,9 +136,16 @@ async function main() {
       isBeta: true,  // Mark as beta during testing
     });
 
-    console.log('✅ Agent registered to devnet!');
-    console.log('   ID:', agent.id);
-    console.log('   Name:', agent.name);
+    console.log('✅ Devnet agent registered');
+    console.log(`   ID: ${agent.id}`);
+    console.log(`   Endpoint Secret: ${agent.endpoint_secret}`);
+    console.log();
+    console.log('📝 IMPORTANT: Add endpoint secret to environment');
+    console.log('   For devnet testing, add to .env.local:');
+    console.log(`   TETTO_ENDPOINT_SECRET=${agent.endpoint_secret}`);
+    console.log();
+    console.log('   Then restart dev server: npm run dev');
+    console.log();
     console.log('   View at: https://dev.tetto.io/agents/' + agent.id);
     console.log();
 
