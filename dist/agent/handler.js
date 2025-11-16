@@ -43,7 +43,7 @@ const webhook_verification_1 = require("./webhook-verification");
  */
 function createAgentHandler(config) {
     async function POST(request) {
-        console.log('🔍 createAgentHandler POST called - SDK v2.4.0');
+        console.log('🔍 createAgentHandler POST called - SDK v2.5.0');
         try {
             // ============================================================
             // CRITICAL SECURITY: Verify webhook signature (HMAC-SHA256)
