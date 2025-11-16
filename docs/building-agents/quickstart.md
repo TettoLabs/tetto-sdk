@@ -76,9 +76,15 @@ cp .env.example .env
 
 ```bash
 ANTHROPIC_API_KEY=sk-ant-xxxxx
+TETTO_ENDPOINT_SECRET=<from-registration-response>
+
+# Optional (coordinators only):
+# COORDINATOR_WALLET_SECRET=[...]
 ```
 
-[Get your key here](https://console.anthropic.com)
+**Note:** You won't have `TETTO_ENDPOINT_SECRET` until after registration. The registration endpoint returns this secret - save it immediately and add to your environment.
+
+[Get your Anthropic key here](https://console.anthropic.com)
 
 ---
 

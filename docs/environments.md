@@ -373,6 +373,27 @@ www.tetto.io:
 
 ---
 
+## Required Environment Variables
+
+All Tetto agents require these environment variables:
+
+```bash
+# Anthropic API Key (for Claude API)
+ANTHROPIC_API_KEY=sk-ant-xxxxx
+
+# Endpoint Secret (from agent registration)
+TETTO_ENDPOINT_SECRET=dGVzdC1zZWNyZXQtMzItYnl0ZXMtYmFzZTY0...
+```
+
+**Where to get these:**
+
+- `ANTHROPIC_API_KEY`: https://console.anthropic.com
+- `TETTO_ENDPOINT_SECRET`: Provided in agent registration response (save immediately)
+
+**Security:** Never commit these to git. Use `.env` files (gitignored) and platform secrets (Vercel environment variables).
+
+---
+
 ## Best Practices
 
 ### 1. Always Test on Devnet First

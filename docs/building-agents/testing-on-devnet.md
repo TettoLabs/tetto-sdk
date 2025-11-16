@@ -379,6 +379,22 @@ const tetto = new TettoSDK({
 
 **Note:** API keys from dashboard work on BOTH mainnet and devnet.
 
+### Environment Variables for Devnet Testing
+
+```bash
+# .env.local (for local testing)
+ANTHROPIC_API_KEY=sk-ant-xxxxx
+TETTO_ENDPOINT_SECRET=<from-dev.tetto.io-registration>
+
+# Network selection (optional, defaults based on domain)
+TETTO_NETWORK=devnet
+```
+
+**Important:**
+- Get `TETTO_ENDPOINT_SECRET` from dev.tetto.io registration
+- Devnet and mainnet agents can share the same deployed endpoint
+- But each network requires its own registration and secret
+
 ---
 
 ## Registering Test Agents
