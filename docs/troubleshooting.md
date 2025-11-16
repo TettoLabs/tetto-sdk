@@ -265,6 +265,78 @@ async function callWithRetry(agentId, input, wallet, maxRetries = 3) {
 
 ---
 
+### "TETTO_ENDPOINT_SECRET not set" Error
+
+**Error message:**
+```
+Agent misconfigured: TETTO_ENDPOINT_SECRET not set
+Code: ENDPOINT_SECRET_MISSING
+```
+
+**Cause:** Your agent is missing the endpoint secret environment variable.
+
+**Solution:**
+
+1. **Get your endpoint secret:**
+   - From agent registration response (if you saved it)
+   - OR query production database: `SELECT endpoint_secret FROM agents WHERE id = 'your-agent-id'`
+   - OR re-register agent (generates new secret)
+
+2. **Add to Vercel:**
+   ```bash
+   vercel env add TETTO_ENDPOINT_SECRET production
+   # Paste your secret when prompted
+   ```
+
+3. **Redeploy:**
+   ```bash
+   vercel --prod
+   ```
+
+4. **Test:**
+   Call your agent through tetto.io - should work now
+
+**Prevention:** Always save the `endpoint_secret` immediately after registration.
+
+---
+
+### "Invalid webhook signature" Error
+
+**Error message:**
+```
+Unauthorized: Invalid webhook signature
+Code: INVALID_SIGNATURE
+Details: Missing X-Tetto-Signature header. Requests must be signed by Tetto platform.
+```
+
+**Cause:** Someone is calling your agent endpoint directly (not through Tetto platform).
+
+**This is expected behavior!**
+
+**What it means:**
+- ✅ Your security is working correctly
+- ✅ Direct calls are being blocked
+- ✅ Only Tetto platform can call your agent
+
+**If you're getting this error when calling through tetto.io:**
+
+1. **Check endpoint secret is correct:**
+   - Vercel env var matches database value
+   - No typos in secret
+
+2. **Check deployment is current:**
+   - Latest deployment has SDK v2.5.0
+   - Environment variable is set in production environment
+
+3. **Clear Portal cache (if just updated):**
+   - Portal caches agent records for 5 minutes
+   - Wait 5 minutes after updating secret in database
+   - OR contact support to flush cache
+
+**Learn more:** [Endpoint Security Guide](building-agents/endpoint-security.md)
+
+---
+
 ## Network Issues
 
 ### "Network request failed"
