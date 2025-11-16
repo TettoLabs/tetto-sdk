@@ -5,6 +5,19 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2025-11-16
+
+### Documentation
+
+**npm package documentation update** - Updated README.md and CHANGELOG.md included in npm package to reflect v2.5.0 changes. No code changes.
+
+**What changed in npm package:**
+- README.md now shows v2.5.0 (was v2.3.0)
+- CHANGELOG.md now included with full v2.5.0 release notes
+- All endpoint_secret and TETTO_ENDPOINT_SECRET documentation visible to npm users
+
+**Note:** This is a documentation-only release. If you installed tetto-sdk@2.5.0, the code is identical - only the bundled documentation files were updated.
+
 ## [2.5.0] - 2025-11-16
 
 ### Added
