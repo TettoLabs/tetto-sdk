@@ -5,6 +5,100 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2025-11-16
+
+### Added
+
+**HMAC-SHA256 Webhook Signature Verification** (Critical Security Feature)
+
+- New `WebhookVerifier` class for signature verification (`src/agent/webhook-verification.ts`)
+- New `verifyWebhookSignature()` helper function for manual verification
+- Automatic signature verification in `createAgentHandler` (enforced, cannot be disabled)
+- Comprehensive endpoint security documentation (`docs/building-agents/endpoint-security.md`)
+
+**How it works:**
+- Portal signs all requests to agent endpoints with HMAC-SHA256
+- Agents verify signatures using `TETTO_ENDPOINT_SECRET` environment variable
+- Unsigned requests rejected with 401 Unauthorized
+- Invalid signatures rejected with 401 Unauthorized
+- Missing secret = 500 error (agent misconfigured, fails closed)
+
+**Why this matters:**
+- Prevents unauthorized direct calls to agent endpoints
+- Attackers can no longer bypass payment by calling endpoints directly
+- Industry-standard pattern (same as Stripe/GitHub webhooks)
+- Zero performance overhead (0.007ms verification time)
+
+### Changed
+
+- **BREAKING:** `createAgentHandler` now requires `TETTO_ENDPOINT_SECRET` environment variable
+- **BREAKING:** All agents must set environment variable or return 500 error (fail-closed security)
+- Agent registration endpoint now returns `endpoint_secret` field in response (shown once)
+- Registration response includes security warnings and setup instructions
+
+### Security
+
+- **Endpoint Protection:** All agent endpoints now verify request signatures
+- **Fail-Closed Architecture:** Missing secret = reject all requests (500 error)
+- **Replay Attack Prevention:** 5-minute timestamp window with 60-second clock skew tolerance
+- **Timing-Safe Comparison:** Uses `crypto.timingSafeEqual` to prevent timing attacks
+- **One Secret Per Studio:** All agents in same deployment share one secret (simpler ops)
+
+### Documentation
+
+- Added `docs/building-agents/endpoint-security.md` - Complete security guide (350+ lines)
+- Updated all registration examples to show `endpoint_secret` in response
+- Updated all environment variable sections to include `TETTO_ENDPOINT_SECRET`
+- Updated all deployment guides with post-registration redeploy step
+- Added troubleshooting section for signature verification errors
+
+### Migration Guide
+
+**For new agents (first-time registration):**
+1. Build and deploy agent to Vercel (with `ANTHROPIC_API_KEY` only)
+2. Register agent via dashboard or SDK → Save `endpoint_secret` from response
+3. Add `TETTO_ENDPOINT_SECRET` to Vercel environment variables
+4. Redeploy agent
+5. Agent now verifies all requests automatically
+
+**For existing agents (already registered):**
+1. Get `endpoint_secret` from production database (query agents table)
+2. Add `TETTO_ENDPOINT_SECRET` to Vercel environment variables
+3. Update SDK to v2.5.0 in package.json
+4. Deploy with updated SDK
+5. Agent now verifies all requests automatically
+
+### npm Publication
+
+**First version published to npm registry:**
+- Install: `npm install tetto-sdk@2.5.0`
+- No longer requires GitHub dependency (e.g., `github:TettoLabs/tetto-sdk#main`)
+- Proper semantic versioning
+- Reliable dependency resolution
+
+**Migration from GitHub dependencies:**
+```bash
+# Old (GitHub dependency):
+"tetto-sdk": "github:TettoLabs/tetto-sdk#main"
+
+# New (npm):
+"tetto-sdk": "^2.5.0"
+```
+
+### Developer Experience
+
+- Clear error messages when `TETTO_ENDPOINT_SECRET` not set
+- Helpful logs for signature verification failures
+- Copy-paste instructions in registration response
+- Zero code changes needed (SDK handles verification automatically)
+
+### Internal
+
+- Portal signs requests in `app/api/agents/call/route.ts`
+- Portal registration generates secrets in `app/api/agents/register/route.ts`
+- Production database consolidated to one secret per deployment (domain + network)
+- All 3 internal studios (warmcontext, subchain, mothernode) updated and deployed
+
 ## [2.3.0] - 2025-11-13
 
 ### Added

@@ -82,7 +82,7 @@ git push origin main
 
 **That's it!** The SDK automatically verifies all requests.
 
-## Automatic Verification (SDK v2.4.0+)
+## Automatic Verification (SDK v2.5.0+)
 
 If you use `createAgentHandler`, verification is **automatic** and **enforced**:
 
