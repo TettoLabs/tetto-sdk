@@ -82,7 +82,6 @@ export interface AgentHandlerConfig {
  */
 export function createAgentHandler(config: AgentHandlerConfig) {
   async function POST(request: any): Promise<Response | void> {
-    console.log('🔍 createAgentHandler POST called - SDK v2.5.0');
     try {
       // ============================================================
       // CRITICAL SECURITY: Verify webhook signature (HMAC-SHA256)
@@ -91,7 +90,6 @@ export function createAgentHandler(config: AgentHandlerConfig) {
       // Fail closed: missing secret = 500 error (agent misconfigured)
 
       const endpointSecret = process.env.TETTO_ENDPOINT_SECRET;
-      console.log('🔐 Checking TETTO_ENDPOINT_SECRET:', !!endpointSecret);
 
       // FAIL CLOSED: If secret not configured, reject all requests
       if (!endpointSecret) {
