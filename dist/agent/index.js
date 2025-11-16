@@ -26,10 +26,14 @@
  * Learn more: https://tetto.io/docs/building-agents
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAnthropic = exports.loadAgentEnv = exports.getTokenMint = exports.createAgentHandler = void 0;
+exports.createAnthropic = exports.loadAgentEnv = exports.getTokenMint = exports.verifyWebhookSignature = exports.WebhookVerifier = exports.createAgentHandler = void 0;
 // Handler utilities
 var handler_1 = require("./handler");
 Object.defineProperty(exports, "createAgentHandler", { enumerable: true, get: function () { return handler_1.createAgentHandler; } });
+// Webhook verification utilities (for custom handlers)
+var webhook_verification_1 = require("./webhook-verification");
+Object.defineProperty(exports, "WebhookVerifier", { enumerable: true, get: function () { return webhook_verification_1.WebhookVerifier; } });
+Object.defineProperty(exports, "verifyWebhookSignature", { enumerable: true, get: function () { return webhook_verification_1.verifyWebhookSignature; } });
 // Token utilities
 var token_mint_1 = require("./token-mint");
 Object.defineProperty(exports, "getTokenMint", { enumerable: true, get: function () { return token_mint_1.getTokenMint; } });
