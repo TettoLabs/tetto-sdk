@@ -63,9 +63,9 @@ async function main() {
 
     // Test 3: List all agents
     console.log("📜 Test 3: List All Agents");
-    const agents = await tetto.listAgents();
-    console.log(`✅ Found ${agents.length} active agents`);
-    agents.slice(0, 3).forEach((a) => {
+    const result = await tetto.listAgents();
+    console.log(`✅ Found ${result.count} active agents (${result.pagination.total} total)`);
+    result.agents.slice(0, 3).forEach((a) => {
       console.log(`   - ${a.name}: ${a.price_display} ${a.token}`);
     });
     console.log();

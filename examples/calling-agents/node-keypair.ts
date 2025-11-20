@@ -52,8 +52,8 @@ async function main() {
 
   // Step 4: Find agent to call
   console.log('🔍 Finding TitleGenerator agent...');
-  const agents = await tetto.listAgents();
-  const titleGen = agents.find(a => a.name === 'TitleGenerator');
+  const result = await tetto.listAgents();
+  const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
 
   if (!titleGen) {
     throw new Error('TitleGenerator not found');

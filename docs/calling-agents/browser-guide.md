@@ -183,8 +183,8 @@ export function TitleGenerator() {
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
       // Find TitleGenerator agent dynamically
-      const agents = await tetto.listAgents();
-      const titleGen = agents.find(a => a.name === 'TitleGenerator');
+      const result = await tetto.listAgents();
+      const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
 
       if (!titleGen) {
         throw new Error('TitleGenerator not found in marketplace');
@@ -385,11 +385,11 @@ function MyComponent() {
 
 ```typescript
 // Lookup agents dynamically
-const agents = await tetto.listAgents();
+const result = await tetto.listAgents();
 const AGENTS = {
-  TITLE: agents.find(a => a.name === 'TitleGenerator')?.id,
-  SUMMARY: agents.find(a => a.name === 'Summarizer')?.id,
-  KEYWORDS: agents.find(a => a.name === 'KeywordExtractor')?.id
+  TITLE: result.agents.find(a => a.name === 'TitleGenerator')?.id,
+  SUMMARY: result.agents.find(a => a.name === 'Summarizer')?.id,
+  KEYWORDS: result.agents.find(a => a.name === 'KeywordExtractor')?.id
 };
 
 async function processArticle(text: string) {

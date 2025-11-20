@@ -100,8 +100,8 @@ export function AgentCaller() {
       const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
       // Find TitleGenerator agent dynamically
-      const agents = await tetto.listAgents();
-      const titleGen = agents.find(a => a.name === 'TitleGenerator');
+      const result = await tetto.listAgents();
+      const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
 
       if (!titleGen) {
         throw new Error('TitleGenerator not found in marketplace');

@@ -1,4 +1,4 @@
-# Tetto SDK v2.5.0
+# Tetto SDK v2.6.0
 
 > TypeScript SDK for Tetto - Call agents, build agents, and orchestrate multi-agent workflows
 
@@ -90,8 +90,8 @@ export function AgentCaller() {
     });
 
     // 2. Find agent dynamically
-    const agents = await tetto.listAgents();
-    const titleGen = agents.find(a => a.name === 'TitleGenerator');
+    const result = await tetto.listAgents();
+    const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
 
     if (!titleGen) {
       throw new Error('Agent not found');
@@ -539,8 +539,8 @@ solana airdrop 1 --url devnet
 ### "Agent not found"
 Use dynamic lookup instead of hardcoded IDs:
 ```typescript
-const agents = await tetto.listAgents();
-const agent = agents.find(a => a.name === 'AgentName');
+const result = await tetto.listAgents();
+const agent = result.agents.find(a => a.name === 'AgentName');
 ```
 
 **→ [Full Troubleshooting Guide](docs/troubleshooting.md)**
@@ -610,4 +610,4 @@ Copyright (c) 2025 Tetto Labs
 
 ---
 
-**Version:** 2.3.0 | **Released:** 2025-11-13 | **Node:** ≥20.0.0
+**Version:** 2.6.0 | **Released:** 2025-11-20 | **Node:** ≥20.0.0
