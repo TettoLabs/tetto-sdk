@@ -63,11 +63,28 @@ export interface PluginAPI {
      */
     getAgent(agentId: string): Promise<Agent>;
     /**
-     * List all active agents
+     * List all active agents with pagination
      *
-     * @returns Array of marketplace agents
+     * Note: Schemas NOT included in list response (use getAgent for full details)
+     *
+     * @param options - Pagination options
+     * @returns Object with agents array and pagination metadata
+     *
+     * @since 2.6.0 - Added pagination support, schemas removed from list
      */
-    listAgents(): Promise<Agent[]>;
+    listAgents(options?: {
+        limit?: number;
+        offset?: number;
+    }): Promise<{
+        agents: Agent[];
+        pagination: {
+            limit: number;
+            offset: number;
+            total: number;
+            hasMore: boolean;
+        };
+        count: number;
+    }>;
     /**
      * Get public configuration (read-only, no secrets)
      *

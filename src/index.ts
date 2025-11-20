@@ -220,8 +220,21 @@ export interface Agent {
   token: string;
   token_mint: string;
   token_decimals: number;
-  input_schema: Record<string, unknown>;
-  output_schema: Record<string, unknown>;
+
+  /**
+   * Input schema (optional - only present on detail endpoint)
+   * Use getAgent() to fetch full agent details including schemas
+   * @since 2.6.0 - Made optional (not in list responses)
+   */
+  input_schema?: Record<string, unknown>;
+
+  /**
+   * Output schema (optional - only present on detail endpoint)
+   * Use getAgent() to fetch full agent details including schemas
+   * @since 2.6.0 - Made optional (not in list responses)
+   */
+  output_schema?: Record<string, unknown>;
+
   owner_wallet: string;
 
   /**
@@ -239,6 +252,12 @@ export interface Agent {
   fee_bps: number;
   status: string;
   created_at: string;
+
+  /**
+   * Example inputs (optional - only present on detail endpoint)
+   * Use getAgent() to fetch full agent details including example inputs
+   * @since 2.6.0 - Made optional (not in list responses)
+   */
   example_inputs?: Array<{
     label: string;
     input: Record<string, unknown>;
@@ -295,6 +314,12 @@ interface AgentsResponse {
   ok: boolean;
   agents?: Agent[];
   count?: number;
+  pagination?: {
+    limit: number;
+    offset: number;
+    total: number;
+    hasMore: boolean;
+  };
   error?: string;
 }
 
@@ -622,20 +647,77 @@ export class TettoSDK {
   }
 
   /**
-   * List all active agents in the marketplace
+   * List active agents from marketplace with pagination support
    *
-   * @returns Array of active agents
+   * **Important:** Schemas (`input_schema`, `output_schema`, `example_inputs`) are
+   * NOT included in list responses for performance. Use `getAgent()` to fetch full
+   * agent details including schemas.
    *
-   * @example
+   * @param options - Pagination options
+   * @param options.limit - Max agents per page (default: 50, max: 1000)
+   * @param options.offset - Skip N agents (default: 0)
+   * @returns Object with agents array and pagination metadata
+   *
+   * @example Basic usage (no pagination):
    * ```typescript
-   * const agents = await tetto.listAgents();
-   * agents.forEach(agent => {
+   * const result = await tetto.listAgents();
+   * result.agents.forEach(agent => {
    *   console.log(`${agent.name}: ${agent.price_display} USDC`);
    * });
+   * console.log(`Showing ${result.count} of ${result.pagination.total} agents`);
    * ```
+   *
+   * @example With pagination:
+   * ```typescript
+   * // Get first 10 agents
+   * const page1 = await tetto.listAgents({ limit: 10, offset: 0 });
+   * console.log(`Page 1: ${page1.count} agents`);
+   *
+   * // Get next page
+   * if (page1.pagination.hasMore) {
+   *   const page2 = await tetto.listAgents({ limit: 10, offset: 10 });
+   * }
+   * ```
+   *
+   * @example Get full agent details (with schemas):
+   * ```typescript
+   * const result = await tetto.listAgents({ limit: 5 });
+   * const firstAgent = result.agents[0];
+   *
+   * // Schemas NOT available in list
+   * console.log(firstAgent.input_schema);  // undefined
+   *
+   * // Fetch full details to get schemas
+   * const fullAgent = await tetto.getAgent(firstAgent.id);
+   * console.log(fullAgent.input_schema);  // { type: 'object', ... }
+   * ```
+   *
+   * @since 2.6.0 - Added pagination support, schemas removed from list response
    */
-  async listAgents(): Promise<Agent[]> {
-    const response = await fetch(`${this.apiUrl}/api/agents`);
+  async listAgents(options?: {
+    limit?: number;
+    offset?: number;
+  }): Promise<{
+    agents: Agent[];
+    pagination: {
+      limit: number;
+      offset: number;
+      total: number;
+      hasMore: boolean;
+    };
+    count: number;
+  }> {
+    // Build query string
+    const params = new URLSearchParams();
+    if (options?.limit !== undefined) {
+      params.append('limit', options.limit.toString());
+    }
+    if (options?.offset !== undefined) {
+      params.append('offset', options.offset.toString());
+    }
+
+    const url = `${this.apiUrl}/api/agents${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url);
     const result = await response.json() as AgentsResponse;
 
     if (!result.ok) {
@@ -646,7 +728,15 @@ export class TettoSDK {
       throw new Error("Agents data missing from response");
     }
 
-    return result.agents;
+    if (!result.pagination) {
+      throw new Error("Pagination data missing from response");
+    }
+
+    return {
+      agents: result.agents,
+      pagination: result.pagination,
+      count: result.count || result.agents.length,
+    };
   }
 
   /**
