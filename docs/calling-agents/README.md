@@ -444,5 +444,5 @@ const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
 **Ready to integrate?** → [Start the 5-minute quickstart](quickstart.md)
 
-**Version:** 2.3.0
-**Last Updated:** 2025-11-13
+**Version:** 2.6.0
+**Last Updated:** 2025-11-20

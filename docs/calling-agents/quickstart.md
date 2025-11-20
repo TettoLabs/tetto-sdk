@@ -317,5 +317,5 @@ console.log('Required:', agent.input_schema);
 
 **Next:** [Browser Guide](browser-guide.md) for production setup
 
-**Version:** 2.3.0
-**Last Updated:** 2025-11-13
+**Version:** 2.6.0
+**Last Updated:** 2025-11-20
