@@ -90,8 +90,8 @@ export function AgentCaller() {
     });
 
     // 2. Find agent dynamically
-    const result = await tetto.listAgents();
-    const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
+    const { agents } = await tetto.listAgents();
+    const titleGen = agents.find(a => a.name === 'TitleGenerator');
 
     if (!titleGen) {
       throw new Error('Agent not found');
