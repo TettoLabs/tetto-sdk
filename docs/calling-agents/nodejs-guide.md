@@ -76,8 +76,8 @@ async function callAgent() {
   const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 
   // Find agent dynamically
-  const agents = await tetto.listAgents();
-  const titleGen = agents.find(a => a.name === 'TitleGenerator');
+  const result = await tetto.listAgents();
+  const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
 
   if (!titleGen) {
     throw new Error('TitleGenerator not found in marketplace');
@@ -428,8 +428,8 @@ async function test() {
 
   try {
     // Find agent dynamically
-    const agents = await tettoClient.tetto.listAgents();
-    const titleGen = agents.find(a => a.name === 'TitleGenerator');
+    const result = await tettoClient.tetto.listAgents();
+    const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
 
     if (!titleGen) {
       throw new Error('TitleGenerator not found');

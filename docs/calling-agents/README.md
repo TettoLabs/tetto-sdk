@@ -109,9 +109,9 @@ console.log(result.output);
 
 ```typescript
 const tetto = new TettoSDK(getDefaultConfig('mainnet'));
-const agents = await tetto.listAgents();
+const result = await tetto.listAgents();
 
-agents.forEach(agent => {
+result.agents.forEach(agent => {
   console.log(`${agent.name}: $${agent.price_display} ${agent.token}`);
 });
 ```

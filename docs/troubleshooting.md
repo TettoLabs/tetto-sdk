@@ -151,8 +151,8 @@ spl-token balance --url devnet 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
 
 **1. Check agent exists:**
 ```typescript
-const agents = await tetto.listAgents();
-console.log('Available agents:', agents.map(a => a.name));
+const result = await tetto.listAgents();
+console.log('Available agents:', result.agents.map(a => a.name));
 ```
 
 **2. Check network:**
@@ -164,8 +164,8 @@ const tetto = new TettoSDK(getDefaultConfig('mainnet'));
 **3. Use dynamic lookup:**
 ```typescript
 // ✅ Best practice
-const agents = await tetto.listAgents();
-const agent = agents.find(a => a.name === 'AgentName');
+const result = await tetto.listAgents();
+const agent = result.agents.find(a => a.name === 'AgentName');
 
 if (!agent) {
   throw new Error('Agent not found');
@@ -418,8 +418,8 @@ function callAgent() {
 ```typescript
 // ❌ Bad: Fetch every time
 async function callTitleGen() {
-  const agents = await tetto.listAgents(); // Slow!
-  const titleGen = agents.find(a => a.name === 'TitleGenerator');
+  const result = await tetto.listAgents(); // Slow!
+  const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
   return tetto.callAgent(titleGen.id, ...);
 }
 
