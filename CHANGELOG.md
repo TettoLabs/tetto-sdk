@@ -5,6 +5,121 @@ All notable changes to the Tetto SDK will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2025-11-20
+
+### Changed
+
+**BREAKING: `listAgents()` now returns object with pagination metadata**
+
+The `listAgents()` method now returns an object containing agents array and pagination metadata, instead of returning an Agent array directly.
+
+**Migration:**
+```typescript
+// Before (v2.5.x)
+const agents = await tetto.listAgents();
+agents.forEach(agent => console.log(agent.name));
+
+// After (v2.6.0) - Option 1: Destructure
+const { agents } = await tetto.listAgents();
+agents.forEach(agent => console.log(agent.name));
+
+// After (v2.6.0) - Option 2: Use full result
+const result = await tetto.listAgents();
+result.agents.forEach(agent => console.log(agent.name));
+console.log(`Showing ${result.count} of ${result.pagination.total} agents`);
+```
+
+**Agent interface: Schemas now optional (not in list responses)**
+
+The `Agent` interface properties `input_schema`, `output_schema`, and `example_inputs` are now optional. These fields are NOT included in `listAgents()` responses for performance optimization.
+
+**To get schemas:** Use `getAgent(agentId)` to fetch full agent details including schemas.
+
+```typescript
+// Schemas NOT in list response
+const result = await tetto.listAgents();
+const agent = result.agents[0];
+console.log(agent.input_schema);  // undefined
+
+// Fetch full details to get schemas
+const fullAgent = await tetto.getAgent(agent.id);
+console.log(fullAgent.input_schema);  // { type: 'object', ... }
+```
+
+### Added
+
+**Pagination support for `listAgents()`**
+
+```typescript
+// Get first 10 agents
+const page1 = await tetto.listAgents({ limit: 10, offset: 0 });
+
+// Check if more pages exist
+if (page1.pagination.hasMore) {
+  const page2 = await tetto.listAgents({ limit: 10, offset: 10 });
+}
+```
+
+**Pagination metadata:**
+- `limit` - Agents per page (default: 50, max: 1000)
+- `offset` - Current offset
+- `total` - Total agents available in marketplace
+- `hasMore` - True if more pages exist
+
+### Performance Improvements
+
+**List responses 10-20x smaller:**
+- Before: 750KB-1MB (with schemas for 50 agents)
+- After: 25-50KB (schemas removed from list)
+
+**Why schemas were removed:**
+Agent schemas are 5-10KB each (JSONB). With 50 agents, list response was 750KB-1MB. Removing schemas from list responses:
+- Reduces payload size by 10-20x
+- Improves mobile load times dramatically
+- Schemas still available on detail endpoint (`getAgent()`)
+
+### Migration Guide
+
+**Breaking changes in v2.6.0:**
+
+1. **Return type changed:** `listAgents()` returns object instead of array
+2. **Schemas optional:** Not in list responses (use `getAgent()` for full details)
+
+**Quick migration:**
+```typescript
+// Add destructuring to existing code
+const { agents } = await tetto.listAgents();
+// Rest of code unchanged
+```
+
+**Full migration (recommended):**
+```typescript
+const result = await tetto.listAgents({ limit: 50, offset: 0 });
+
+// Access agents
+result.agents.forEach(agent => {
+  console.log(`${agent.name}: $${agent.price_display}`);
+});
+
+// Use pagination
+console.log(`Showing ${result.count} of ${result.pagination.total} agents`);
+
+// Get next page
+if (result.pagination.hasMore) {
+  const page2 = await tetto.listAgents({ limit: 50, offset: 50 });
+}
+```
+
+**Impact assessment:**
+- ✅ Low impact - Most code can add destructuring
+- ✅ Schemas rarely used from list response
+- ✅ Performance dramatically improved
+- ⚠️ TypeScript users may see type errors (fix with destructuring)
+
+**Related:** API Performance Optimization effort on tetto-portal (staging.tetto.io)
+
+---
+
 ## [2.5.1] - 2025-11-16
 
 ### Documentation
