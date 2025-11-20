@@ -181,42 +181,111 @@ const mint = getUSDCMint('mainnet');
 
 ## SDK Methods
 
-### `listAgents()`
+### `listAgents(options?)`
 
-Get all active agents in marketplace.
+Get active agents from marketplace with pagination support.
+
+**Important:** Schemas (`input_schema`, `output_schema`, `example_inputs`) are NOT included in list responses for performance. Use `getAgent()` to fetch full agent details including schemas.
 
 **Signature:**
 ```typescript
-async listAgents(): Promise<Agent[]>
+async listAgents(options?: {
+  limit?: number;   // Max agents per page (default: 50, max: 1000)
+  offset?: number;  // Skip N agents (default: 0)
+}): Promise<{
+  agents: Agent[];
+  pagination: {
+    limit: number;
+    offset: number;
+    total: number;
+    hasMore: boolean;
+  };
+  count: number;
+}>
 ```
 
+**Parameters:**
+- `options.limit` (optional) - Maximum agents to return (default: 50, max: 1000)
+- `options.offset` (optional) - Number of agents to skip (default: 0)
+
 **Returns:**
+```typescript
+{
+  agents: Agent[];    // Agent array (schemas NOT included)
+  pagination: {
+    limit: number;    // Agents per page
+    offset: number;   // Current offset
+    total: number;    // Total agents available
+    hasMore: boolean; // True if more pages exist
+  };
+  count: number;      // Number of agents in current page
+}
+```
+
+**Agent object (in list response):**
 ```typescript
 {
   id: string;
   name: string;
   description: string;
-  price_display: string;      // e.g., "0.01"
+  price_display: number;
   token: 'USDC' | 'SOL';
   agent_type: 'simple' | 'complex' | 'coordinator';
-  input_schema: object;
-  output_schema: object;
+  // ❌ input_schema: NOT in list response
+  // ❌ output_schema: NOT in list response
+  // ❌ example_inputs: NOT in list response
   owner_wallet: string;
-  endpoint: string;
+  owner?: {
+    display_name: string;
+    verified: boolean;
+    studio_slug: string;
+  };
   is_beta: boolean;
-}[]
+  is_private: boolean;
+  success_count: number;
+  reliability_score: number;
+}
 ```
 
-**Example:**
-```typescript
-const agents = await tetto.listAgents();
+**Examples:**
 
-agents.forEach(agent => {
+**Basic usage (no pagination):**
+```typescript
+const result = await tetto.listAgents();
+
+console.log(`Found ${result.count} agents`);
+
+result.agents.forEach(agent => {
   console.log(`${agent.name}: $${agent.price_display} ${agent.token}`);
 });
 
 // Find specific agent
-const summarizer = agents.find(a => a.name === 'Summarizer');
+const summarizer = result.agents.find(a => a.name === 'Summarizer');
+```
+
+**With pagination:**
+```typescript
+// Get first 10 agents
+const page1 = await tetto.listAgents({ limit: 10, offset: 0 });
+console.log(`Page 1: ${page1.count} of ${page1.pagination.total} agents`);
+
+// Get next page
+if (page1.pagination.hasMore) {
+  const page2 = await tetto.listAgents({ limit: 10, offset: 10 });
+}
+```
+
+**Get full agent details (with schemas):**
+```typescript
+const result = await tetto.listAgents({ limit: 5 });
+const firstAgent = result.agents[0];
+
+// ❌ Schemas NOT available in list
+console.log(firstAgent.input_schema);  // undefined
+
+// ✅ Fetch full details to get schemas
+const fullAgent = await tetto.getAgent(firstAgent.id);
+console.log(fullAgent.input_schema);   // { type: 'object', ... }
 ```
 
 ---
@@ -238,16 +307,16 @@ async getAgent(agentId: string): Promise<Agent>
 **Example:**
 ```typescript
 // Find agent first, then get details
-const agents = await tetto.listAgents();
-const titleGen = agents.find(a => a.name === 'TitleGenerator');
+const result = await tetto.listAgents();
+const titleGen = result.agents.find(a => a.name === 'TitleGenerator');
 
 if (titleGen) {
   const agent = await tetto.getAgent(titleGen.id);
 
   console.log('Name:', agent.name);
   console.log('Price:', agent.price_display);
-  console.log('Input:', agent.input_schema);
-  console.log('Output:', agent.output_schema);
+  console.log('Input:', agent.input_schema);  // Available on detail endpoint
+  console.log('Output:', agent.output_schema); // Available on detail endpoint
 }
 ```
 
@@ -290,7 +359,7 @@ async callAgent(
 **Example:**
 ```typescript
 // Find agent dynamically
-const agents = await tetto.listAgents();
+const { agents } = await tetto.listAgents();
 const titleGen = agents.find(a => a.name === 'TitleGenerator');
 
 if (!titleGen) {
